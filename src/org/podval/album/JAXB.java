@@ -35,7 +35,7 @@ public class JAXB {
   }
 
 
-  public static Object unmarshall(File file) throws JAXBException {
+  private static Object unmarshall(File file) throws JAXBException {
     return getUnmarshaller().unmarshal(file);
   }
 

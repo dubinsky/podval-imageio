@@ -61,15 +61,8 @@ public class PictureLocal extends Picture {
   }
 
 
-  public void setTitle(String value) {
-    load();
-    super.setTitle(value);
-  }
-
-
-  public String getTitle() {
-    load();
-    return (title != null) ? title : getName();
+  protected String getDefaultTitle() {
+    getName();
   }
 
 
@@ -245,7 +238,7 @@ public class PictureLocal extends Picture {
   }
 
 
-  private void load() {
+  protected void load() {
     if (!changed) {
       if (metadataReadFile == null)
         metadataReadFile = getAlbum().getMetadataReadFile(getMetadataFileName());

@@ -41,12 +41,12 @@ public abstract class Picture implements Comparable {
   }
 
 
-  public String getName() {
+  public final String getName() {
     return name;
   }
 
 
-  public void setAlbum(Album value) {
+  public final void setAlbum(AlbumLocal value) {
     if (value == null)
       throw new NullPointerException("Album is null!");
 
@@ -54,7 +54,7 @@ public abstract class Picture implements Comparable {
   }
 
 
-  public Album getAlbum() {
+  public final AlbumLocal getAlbum() {
     if (album == null)
       throw new NullPointerException("Album is not set!");
 
@@ -62,12 +62,13 @@ public abstract class Picture implements Comparable {
   }
 
 
-  public String getPath() {
+  public final String getPath() {
     return getAlbum().getPath() + ":" + getName();
   }
 
 
-  public void setTitle(String value) {
+  public final void setTitle(String value) {
+    load();
     if (((title == null) && (value != null)) || !title.equals(value)) {
       title = value;
       changed();
@@ -75,7 +76,13 @@ public abstract class Picture implements Comparable {
   }
 
 
-  public int compareTo(Object o) {
+  public final String getTitle() {
+    load();
+    return (title != null) ? title : getDefaultTitle();
+  }
+
+
+  public final int compareTo(Object o) {
     Picture other = (Picture) o;
     return getDateTime().compareTo(other.getDateTime());
   }
@@ -85,18 +92,18 @@ public abstract class Picture implements Comparable {
     new SimpleDateFormat("M/d/y HH:mm:ss");
 
 
-  public String getDateTimeString() throws IOException {
+  public final String getDateTimeString() throws IOException {
     return dateFormat.format(getDateTime());
   }
 
 
-  protected void changed() {
+  protected final void changed() {
     changed = true;
     getAlbum().changed(this);
   }
 
 
-  public abstract String getTitle();
+  protected abstract String getDefaultTitle();
 
 
   public abstract File getThumbnailFile() throws IOException;
@@ -120,16 +127,19 @@ public abstract class Picture implements Comparable {
   public abstract void rotateRight();
 
 
+  protected abstract void load();
+
+
   public abstract void save();
 
 
   private final String name;
 
 
-  private Album album;
+  private AlbumLocal album;
 
 
-  protected String title;
+  private String title;
 
 
   protected boolean changed;

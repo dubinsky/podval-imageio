@@ -17,8 +17,8 @@ public class PictureReference extends Picture {
   }
 
 
-  public String getTitle() {
-    return (title != null) ? title : getReferent().getTitle();
+  protected String getDefaultTitle() {
+    return getReferent().getTitle();
   }
 
 
@@ -67,6 +67,10 @@ public class PictureReference extends Picture {
     }
 
     return referent;
+  }
+
+
+  protected void load() {
   }
 
 
