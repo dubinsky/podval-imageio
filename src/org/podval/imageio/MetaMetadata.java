@@ -74,10 +74,10 @@ public class MetaMetadata {
         MakerNote.load((org.podval.imageio.jaxb.MakerNote) descriptor);
       else
       if (descriptor instanceof org.podval.imageio.jaxb.Directory)
-        Directory.load((org.podval.imageio.jaxb.Directory) descriptor);
+        DirectoryLoader.load((org.podval.imageio.jaxb.Directory) descriptor);
       else
       if (descriptor instanceof org.podval.imageio.jaxb.Record)
-        Record.loadTopLevel((org.podval.imageio.jaxb.Record) descriptor);
+        RecordLoader.loadTopLevel((org.podval.imageio.jaxb.Record) descriptor);
       else
         assert false : "Unknown top-level descriptor " + descriptor;
     }

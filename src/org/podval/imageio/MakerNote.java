@@ -12,7 +12,7 @@ public class MakerNote {
   public static void load(org.podval.imageio.jaxb.MakerNote xml) {
     String make = xml.getMake();
     String signature = xml.getSignature();
-    Directory directory = Directory.load(xml);
+    Directory directory = DirectoryLoader.load(xml);
 
     makerNotes.put(make, new MakerNote(signature, directory));
   }

@@ -6,40 +6,23 @@ import java.io.IOException;
 
 import java.util.Map;
 import java.util.HashMap;
-import java.util.List;
 import java.util.ArrayList;
-import java.util.Iterator;
 
 
 public class Record extends Typed {
 
-  public static Record loadTopLevel(org.podval.imageio.jaxb.Record xml) {
-    String name = xml.getName();
-    Record result = (Record) records.get(name);
-    if (result == null) {
-      result = new Record(name);
-      records.put(name, result);
-    }
-
-    result.add(xml);
-    return result;
-  }
-
-
-  public static Record loadLocal(org.podval.imageio.jaxb.Record xml) {
-    String name = xml.getName();
-    /** @todo XXX: handle references differently from local definitions... */
-    Record result = (Record) records.get(name);
-    if (result == null) {
-      result = new Record(name);
-    }
-
-    result.add(xml);
-    return result;
-  }
-
-
   private static final Map records = new HashMap();
+
+
+  public static Record get(String name) {
+    return (Record) records.get(name);
+  }
+
+
+  public static void add(Record record) {
+    /** @todo sanity check: not yet there. */
+    records.put(record.getName(), record);
+  }
 
 
   public Record(String name) {
@@ -57,33 +40,16 @@ public class Record extends Typed {
   }
 
 
-  private void add(org.podval.imageio.jaxb.Record xml) {
-    super.add(xml);
-
-    setIsVector(xml);
-    setCount(xml);
-
-    org.podval.imageio.jaxb.Enumeration enumeration = xml.getEnumeration();
-    if (enumeration != null) {
-      /** @todo check the count */
-      addField(1, new Field(getName(), getType().getDefaultFieldType(), enumeration));
-    } else
-      addFields(xml.getFields());
-  }
-
-
-  private void setIsVector(org.podval.imageio.jaxb.Record xml) {
-    if (xml.isSetVector()) {
-      Boolean isVector = Boolean.valueOf(xml.isVector());
-      if (this.isVector == null) {
-        this.isVector = isVector;
-        if (isVector() && (!getType().isVectorAllowed() || getType().isVariableLength())) {
-          throw new IllegalArgumentException(this+" can not be a vector.");
-        }
-      } else {
-        if (this.isVector != isVector)
-          throw new IllegalArgumentException("Attempt to change vectorness of " + this);
+  public void setIsVector(boolean value) {
+    Boolean isVector = Boolean.valueOf(value);
+    if (this.isVector==null) {
+      this.isVector = isVector;
+      if (isVector() && (!getType().isVectorAllowed() || getType().isVariableLength())) {
+        throw new IllegalArgumentException(this+" can not be a vector.");
       }
+    } else {
+      if (this.isVector!=isVector)
+        throw new IllegalArgumentException("Attempt to change vectorness of "+this);
     }
   }
 
@@ -96,17 +62,13 @@ public class Record extends Typed {
   }
 
 
-  private void setCount(org.podval.imageio.jaxb.Record xml) {
-    Object o = xml.getCount();
-    if (o != null) {
-      int count = (o instanceof Integer) ? ((Integer) o).intValue() : 0;
-      if (!isSetCount) {
-        this.count = count;
-        isSetCount = true;
-      } else {
-        if (this.count!=count)
-          throw new IllegalArgumentException("Attempt to change count of "+this);
-      }
+  public void setCount(int count) {
+    if (!isSetCount) {
+      this.count = count;
+      isSetCount = true;
+    } else {
+      if (this.count!=count)
+        throw new IllegalArgumentException("Attempt to change count of "+this);
     }
   }
 
@@ -125,24 +87,6 @@ public class Record extends Typed {
   }
 
 
-  private void addFields(List fields) {
-    int index = 0;
-    for (Iterator i = fields.iterator(); i.hasNext();) {
-      org.podval.imageio.jaxb.Field fieldXml =
-        (org.podval.imageio.jaxb.Field) i.next();
-
-      if (fieldXml.isSetIndex())
-        index = fieldXml.getIndex();
-      else
-        index++;
-
-      Field field = new Field(fieldXml);
-
-      addField(index, field);
-    }
-  }
-
-
   private Field getField(int index) {
     fields.ensureCapacity(index);
     for (int i = fields.size(); i<index; i++)
@@ -152,7 +96,7 @@ public class Record extends Typed {
   }
 
 
-  private void addField(int index, Field field) {
+  public void addField(int index, Field field) {
     if (!getType().isFieldAllowed(field.getType()))
       throw new IllegalArgumentException(field + " is not allowed in " + this);
 
@@ -169,6 +113,13 @@ public class Record extends Typed {
     }
 
     fields.set(index-1, field);
+  }
+
+
+  public Field createDefaultField() {
+    Field result = new Field(getName());
+    result.setType(getType().getDefaultFieldType());
+    return result;
   }
 
 
@@ -210,7 +161,7 @@ public class Record extends Typed {
     }
 
     if ((fields.size() == 0) && ((count == 1) || (type.isVariableLength()))) {
-      addField(1, new Field(getName(), getType().getDefaultFieldType()));
+      addField(1, createDefaultField());
     }
 
 
@@ -241,13 +192,20 @@ public class Record extends Typed {
 
     if ((field == null) && MetaMetadata.isDecodeUnknown()) {
       Type fieldType = type.getDefaultFieldType();
-      field = new Field("unknown-" + index + "-" + fieldType, fieldType);
+      field = createUnknownField(index, fieldType);
       addField(index, field);
     }
 
     if (field != null) {
       field.read(in, type, count, handler);
     }
+  }
+
+
+  private Field createUnknownField(int index, Type type) {
+    Field result = new Field("unknown-" + index + "-" + type);
+    result.setType(type);
+    return result;
   }
 
 

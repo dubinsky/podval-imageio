@@ -7,13 +7,6 @@ import java.util.Iterator;
 
 public class Directory extends Typed {
 
-  public static Directory load(org.podval.imageio.jaxb.Directory xml) {
-    Directory result = get(xml.getName());
-    result.add(xml);
-    return result;
-  }
-
-
   public static Directory get(String name) {
     Directory result = (Directory) directories.get(name);
 
@@ -44,49 +37,20 @@ public class Directory extends Typed {
   }
 
 
-  private void add(org.podval.imageio.jaxb.Directory xml) {
-    super.add(xml);
-
-    for (Iterator i = xml.getEntries().iterator(); i.hasNext();) {
-      Object o = i.next();
-
-      if (o instanceof org.podval.imageio.jaxb.SubDirectory) {
-        org.podval.imageio.jaxb.SubDirectory directoryXml =
-          (org.podval.imageio.jaxb.SubDirectory) o;
-        addEntry(directoryXml.getTag(), Directory.load(directoryXml));
-      } else
-
-      if (o instanceof org.podval.imageio.jaxb.MakerNoteMarker) {
-        org.podval.imageio.jaxb.MakerNoteMarker markerXml =
-          (org.podval.imageio.jaxb.MakerNoteMarker) o;
-        int tag = markerXml.getTag();
-        Type type = Type.parse(markerXml.getType());
-        entries.put(new Key(tag, type), MakerNote.MARKER);
-      } else
-
-      if (o instanceof org.podval.imageio.jaxb.SubRecord) {
-        org.podval.imageio.jaxb.SubRecord recordXml =
-          (org.podval.imageio.jaxb.SubRecord) o;
-        addEntry(recordXml.getTag(), Record.loadLocal(recordXml));
-      } else
-
-        assert false : "Unknown directory entry " + o;
-    }
+  public void addEntry(int tag, Typed entry) {
+    for (Iterator i = entry.getType().getActualTypes().iterator(); i.hasNext();)
+      addEntry(tag, (Type) i.next(), entry);
   }
 
 
-  private void addEntry(int tag, Typed entry) {
-    Type type = entry.getType();
-
-    for (Iterator i = type.getActualTypes().iterator(); i.hasNext();) {
-      Key key = new Key(tag, (Type) i.next());
-      Object oldEntry = entries.get(key);
-      if (oldEntry == null) {
-        entries.put(key, entry);
-      } else {
-        throw new IllegalArgumentException(
-          "Attempt to replace " + key + ":" + oldEntry + " with " + entry);
-      }
+  public void addEntry(int tag, Type type, Object entry) {
+    Key key = new Key(tag, type);
+    Object oldEntry = entries.get(key);
+    if (oldEntry == null) {
+      entries.put(key, entry);
+    } else {
+      throw new IllegalArgumentException(
+        "Attempt to replace " + key + ":" + oldEntry + " with " + entry);
     }
   }
 

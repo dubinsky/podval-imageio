@@ -11,60 +11,8 @@ import javax.imageio.stream.ImageInputStream;
 
 public class Field extends Typed {
 
-  public Field(org.podval.imageio.jaxb.Field xml) {
-    super(xml.getName());
-    super.add(xml);
-
-    org.podval.imageio.jaxb.Enumeration enumeration = xml.getEnumeration();
-    List subfields = xml.getSubfields();
-
-    if ((enumeration != null) && (subfields.size() != 0))
-        throw new IllegalArgumentException(
-          "Subfields and enumeration can not be used together!");
-
-    addEnumeration(enumeration);
-    addSubfields(subfields);
-  }
-
-
-  public Field(String name, Type type) {
-    this(name, type, null);
-  }
-
-
-  public Field(String name, Type type, org.podval.imageio.jaxb.Enumeration enumeration) {
+  public Field(String name) {
     super(name);
-    setType(type);
-    addEnumeration(enumeration);
-  }
-
-
-  private void addEnumeration(org.podval.imageio.jaxb.Enumeration enumeration) {
-    if (enumeration != null) {
-      if (!getType().isEnumerationAllowed())
-        throw new IllegalArgumentException("Enumeration is not allowed for " + this);
-
-      this.enumeration = new Enumeration(enumeration);
-    } else {
-      this.enumeration = null;
-    }
-  }
-
-
-  private void addSubfields(List subfields) {
-    if (this.subfields == null)
-      this.subfields = new LinkedList();
-
-    for (Iterator i = subfields.iterator(); i.hasNext();) {
-      Field field = new Field((org.podval.imageio.jaxb.Field) i.next());
-
-      if (!getType().isSubfieldAllowed(field.getType()))
-        throw new IllegalArgumentException("Subfield " + field + " not allowed in " + this);
-
-      this.subfields.add(field);
-    }
-
-    /** @todo  check that length is correct. */
   }
 
 
@@ -80,6 +28,38 @@ public class Field extends Typed {
 
   public String getKind() {
     return "Field";
+  }
+
+
+  public void setEnumeration(Enumeration value) {
+    if (value != null) {
+      if (subfields!=null)
+        throw new IllegalArgumentException(
+          "Subfields and enumeration can not be used together!");
+
+      if (!getType().isEnumerationAllowed())
+        throw new IllegalArgumentException("Enumeration is not allowed for " + this);
+
+    }
+
+    enumeration = value;
+  }
+
+
+  public void addSubfield(Field subfield) {
+    if (enumeration != null)
+      throw new IllegalArgumentException(
+        "Subfields and enumeration can not be used together!");
+
+    if (subfields == null)
+      subfields = new LinkedList();
+
+    if (!getType().isSubfieldAllowed(subfield.getType()))
+      throw new IllegalArgumentException("Subfield " + subfield + " not allowed in " + this);
+
+    subfields.add(subfield);
+
+    /** @todo  check that length is correct. When? */
   }
 
 

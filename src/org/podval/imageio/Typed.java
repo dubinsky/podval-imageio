@@ -18,12 +18,6 @@ public abstract class Typed {
   }
 
 
-  protected void add(org.podval.imageio.jaxb.Typed xml) {
-    if (xml.getType() != null)
-      setType(Type.parse(xml.getType()));
-  }
-
-
   protected void setType(Type type) {
     if (this.type == null) {
       this.type = type;

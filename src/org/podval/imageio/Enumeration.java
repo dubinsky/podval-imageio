@@ -6,22 +6,7 @@ import java.util.Iterator;
 
 public class Enumeration {
 
-  public Enumeration(org.podval.imageio.jaxb.Enumeration xml) {
-    for (Iterator i = xml.getItems().iterator(); i.hasNext(); ) {
-      org.podval.imageio.jaxb.EnumItem item =
-        (org.podval.imageio.jaxb.EnumItem) i.next();
-
-      addDescription(item.getValue(), item.getDescription());
-    }
-  }
-
-
-  private String getRawDescription(int value) {
-    return (String) descriptions.get(new Integer(value));
-  }
-
-
-  private void addDescription(int value, String description) {
+  public void addDescription(int value, String description) {
     String oldDescription = getRawDescription(value);
     if (oldDescription != null)
       throw new IllegalArgumentException(
@@ -31,6 +16,11 @@ public class Enumeration {
       );
 
     descriptions.put(new Integer(value), description);
+  }
+
+
+  private String getRawDescription(int value) {
+    return (String) descriptions.get(new Integer(value));
   }
 
 
