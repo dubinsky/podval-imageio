@@ -11,8 +11,8 @@ public class ExifReader {
 
 
   public static Metadata read(ImageInputStream in) throws IOException {
-    SimpleMetadataBuilder builder = new SimpleMetadataBuilder(NATIVE_FORMAT_NAME);
-    ExifDecoder.read(in, builder);
-    return builder.getResult();
+    SimpleMetadataHandler handler = new SimpleMetadataHandler(NATIVE_FORMAT_NAME);
+    ExifDecoder.read(in, handler);
+    return handler.getResult();
   }
 }

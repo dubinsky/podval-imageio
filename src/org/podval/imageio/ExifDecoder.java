@@ -10,7 +10,7 @@ public class ExifDecoder {
   public static final String NATIVE_FORMAT_NAME = "org_podval_imageio_exif_1.0";
 
 
-  public static void read(ImageInputStream in, MetadataBuilder builder)
+  public static void read(ImageInputStream in, MetadataHandler handler)
     throws IOException
   {
     /** @todo move this to SPI? */
@@ -23,8 +23,8 @@ public class ExifDecoder {
      both in IFD0 and IFD1 (including EXIF AND GPS IFDs), I just use the same
      IFD twice!
     */
-    readIfd(Directory.get("exif-root"), in, offsetBase, builder);
-    readIfd(Directory.get("exif-root"), in, offsetBase, builder);
+    readIfd(Directory.get("exif-root"), in, offsetBase, handler);
+    readIfd(Directory.get("exif-root"), in, offsetBase, handler);
   }
 
 
@@ -47,20 +47,20 @@ public class ExifDecoder {
 
 
   private static void readIfd(Directory ifd, ImageInputStream in, long offsetBase,
-    MetadataBuilder builder) throws IOException
+    MetadataHandler handler) throws IOException
   {
     long offset = in.readUnsignedInt();
     if (offset != 0) {
       in.seek(offsetBase+offset);
-      readIfdInPlace(ifd, in, offsetBase, builder);
+      readIfdInPlace(ifd, in, offsetBase, handler);
     }
   }
 
 
   private static void readIfdInPlace(Directory ifd, ImageInputStream in, long offsetBase,
-    MetadataBuilder builder) throws IOException
+    MetadataHandler handler) throws IOException
   {
-    builder.startDirectory(ifd);
+    handler.startFolder(ifd);
 
     long offset = in.getStreamPosition()-offsetBase;
 
@@ -73,17 +73,17 @@ public class ExifDecoder {
       if (i == numEntries)
         break;
 
-      readEntry(ifd, in, offsetBase, builder);
+      readEntry(ifd, in, offsetBase, handler);
     }
 
-    builder.endDirectory();
+    handler.endFolder();
 
     // At this point we are positioned at the offset of the linked IFD.
   }
 
 
   private static void readEntry(Directory ifd, ImageInputStream in, long offsetBase,
-    MetadataBuilder builder) throws IOException
+    MetadataHandler handler) throws IOException
   {
     int tag = in.readUnsignedShort();
     Type type = decodeType(in.readUnsignedShort());
@@ -98,14 +98,14 @@ public class ExifDecoder {
 
     if (entry != null) {
       if (entry instanceof Record)
-        ((Record) entry).readWithCount(in, type, count, builder);
+        ((Record) entry).readWithCount(in, type, count, handler);
       else
       if (entry instanceof Directory)
-        readIfd((Directory) entry, in, offsetBase, builder);
+        readIfd((Directory) entry, in, offsetBase, handler);
       else
       if (entry == MakerNote.MARKER) {
-        MakerNote makerNote = builder.getMakerNote();
-        readIfdInPlace(makerNote.getDirectory(), in, offsetBase, builder);
+        MakerNote makerNote = handler.getMakerNote();
+        readIfdInPlace(makerNote.getDirectory(), in, offsetBase, handler);
       } else
         assert false : "Unknown IFD entry " + entry;
     }

@@ -76,9 +76,9 @@ public class CiffImageReader extends ImageReader {
       if (input == null)
         throw new IllegalStateException("Input not set.");
 
-      SimpleMetadataBuilder builder =  new SimpleMetadataBuilder(NATIVE_FORMAT_NAME);
-      CiffMetadataReader.read(input, builder);
-      metadata = builder.getResult();
+      SimpleMetadataHandler handler =  new SimpleMetadataHandler(NATIVE_FORMAT_NAME);
+      CiffMetadataReader.read(input, handler);
+      metadata = handler.getResult();
     }
   }
 

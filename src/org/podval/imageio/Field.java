@@ -81,17 +81,17 @@ public class Field extends Typed {
 
 
   public void read(ImageInputStream in, Type type, long count,
-    MetadataBuilder builder) throws IOException
+    MetadataHandler handler) throws IOException
   {
     assert (count == 1) || (type.isVariableLength());
 
     if (!isSimple())
-      readComplex(in, type, builder);
+      readComplex(in, type, handler);
     else
     if (!type.isVariableLength())
-      builder.addField(this, readSimple(in, type));
+      handler.addField(this, readSimple(in, type));
     else
-      builder.addField(this, readVariableLength(in, type, count));
+      handler.addField(this, readVariableLength(in, type, count));
   }
 
 
@@ -140,10 +140,10 @@ public class Field extends Typed {
   }
 
 
-  public void readComplex(ImageInputStream in, Type type, MetadataBuilder builder)
+  public void readComplex(ImageInputStream in, Type type, MetadataHandler handler)
     throws IOException
   {
-    builder.startComplexField(this);
+    handler.startFolder(this);
 
     long complexValue = in.readUnsignedInt(); /** @todo Only U32 fields may have subfields!!! */
 
@@ -163,10 +163,10 @@ public class Field extends Typed {
       } else
         throw new InternalError("Unexpected subfield type " + fieldType);
 
-      builder.addField(field, field.wrapIntegerValue(value));
+      handler.addField(field, field.wrapIntegerValue(value));
     }
 
-    builder.endComplexField();
+    handler.endFolder();
   }
 
 

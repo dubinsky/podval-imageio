@@ -7,13 +7,13 @@ import java.io.IOException;
 
 public class CiffMetadataReader {
 
-  public static void read(ImageInputStream in, MetadataBuilder builder)
+  public static void read(ImageInputStream in, MetadataHandler handler)
     throws IOException
   {
     MetaMetadata.load();
 
     long heapLength = readPrologue(in);
-    readHeap(Directory.get("ciff-root"), in, heapLength, builder);
+    readHeap(Directory.get("ciff-root"), in, heapLength, handler);
   }
 
 
@@ -48,9 +48,9 @@ public class CiffMetadataReader {
    * At the begining must be positioned at the start of the heap.
    */
   private static void readHeap(Directory heap, ImageInputStream in, long length,
-    MetadataBuilder builder) throws IOException
+    MetadataHandler handler) throws IOException
   {
-    builder.startDirectory(heap);
+    handler.startFolder(heap);
 
     long offset = in.getStreamPosition();
     in.seek(offset + length - 4);
@@ -78,11 +78,11 @@ public class CiffMetadataReader {
         }
 
         int idCode = typeCode & 0x3FFF;
-        readEntry(heap, idCode, in, dataLength, builder);
+        readEntry(heap, idCode, in, dataLength, handler);
       }
     }
 
-    builder.endDirectory();
+    handler.endFolder();
   }
 
 
@@ -105,7 +105,7 @@ public class CiffMetadataReader {
 
 
   private static void readEntry(Directory heap, int idCode, ImageInputStream in, long length,
-    MetadataBuilder builder) throws IOException
+    MetadataHandler handler) throws IOException
   {
     int tag = idCode & 0x07FF;
     Type type = decodeType((idCode >> 11) & 0x07);
@@ -114,10 +114,10 @@ public class CiffMetadataReader {
 
     if (entry != null) {
       if (entry instanceof Record)
-        ((Record) entry).readWithLength(in, type, length, builder);
+        ((Record) entry).readWithLength(in, type, length, handler);
       else
       if (entry instanceof Directory)
-        readHeap((Directory) entry, in, length, builder);
+        readHeap((Directory) entry, in, length, handler);
       else
         assert false : "Unknown heap record entry " + entry;
     }

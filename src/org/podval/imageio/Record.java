@@ -173,7 +173,7 @@ public class Record extends Typed {
 
 
   public void readWithLength(ImageInputStream in, Type type, long length,
-    MetadataBuilder builder) throws IOException
+    MetadataHandler handler) throws IOException
   {
     // All STRUCTURED fields in a record MUST be of the same length.
     // This is enforced by the Type.isFieldAllowed predicate.
@@ -190,12 +190,12 @@ public class Record extends Typed {
       count = length;
     }
 
-    readWithCount(in, type, count, builder);
+    readWithCount(in, type, count, handler);
   }
 
 
   public void readWithCount(ImageInputStream in, Type type, long count,
-    MetadataBuilder builder) throws IOException
+    MetadataHandler handler) throws IOException
   {
     if (isVector()) {
       long length = in.readUnsignedShort();
@@ -224,18 +224,18 @@ public class Record extends Typed {
       cnt = count;
     }
 
-    builder.startRecord(this);
+    handler.startFolder(this);
 
     for (int index=1; index<=nmb; index++) {
-      readField(in, index, type, cnt, builder);
+      readField(in, index, type, cnt, handler);
     }
 
-    builder.endRecord();
+    handler.endFolder();
   }
 
 
   private void readField(ImageInputStream in, int index, Type type, long count,
-    MetadataBuilder builder) throws IOException
+    MetadataHandler handler) throws IOException
   {
     Field field = getField(index);
 
@@ -246,7 +246,7 @@ public class Record extends Typed {
     }
 
     if (field != null) {
-      field.read(in, type, count, builder);
+      field.read(in, type, count, handler);
     }
   }
 
