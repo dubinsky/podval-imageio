@@ -161,7 +161,7 @@ public class MetaMetadata {
 
 
   private static void loadEnumeration(Record result, org.podval.imageio.jaxb.Record xml) {
-    Enumeration enumeration = EnumerationLoader.load(xml.getEnumeration());
+    Enumeration enumeration = loadEnumeration(xml.getEnumeration());
     if (enumeration != null) {
       /** @todo check the count */
       Field field = result.createDefaultField();
@@ -203,13 +203,31 @@ public class MetaMetadata {
 
 
   private static void loadEnumeration(Field result, org.podval.imageio.jaxb.Field xml) {
-    result.setEnumeration(EnumerationLoader.load(xml.getEnumeration()));
+    result.setEnumeration(loadEnumeration(xml.getEnumeration()));
   }
 
 
   private static void loadSubfields(Field result, org.podval.imageio.jaxb.Field xml) {
     for (Iterator i = xml.getSubfields().iterator(); i.hasNext();)
       result.addSubfield(loadField((org.podval.imageio.jaxb.Field) i.next()));
+  }
+
+
+  public static Enumeration loadEnumeration(org.podval.imageio.jaxb.Enumeration xml) {
+    Enumeration result = null;
+
+    if (xml != null) {
+      result = new Enumeration();
+
+      for (Iterator i = xml.getItems().iterator(); i.hasNext(); ) {
+        org.podval.imageio.jaxb.EnumItem item =
+          (org.podval.imageio.jaxb.EnumItem) i.next();
+
+        result.addDescription(item.getValue(), item.getDescription());
+      }
+    }
+
+    return result;
   }
 
 
