@@ -64,14 +64,14 @@ public class CiffImageReader extends ImageReader {
   public int getHeight(int imageIndex) throws IOException {
     checkImageIndex(imageIndex);
     readMetadata();
-    return metadata.getIntegerValue("imageHeight");
+    return metadata.getIntValue("imageHeight");
   }
 
 
   public int getWidth(int imageIndex) throws IOException {
     checkImageIndex(imageIndex);
     readMetadata();
-    return metadata.getIntegerValue("imageWidth");
+    return metadata.getIntValue("imageWidth");
   }
 
 

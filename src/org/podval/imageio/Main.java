@@ -57,7 +57,7 @@ public class Main {
   private static void printNumber(File path) {
     Metadata metadata = readMetadata(path);
     if (metadata != null) {
-      int number = metadata.getIntegerValue("serialNumber");
+      int number = metadata.getIntValue("serialNumber");
       int fff = number / 10000;
       int xxxx = number % 10000;
       System.out.println("File " + path + "; image # " + fff + "-" + xxxx);

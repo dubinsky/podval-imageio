@@ -42,11 +42,11 @@ public class Metadata extends IIOMetadata {
   }
 
 
-  public int getIntegerValue(String name) {
+  public int getIntValue(String name) {
     int result = -1;
     Object value = find(name);
     if ((value != null) && (value instanceof Long)) {
-      result = (int) ((Long) value).longValue();
+      result = ((Long) value).intValue();
     }
     return result;
   }
