@@ -3,14 +3,19 @@ package org.podval.imageio;
 import java.io.File;
 import java.io.IOException;
 
+import java.nio.ByteOrder;
+
 import javax.imageio.stream.ImageInputStream;
 import javax.imageio.stream.FileImageInputStream;
+import javax.imageio.stream.ImageOutputStream;
+import javax.imageio.stream.FileImageOutputStream;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.ComponentColorModel;
 import java.awt.image.WritableRaster;
 import java.awt.image.SampleModel;
+import java.awt.image.ComponentSampleModel;
 import java.awt.image.Raster;
 
 import java.awt.Transparency;
@@ -316,7 +321,8 @@ public class CrwDecompressor {
 
 
   private void decompressBlock() throws IOException {
-    readBlock(block);
+    clearBlock();
+    readBlock();
 
     block[0] += carry;
     carry = block[0];
@@ -325,15 +331,21 @@ public class CrwDecompressor {
   }
 
 
-  private void readBlock(int[] buf) throws IOException {
+  private void clearBlock() {
     for (int i = 0; i<BLOCK_LENGTH; i++)
-      buf[i] = 0;
+      block[i] = 0;
+  }
 
+
+  private void readBlock() throws IOException {
     for (int i = 0; i<BLOCK_LENGTH; i++) {
-      int token = readToken((i == 0) ? firstDecoder : secondDecoder);
+      DecodeNode decoder = (i == 0) ? firstDecoder : secondDecoder;
+      int token = readToken(decoder);
 
-      if ((token == 0) && (i > 0))
+      if ((token == 0) && (i!= 0)) {
+        System.out.println("Zero token at " + (pixel+i) + "[" + i + "]");
         break;
+      }
 
       if (token != 0xff) {
         int numSkipped = (token >> 4) & 0x0F;
@@ -344,74 +356,10 @@ public class CrwDecompressor {
         if (sampleLength != 0) {
           int sample = readSample(sampleLength);
           if (i < BLOCK_LENGTH)
-            buf[i] = sample;
+            block[i] = sample;
         }
       }
     }
-  }
-
-
-  private int readToken(DecodeNode decoder) throws IOException {
-    DecodeNode node = decoder;
-    while (node instanceof Branch) {
-      Branch branch = (Branch) node;
-      node = (readBit() == 0) ? branch.zero : branch.one;
-    }
-    return ((Leaf) node).value;
-  }
-
-
-  private int readSample(int sampleLength) throws IOException {
-    int sign = readBit();	/* 1 is positive, 0 is negative */
-
-    int result = readBits(sampleLength-1);
-
-    if (sign == 1)
-      result += 1 << (sampleLength-1);
-    else
-      result += (-1 << sampleLength) + 1;
-
-    return result;
-  }
-
-
-  private long freshBits = 0;
-  private int numFreshBits = 0;
-
-
-  private void readMoreFreshBits() throws IOException {
-    while (numFreshBits < 25) {
-      int b = in.readByte();
-      freshBits = (freshBits << 8) | (b & 0xFF);
-      numFreshBits += 8;
-      if (b==0xFF)
-        in.readByte(); // Canon adds 0 after each FF.
-    }
-  }
-
-
-  private int readBits(int numBits) throws IOException {
-    int result = 0;
-    if (numBits != 0) {
-      if (numBits > numFreshBits)
-        readMoreFreshBits();
-      assert (numBits <= numFreshBits) : "Oops!"; /** @todo */
-      long significantFreshBits = (freshBits << (32 - numFreshBits)) & 0x00000000FFFFFFFFL;
-      long outputBits = significantFreshBits >> (32 - numBits);
-      result = (int) outputBits;
-      System.out.println(
-        "Fresh: " + Long.toHexString(freshBits) + "[" + numFreshBits + "] " +
-        "Significant: " + Long.toHexString(significantFreshBits) + " " +
-        "Output: " + Long.toHexString(outputBits)
-      );
-      numFreshBits -= numBits;
-    }
-    return result;
-  }
-
-
-  private int readBit() throws IOException {
-    return readBits(1);
   }
 
 
@@ -427,6 +375,84 @@ public class CrwDecompressor {
       int baseIndex = i & 1;
       base[baseIndex] += block[i];
       block[i] = base[baseIndex];
+    }
+  }
+
+
+  private void writeBlock(ImageOutputStream out) throws IOException {
+    for (int i=0; i<BLOCK_LENGTH; i++)
+      out.writeShort(block[i]);
+  }
+
+
+  private int readToken(DecodeNode decoder) throws IOException {
+    DecodeNode node = decoder;
+    int code = 0;
+    int numBits = 0;
+    while (node instanceof Branch) {
+      Branch branch = (Branch) node;
+      int bit = readBit();
+      code = (code << 1) | bit;
+      numBits++;
+      node = (bit == 0) ? branch.zero : branch.one;
+    }
+    int result = ((Leaf) node).value;
+//    System.out.println("Code= " + Integer.toHexString(code) + "[" + numBits + "]" + " value= " + result);
+    return result;
+  }
+
+
+  private int readSample(int sampleLength) throws IOException {
+    int sign = readBit();	/* 1 is positive, 0 is negative */
+
+    int result;
+    int bits = readBits(sampleLength-1);
+
+    if (sign == 1)
+      result = (1 << (sampleLength-1)) + bits;
+    else
+      result = ((-1 << sampleLength) + 1) + bits;
+
+    return result;
+  }
+
+
+  private long freshBits = 0;
+  private int numFreshBits = 0;
+
+
+  private int readBits(int numBits) throws IOException {
+    int result = 0;
+    if (numBits != 0) {
+      if (numBits > numFreshBits)
+        readMoreFreshBits();
+      assert (numBits <= numFreshBits) : "Oops!"; /** @todo */
+      long significantFreshBits = (freshBits << (32 - numFreshBits)) & 0x00000000FFFFFFFFL;
+      long outputBits = significantFreshBits >> (32 - numBits);
+      result = (int) outputBits;
+//      System.out.println(
+//        "Fresh: " + Long.toHexString(freshBits) + "[" + numFreshBits + "] " +
+//        "Significant: " + Long.toHexString(significantFreshBits) + " " +
+//        "Output: " + Long.toHexString(outputBits)
+//      );
+      numFreshBits -= numBits;
+    }
+    return result;
+  }
+
+
+  private int readBit() throws IOException {
+    return readBits(1);
+  }
+
+
+  private void readMoreFreshBits() throws IOException {
+    while (numFreshBits < 25) {
+      int b = in.readByte();
+      freshBits = (freshBits << 8) | (b & 0xFF);
+      numFreshBits += 8;
+      if (b==0xFF)
+        in.readByte(); // Canon adds 0 after each FF.
     }
   }
 
@@ -490,7 +516,7 @@ public class CrwDecompressor {
 
 
   public BufferedImage decompress() {
-    ColorSpace cs = null;
+    ColorSpace cs = ColorSpace.getInstance(ColorSpace.TYPE_CMYK); /** @todo ??? */
 
     boolean hasAlpha = false;
     boolean isAlphaPremultiplied = true;
@@ -504,14 +530,18 @@ public class CrwDecompressor {
       dataType
     );
 
+    int pixelStride = 0; ///???
+    int scanlineStride = 0; ///???
+    int[] bankIndices = null; ///???
+    int[] bandOffsets = null; ///???
     SampleModel sm = new ComponentSampleModel(
       dataType,
       width,
       height,
-                          int pixelStride,
-                          int scanlineStride,
-                          int[] bankIndices,
-                          int[] bandOffsets
+      pixelStride,
+      scanlineStride,
+      bankIndices,
+      bandOffsets
     );
 
 
@@ -527,9 +557,28 @@ public class CrwDecompressor {
   }
 
 
+  public void decompress(ImageOutputStream out) throws IOException {
+    out.setByteOrder(ByteOrder.LITTLE_ENDIAN);
+
+//    int numPixels = width*height;
+//    do {
+//      decompressBlock();
+//      writeBlock(out);
+//    } while (pixel <= numPixels);
+    decompressBlock(); writeBlock(out); //1
+    decompressBlock(); writeBlock(out);
+    decompressBlock(); writeBlock(out);
+    decompressBlock(); writeBlock(out);
+    decompressBlock(); writeBlock(out); //5
+    System.out.println("Problematic block:");
+    decompressBlock(); writeBlock(out);
+  }
+
+
   public static void main(String[] args) throws IOException {
     ImageInputStream in = new FileImageInputStream(new File("/tmp/2297.crw"));
+    ImageOutputStream out = new FileImageOutputStream(new File("/tmp/2297.dmp"));
     CrwDecompressor decompressor = new CrwDecompressor(in, 0, 2376, 1728);
-    decompressor.decompressBlock();
+    decompressor.decompress(out);
   }
 }
