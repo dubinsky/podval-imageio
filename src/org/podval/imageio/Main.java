@@ -92,7 +92,7 @@ public class Main {
 
         if ("number"    .equals(command)) number    (reader, file, name); else
         if ("decompress".equals(command)) decompress(reader, file, name); else
-        if ("metadata"  .equals(command)) metadata  (reader); else
+        if ("metadata"  .equals(command)) metadata  (reader            ); else
         if ("thumbnail" .equals(command)) thumbnail (reader, file, name); else
           usage();
 

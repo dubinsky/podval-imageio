@@ -84,7 +84,6 @@ public class Util {
     float xscale = (float) width / image.getWidth ();
     float yscale = (float) height / image.getHeight();
     float scale = Math.min(xscale, yscale);
-    Context.log("*** Scaling " + file);
     RenderedImage result = scaleImage(image, scale);
     return result;
   }

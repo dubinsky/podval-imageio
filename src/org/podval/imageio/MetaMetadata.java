@@ -109,9 +109,9 @@ public class MetaMetadata {
       Object o = i.next();
 
       /** @todo tag extraction and loading should be unified... */
-      if (o instanceof org.podval.imageio.jaxb.SubDirectory) {
-        org.podval.imageio.jaxb.SubDirectory directoryXml =
-          (org.podval.imageio.jaxb.SubDirectory) o;
+      if (o instanceof org.podval.imageio.jaxb.Directory.SubDirectory) {
+        org.podval.imageio.jaxb.Directory.SubDirectory directoryXml =
+          (org.podval.imageio.jaxb.Directory.SubDirectory) o;
         result.addEntry(directoryXml.getTag(), loadDirectory(directoryXml));
       } else
 

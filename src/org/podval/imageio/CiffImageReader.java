@@ -67,20 +67,22 @@ public class CiffImageReader extends ImageReader {
     else
       pointer = (Field.PointerValue) metadata.find("bigJpegThumbnail");
 
-    ImageInputStream in = getInputStream();
-    in.seek(pointer.getOffset());
-
-    Iterator readers = ImageIO.getImageReaders(in);
-    ImageReader reader = (readers.hasNext()) ? (ImageReader) readers.next() : null;
-
     BufferedImage result = null;
 
-    if (reader != null) {
-      reader.setInput(in);
-      result = reader.read(0);
-      reader.dispose();
+    if (pointer != null) {
+      ImageInputStream in = getInputStream();
+      in.seek(pointer.getOffset());
+
+      Iterator readers = ImageIO.getImageReaders(in);
+      ImageReader reader = (readers.hasNext()) ? (ImageReader) readers.next() : null;
+
+      if (reader!=null) {
+        reader.setInput(in);
+        result = reader.read(0);
+        reader.dispose();
+      }
+      /** @todo else: XXXX */
     }
-    /** @todo else: XXXX */
 
     return result;
   }

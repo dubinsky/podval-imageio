@@ -16,7 +16,7 @@ public class IndexAction extends Action {
     HttpServletRequest request,
     HttpServletResponse response)
   {
-    setupDirectory(request);
+    setupAlbum(request);
     return mapping.findForward("jsp");
   }
 }

@@ -2,12 +2,12 @@
 
 <%@ page import="org.podval.album.Album" %>
 
-<jsp:useBean id="directory" scope="request" type="org.podval.album.Album"/>
+<jsp:useBean id="album" scope="request" type="org.podval.album.Album"/>
 
 
 <html>
   <head>
-    <title><c:out value="${directory.title}"/></title>
+    <title><c:out value="${album.title}"/></title>
     <link href="../../res/styles.css" rel=stylesheet>
     <meta name="Generator" content="Podval photo album by Leonid Dubinsky, www.podval.org">
   </head>
@@ -24,7 +24,7 @@
     </td>
 
     <td align="center" nowrap>
-      <h1>Directory: <c:out value="${directory.title}"/> (<c:out value="${path}"/>)</h1>
+      <h1>Directory: <c:out value="${album.title}"/> (<c:out value="${path}"/>)</h1>
     </td>
     <td class="number" width="10%" align="right" nowrap/>
   </tr>
@@ -32,10 +32,10 @@
 
 
 <!-- Subdirectories -->
-<c:if test="${directory.numSubdirectories > 0}">
+<c:if test="${album.numSubdirectories > 0}">
   <h2>Subdirectories:</h2>
   <table align="left">
-    <c:forEach var="subdirectory" items="${directory.subdirectories}">
+    <c:forEach var="subdirectory" items="${album.subdirectories}">
       <tr>
         <td valign="bottom" width="160">
           <a href="<c:url value='/do/index'><c:param name='path' value='${path}/${subdirectory.name}'/></c:url>">
@@ -48,11 +48,11 @@
 </c:if>
 
 <!-- Pictures -->
-<c:if test="${directory.numPictures > 0}">
+<c:if test="${album.numPictures > 0}">
   <table align="center">
     <tr>
     <c:set var="i" value="0"/>
-    <c:forEach var="picture" items="${directory.pictures}">
+    <c:forEach var="picture" items="${album.pictures}">
       <td valign="bottom" width="160">
         <a href="<c:url value='/do/picture'><c:param name='path' value='${path}'/><c:param name='name' value='${picture.name}'/></c:url>">
           <img class="image" border="0" width="160" height="120"

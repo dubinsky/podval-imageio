@@ -25,7 +25,7 @@
 	 </td>
 
 		<td align="center" nowrap>
-      <h1><c:out value="${directory.name}"/> (<c:out value="${path}"/>)</h1>
+      <h1><c:out value="${album.title}"/> (<c:out value="${path}"/>)</h1>
 		</td>
 
 		<td class="number" width="10%" align="right" nowrap>

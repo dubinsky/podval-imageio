@@ -15,16 +15,12 @@ public class Context implements ServletContextListener {
     String originalsRoot = servletContext.getInitParameter("originalsRoot");
     String metadataRoot = servletContext.getInitParameter("metadataRoot");
     String generatedRoot = servletContext.getInitParameter("generatedRoot");
+
     Album.setRoot(originalsRoot, metadataRoot, generatedRoot);
   }
 
 
   public void contextDestroyed(ServletContextEvent e) {
-  }
-
-
-  public static void log(String what) {
-    servletContext.log(what);
   }
 
 
