@@ -89,13 +89,15 @@ public class Field extends Typed {
       readComplex(in, type, handler);
     else
     if (!type.isVariableLength())
-      handler.addField(this, readSimple(in, type));
+      readSimple(in, type, handler);
     else
-      handler.addField(this, readVariableLength(in, type, count));
+      readVariableLength(in, type, count, handler);
   }
 
 
-  private Entry readSimple(ImageInputStream in, Type type) throws IOException {
+  private void readSimple(ImageInputStream in, Type type,
+    MetadataHandler handler) throws IOException
+  {
     Entry result = null;
 
     Type fieldType = getType();
@@ -111,11 +113,13 @@ public class Field extends Typed {
     if (type == Type.SRATIONAL) result = FloatValue.readSignedRational(getName(), in); else
       assert false : "Unexpected field type " + type;
 
-    return result;
+    handler.addField(this, result);
   }
 
 
-  private Entry readVariableLength(ImageInputStream in, Type type, long count) throws IOException {
+  private void readVariableLength(ImageInputStream in, Type type, long count,
+    MetadataHandler handler) throws IOException
+  {
     Entry result = null;
 
     Type fieldType = getType();
@@ -136,7 +140,7 @@ public class Field extends Typed {
     } else
       assert false : "Unexpected field type " + type;
 
-    return result;
+    handler.addField(this, result);
   }
 
 

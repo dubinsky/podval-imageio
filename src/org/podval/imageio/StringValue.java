@@ -31,7 +31,7 @@ public class StringValue extends SimpleValue {
   }
 
 
-  public static String readString(ImageInputStream in, int length)
+  private static String readString(ImageInputStream in, int length)
     throws IOException
   {
     // Length of 0 indicates 'indefinite'. We limit 'em here...
