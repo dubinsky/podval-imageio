@@ -16,7 +16,6 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 
-import java.awt.image.RenderedImage;
 import java.awt.image.BufferedImage;
 
 import java.util.Iterator;
@@ -171,17 +170,13 @@ public class Main {
     int decodeTableNumber = metadata.getIntValue("decodeTable-1"); // imageProperties/canonRawProperties/decodeTable/decodeTable-1 (table number: 0..2)
     ImageInputStream in = new FileImageInputStream(file);
 
-//    File newFile = new File(file.getParentFile(), name + ".dmp");
-//    ImageOutputStream out = new FileImageOutputStream(newFile);
     System.err.print("decompressing...");
-//    CrwDecompressor.decompress(in, decodeTableNumber, width, height, out);
     BufferedImage result = CrwDecompressor.decompress(in, decodeTableNumber, width, height);
 
     System.err.print("bilinearily interpolating...");
     Demosaicker.bilinear(result.getRaster());
 
     System.err.print("writing...");
-
     write(result, file, name, "tiff");
 
     System.err.print("done!");
@@ -201,7 +196,7 @@ public class Main {
   private static void thumbnail(ImageReader reader, File file, String name)
     throws IOException
   {
-    RenderedImage result = null;
+    BufferedImage result = null;
 
     int numImages = reader.getNumImages(true);
     int numThumbnails = reader.getNumThumbnails(0);
@@ -215,14 +210,14 @@ public class Main {
   }
 
 
-  private static void write(RenderedImage result, File file, String name, String suffix)
+  private static void write(BufferedImage result, File file, String name, String suffix)
     throws IOException
   {
     Iterator writers = ImageIO.getImageWritersBySuffix(suffix);
-    ImageWriter writer = (javax.imageio.ImageWriter) writers.next();
+    ImageWriter writer = (ImageWriter) writers.next();
 
     File newFile = new File(file.getParentFile(), name + "." + suffix);
-    ImageOutputStream out = new FileImageOutputStream(newFile);
+    ImageOutputStream out = ImageIO.createImageOutputStream(file);
 
     writer.setOutput(out);
     writer.write(result);
