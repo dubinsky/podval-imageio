@@ -1,3 +1,4 @@
+/** @todo original should be written (when rotated) losslessly! */
 package org.podval.album;
 
 import java.util.Date;
@@ -21,8 +22,8 @@ import org.podval.imageio.Orientation;
 
 public class PictureLocal extends Picture {
 
-  public PictureLocal(Album album, String name) {
-    super(album, name);
+  public PictureLocal(String name) {
+    super(name);
   }
 
 
@@ -51,7 +52,7 @@ public class PictureLocal extends Picture {
 
   private void checkExtension(File file, String extension) throws IOException {
     if (file != null)
-        throw new IOException("Duplicatr case-sensitive extension " + extension);
+        throw new IOException("Duplicate case-sensitive extension " + extension);
   }
 
 
@@ -61,16 +62,13 @@ public class PictureLocal extends Picture {
 
 
   public void setTitle(String value) {
-    ensureMetadataLoaded();
-    if (title != value) {
-      title = value;
-      metadataChanged();
-    }
+    load();
+    super.setTitle(value);
   }
 
 
   public String getTitle() {
-    ensureMetadataLoaded();
+    load();
     return (title != null) ? title : getName();
   }
 
@@ -183,25 +181,31 @@ public class PictureLocal extends Picture {
 
 
   public void rotateLeft() {
-    orientation = orientation.rotateLeft();
-    removeGeneratedFiles();
-    metadataChanged();
+    setOrientation(getOrientation().rotateLeft());
   }
 
 
   public void rotateRight() {
-    orientation = orientation.rotateRight();
-    removeGeneratedFiles();
-    metadataChanged();
+    setOrientation(getOrientation().rotateRight());
+  }
+
+
+  private void setOrientation(Orientation value) {
+    if (orientation != value) {
+      orientation = value;
+      removeGeneratedFiles();
+      changed();
+    }
   }
 
 
   public Orientation getOrientation() {
-    ensureMetadataLoaded();
+    load();
     if (orientation == null) {
-      orientation = (Orientation) getCameraMetadata("orientation");
-      removeGeneratedFiles();
-      metadataChanged();
+      Orientation value = (Orientation) getCameraMetadata("orientation");
+      if (value == null)
+        value = Orientation.NORMAL;
+      setOrientation(value);
     }
     return orientation;
   }
@@ -215,56 +219,50 @@ public class PictureLocal extends Picture {
   }
 
 
-  private void ensureMetadataLoaded() {
-    if (!metadataChanged) {
-      File file = getMetadataReadFile();
-      if (file != null) {
-        long lastModified = file.lastModified();
-        if (metadataLoaded<lastModified) {
-          metadataLoaded = lastModified;
-          loadMetadata(file);
-          metadataChanged = false;
+  private void load() {
+    if (!changed) {
+      if (metadataReadFile == null)
+        metadataReadFile = getAlbum().getMetadataReadFile(getMetadataFileName());
+        /* If I do not cache it, a File object is created every time.
+           If I cache it, and metadata file gets created on the side, it
+           will not be detected... */
+      if (metadataReadFile != null) {
+        long lastModified = metadataReadFile.lastModified();
+        if (loaded < lastModified) {
+          loaded = lastModified;
+          load(metadataReadFile);
+          changed = false;
         }
       }
     }
   }
 
 
-  private void metadataChanged() {
-    metadataChanged = true;
-    getAlbum().pictureChanged();
-  }
-
-
-  private void loadMetadata(File file) {
+  private void load(File file) {
     try {
-      loadMetadata(JAXB.unmarshallPicture(file));
+      org.podval.album.jaxb.Picture xml = JAXB.unmarshallPicture(file);
+      title = xml.getTitle();
+      orientation = Orientation.get(xml.getOrientation());
     } catch (JAXBException e) {
     /** @todo  */
     }
   }
 
 
-  private void loadMetadata(org.podval.album.jaxb.Picture xml) {
-    title = xml.getTitle();
-    orientation = Orientation.get(xml.getOrientation());
-  }
-
-
-
   public void save() {
-    if (metadataChanged) {
-      File file = getMetadataWriteFile();
+    if (changed) {
+      File file = getAlbum().getMetadataWriteFile(getMetadataFileName());
       if (file != null) {
         try {
-          org.podval.album.jaxb.Picture result = JAXB.createPicture();
+          org.podval.album.jaxb.Picture result =
+            JAXB.getObjectFactory().createPicture();
 
           if (title != null)
             result.setTitle(title);
 
           result.setOrientation(getOrientation().toString());
 
-          JAXB.marshallPicture(result, file);
+          JAXB.marshall(result, file);
 
         } catch (FileNotFoundException e) {
           /** @todo  */
@@ -278,14 +276,8 @@ public class PictureLocal extends Picture {
   }
 
 
-  private File getMetadataReadFile() {
-    /** @todo cache? */
-    return getAlbum().getMetadataReadFile(getName()+".xml");
-  }
-
-
-  private File getMetadataWriteFile() {
-    return getAlbum().getMetadataWriteFile(getName()+".xml");
+  private String getMetadataFileName() {
+    return getName() + ".xml";
   }
 
 
@@ -301,9 +293,6 @@ public class PictureLocal extends Picture {
     }
     return ((Metadata) cameraMetadata.get()).find(name);
   }
-
-
-  private String title;
 
 
   private Orientation orientation;
@@ -331,10 +320,10 @@ public class PictureLocal extends Picture {
   private File originalFile;
 
 
-  private long metadataLoaded = 0;
+  private File metadataReadFile;
 
 
-  private boolean metadataChanged;
+  private long loaded = 0;
 
 
   private SoftReference cameraMetadata;

@@ -51,14 +51,14 @@ public class Main {
       if ("view".equals(command))
         viewPicture(picture);
       else
-//      if ("title".equals(command))
-//        setPictureTitle(picture, args, argNum);
+      if ("title".equals(command))
+        setPictureTitle(picture, args, argNum);
+      else
       if ("left".equals(command))
         picture.rotateLeft();
       else
       if ("right".equals(command))
         picture.rotateRight();
-///      if ("over".equals(command))
 
       else {
         System.out.println("Command not recognized: "+command);
@@ -134,5 +134,13 @@ public class Main {
     System.out.println("Timestamp: " + picture.getDateTimeString());
     picture.getThumbnailFile();
     picture.getScreensizedFile();
+  }
+
+
+  private static void setPictureTitle(Picture picture, String[] args, int argNum) {
+    if (argNum >= args.length) { usage(); return; }
+
+    String title = args[argNum++];
+    picture.setTitle(title);
   }
 }

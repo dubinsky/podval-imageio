@@ -31,23 +31,14 @@ public abstract class Picture implements Comparable {
   }
 
 
-  protected Picture(Album album, String name) {
-    if (album == null)
-      throw new NullPointerException("Album is null!");
-
+  protected Picture(String name) {
     if (name == null)
       throw new NullPointerException("Name is null!");
 
     if (name.equals(""))
       throw new IllegalArgumentException("Name is empty!");
 
-    this.album = album;
     this.name = name;
-  }
-
-
-  public Album getAlbum() {
-    return album;
   }
 
 
@@ -56,8 +47,32 @@ public abstract class Picture implements Comparable {
   }
 
 
+  public void setAlbum(Album value) {
+    if (value == null)
+      throw new NullPointerException("Album is null!");
+
+    album = value;
+  }
+
+
+  public Album getAlbum() {
+    if (album == null)
+      throw new NullPointerException("Album is not set!");
+
+    return album;
+  }
+
+
   public String getPath() {
-    return album.getPath() + ":" + getName();
+    return getAlbum().getPath() + ":" + getName();
+  }
+
+
+  public void setTitle(String value) {
+    if (((title == null) && (value != null)) || !title.equals(value)) {
+      title = value;
+      changed();
+    }
   }
 
 
@@ -76,7 +91,10 @@ public abstract class Picture implements Comparable {
   }
 
 
-  public abstract void setTitle(String value);
+  protected void changed() {
+    changed = true;
+    getAlbum().changed(this);
+  }
 
 
   public abstract String getTitle();
@@ -106,8 +124,14 @@ public abstract class Picture implements Comparable {
   public abstract void save();
 
 
-  private final Album album;
-
-
   private final String name;
+
+
+  private Album album;
+
+
+  protected String title;
+
+
+  protected boolean changed;
 }

@@ -14,47 +14,10 @@ import javax.xml.bind.JAXBException;
 
 public class JAXB {
 
-  public static org.podval.album.jaxb.Album createAlbum()
-    throws JAXBException
-  {
-    return getObjectFactory().createAlbum();
-  }
-
-
-  public static void marshallAlbum(
-    org.podval.album.jaxb.Album xml, File file)
-    throws FileNotFoundException, IOException, JAXBException
-  {
-    marshall(xml, file);
-  }
-
-
   public static org.podval.album.jaxb.Album
     unmarshallAlbum(File file) throws JAXBException
   {
     return (org.podval.album.jaxb.Album) unmarshall(file);
-  }
-
-
-  public static org.podval.album.jaxb.PictureReferences createPictureReferences()
-    throws JAXBException
-  {
-    return getObjectFactory().createPictureReferences();
-  }
-
-
-  public static org.podval.album.jaxb.PictureReferences.Picture createPictureReference()
-    throws JAXBException
-  {
-    return getObjectFactory().createPictureReferencesTypePicture();
-  }
-
-
-  public static void marshallPictureReferences(
-    org.podval.album.jaxb.PictureReferences xml, File file)
-    throws FileNotFoundException, IOException, JAXBException
-  {
-    marshall(xml, file);
   }
 
 
@@ -65,21 +28,6 @@ public class JAXB {
   }
 
 
-  public static org.podval.album.jaxb.Picture createPicture()
-    throws JAXBException
-  {
-    return getObjectFactory().createPicture();
-  }
-
-
-  public static void marshallPicture(
-    org.podval.album.jaxb.Picture xml, File file)
-    throws FileNotFoundException, IOException, JAXBException
-  {
-    marshall(xml, file);
-  }
-
-
   public static org.podval.album.jaxb.Picture
     unmarshallPicture(File file) throws JAXBException
   {
@@ -87,12 +35,12 @@ public class JAXB {
   }
 
 
-  private static Object unmarshall(File file) throws JAXBException {
+  public static Object unmarshall(File file) throws JAXBException {
     return getUnmarshaller().unmarshal(file);
   }
 
 
-  private static void marshall(Object xml, File file)
+  public static void marshall(Object xml, File file)
     throws FileNotFoundException, IOException, JAXBException
   {
     boolean valid = getValidator().validateRoot(xml);
@@ -140,7 +88,7 @@ public class JAXB {
 
 
 
-  private static org.podval.album.jaxb.ObjectFactory getObjectFactory() {
+  public static org.podval.album.jaxb.ObjectFactory getObjectFactory() {
     if (objectFactory == null) {
       objectFactory = new org.podval.album.jaxb.ObjectFactory();
     }

@@ -71,7 +71,6 @@ public class Util {
     /** @todo  */
 
     ImageOutputStream out = ImageIO.createImageOutputStream(file);
-    /** @todo crashes with "output has not been set!" */
     writer.setOutput(out);
     writer.write(result); /** @todo parameters can be used to specify 'quality'... */
     out.close();

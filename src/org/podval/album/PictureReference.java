@@ -7,24 +7,13 @@ import java.util.Date;
 
 import org.podval.imageio.Orientation;
 
+import javax.xml.bind.JAXBException;
+
 
 public class PictureReference extends Picture {
 
-  public PictureReference(Album album, String name) {
-    super(album, name);
-  }
-
-
-  public void setTitle(String value) {
-    if (title != value) {
-      title = value;
-      getAlbum().pictureReferencesChanged();
-    }
-  }
-
-
-  public String getRawTitle() {
-    return title;
+  public PictureReference(String name) {
+    super(name);
   }
 
 
@@ -68,12 +57,6 @@ public class PictureReference extends Picture {
   }
 
 
-  public void save() {
-    // Whatever needs saving about the reference will be saved by the album.
-    // Whatever was changed through the reference will be saved by the referent.
-  }
-
-
   private Picture getReferent() {
     if (referent == null) {
       referent = Picture.getByPath(getName());
@@ -87,7 +70,30 @@ public class PictureReference extends Picture {
   }
 
 
-  private String title;
+  public void save() {
+    // Whatever needs saving about the reference will be saved by the album.
+    // Whatever was changed through the reference will be saved by the referent.
+  }
+
+
+  public static PictureReference load(org.podval.album.jaxb.PictureReferences.Picture xml) {
+    PictureReference result = new PictureReference(xml.getPath());
+    result.title = xml.getTitle();
+    return result;
+  }
+
+
+  public org.podval.album.jaxb.PictureReferences.PictureType toXml()
+    throws JAXBException
+  {
+    org.podval.album.jaxb.PictureReferences.PictureType result =
+      JAXB.getObjectFactory().createPictureReferencesTypePicture();
+
+    result.setPath(getName());
+    result.setTitle(title);
+
+    return result;
+  }
 
 
   private Picture referent;

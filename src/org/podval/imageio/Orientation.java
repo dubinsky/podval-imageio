@@ -3,32 +3,22 @@ package org.podval.imageio;
 import java.util.Map;
 import java.util.HashMap;
 
-/** @todo XXXXX: back to "TOP LEFT"...!!! */
 
+/** @todo redo with EXIF's "Top Left" etc.? */
 public class Orientation {
 
   public static class Rotation {
 
-    private Rotation(String name) {
-      this.name = name;
-    }
+    public static final Rotation NOTHING = new Rotation();
 
 
-    public String toString() {
-      return name;
-    }
+    public static final Rotation LEFT = new Rotation();
 
 
-    public static final Rotation NOTHING = new Rotation("nothing");
+    public static final Rotation OVER = new Rotation();
 
 
-    public static final Rotation LEFT = new Rotation("left");
-
-
-    public static final Rotation OVER = new Rotation("over");
-
-
-    public static final Rotation RIGHT = new Rotation("right");
+    public static final Rotation RIGHT = new Rotation();
 
 
     public Rotation left() { return left; }
@@ -49,9 +39,6 @@ public class Orientation {
       this.right = right;
       this.inverse = inverse;
     }
-
-
-    private final String name;
 
 
     private Rotation left;
