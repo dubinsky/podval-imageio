@@ -1,33 +1,111 @@
 package org.podval.imageio;
 
+import java.awt.image.WritableRaster;
+
+import java.awt.Rectangle;
+
+
 /**
+ * R G R G R G
+ * G B G B G B
+ * R G R G R G
+ * G B G B G B
  */
 
 public class Demosaicker {
 
-//bad_pixels();
+  private static final int RED_BAND = 0;
+  private static final int GREEN_BAND = 1;
+  private static final int BLUE_BAND = 2;
+
+  public static void bilinear(WritableRaster raster) {
+    Rectangle bounds = raster.getBounds();
+    int height = bounds.height;
+    int width = bounds.width;
+
+    /** @todo for now (?) I am not interpolating the borders.
+     * Hence false ... 1 ... -1
+     */
+    boolean yEven = false;
+    for (int y=1; y<height-1; y++) {
+      boolean xEven = false;
+      for (int x=1; x<width-1; x++) {
+        if (yEven && xEven) {
+          /* B G B
+             G[R]G
+             B G B */
+          averageSquare(y, x, BLUE_BAND , raster);
+          averageRomb  (y, x, GREEN_BAND, raster);
+        } else if (yEven && !xEven) {
+          /* G B G
+             R[G]R
+             G B G */
+          averageHorizontal(y, x, RED_BAND , raster);
+          averageVertical  (y, x, BLUE_BAND, raster);
+        } else if (!yEven && xEven) {
+          /* G R G
+             B[G]B
+             G R G */
+          averageHorizontal(y, x, BLUE_BAND, raster);
+          averageVertical  (y, x, RED_BAND , raster);
+        } else if (!yEven && !xEven) {
+          /* R G R
+             G[B]G
+             R G R */
+          averageSquare(y, x, RED_BAND  , raster);
+          averageRomb  (y, x, GREEN_BAND, raster);
+        }
+        xEven = !xEven;
+      }
+      yEven = !yEven;
+    }
+  }
+
+
+  private static void averageSquare(int y, int x, int band, WritableRaster raster) {
+    int sum =
+      raster.getSample(x-1, y-1, band) +
+      raster.getSample(x+1, y-1, band) +
+      raster.getSample(x-1, y+1, band) +
+      raster.getSample(x+1, y+1, band);
+    raster.setSample(x, y, band, sum/4);
+  }
+
+
+  private static void averageRomb(int y, int x, int band, WritableRaster raster) {
+    int sum =
+      raster.getSample(x  , y-1, band) +
+      raster.getSample(x-1, y  , band) +
+      raster.getSample(x+1, y  , band) +
+      raster.getSample(x  , y+1, band);
+    raster.setSample(x, y, band, sum/4);
+  }
+
+
+  private static void averageHorizontal(int y, int x, int band, WritableRaster raster) {
+    int sum =
+      raster.getSample(x-1, y, band) +
+      raster.getSample(x+1, y, band);
+    raster.setSample(x, y, band, sum/2);
+  }
+
+
+  private static void averageVertical(int y, int x, int band, WritableRaster raster) {
+    int sum =
+      raster.getSample(x, y-1, band) +
+      raster.getSample(x, y+1, band);
+    raster.setSample(x, y, band, sum/2);
+  }
+
+
+
+  public void variableNumberGradients(WritableRaster raster) {
+  }
+
+
 //scale_colors();
 //vng_interpolate();
 //convert_to_rgb();
-
-
-//  void scale_colors()
-//  {
-//    int row, col, c, val;
-//
-//    rgb_max -= black;
-//    for (row=0; row < height; row++)
-//      for (col=0; col < width; col++)
-//        for (c=0; c < colors; c++) {
-//    val = image[row*width+col][c];
-//    if (!val) continue;
-//    val -= black;
-//    val *= pre_mul[c];
-//    if (val < 0) val = 0;
-//    if (val > rgb_max) val = rgb_max;
-//    image[row*width+col][c] = val;
-//        }
-//  }
 
 
 ///*
@@ -40,8 +118,7 @@ public class Demosaicker {
 //   I've extended the basic idea to work with non-Bayer filter arrays.
 //   Gradients are numbered clockwise from NW=0 to W=7.
 // */
-//void vng_interpolate()
-//{
+//void vng_interpolate() {
 //  static const signed char *cp, terms[] = {
 //    -2,-2,+0,-1,0,0x01, -2,-2,+0,+0,1,0x01, -2,-1,-1,+0,0,0x01,
 //    -2,-1,+0,-1,0,0x02, -2,-1,+0,+0,0,0x03, -2,-1,+0,+1,0,0x01,
@@ -76,122 +153,132 @@ public class Demosaicker {
 //    for (col=1; col < 3; col++) {
 //      memset (sum, 0, sizeof sum);
 //      for (y=-1; y <= 1; y++)
-//  for (x=-1; x <= 1; x++) {
-//    shift = (y==0) + (x==0);
-//    if (shift == 2) continue;
-//    color = FC(row+y,col+x);
-//    *ip++ = (width*y + x)*4 + color;
-//    *ip++ = shift;
-//    *ip++ = color;
-//    sum[color] += 1 << shift;
-//  }
+//        for (x=-1; x <= 1; x++) {
+//          shift = (y==0) + (x==0);
+//          if (shift == 2) continue;
+//          color = FC(row+y, col+x);
+//          *ip++ = (width*y+x)*4+color;
+//          *ip++ = shift;
+//          *ip++ = color;
+//          sum[color] += 1<<shift;
+//        }
 //      for (c=0; c < colors; c++)
-//  if (c != FC(row,col)) {
-//    *ip++ = c;
-//    *ip++ = sum[c];
-//  }
+//        if (c != FC(row,col)) {
+//          *ip++ = c;
+//          *ip++ = sum[c];
+//        }
 //    }
 //  }
 //  for (row=1; row < height-1; row++) {	/* Do bilinear interpolation */
 //    pix = image[row*width+1];
 //    for (col=1; col < width-1; col++) {
 //      if (col & 1)
-//  ip = code[row & 7];
+//        ip = code[row & 7];
 //      memset (sum, 0, sizeof sum);
 //      for (g=8; g--; ) {
-//  diff = pix[*ip++];
-//  diff <<= *ip++;
-//  sum[*ip++] += diff;
+//        diff = pix[*ip++];
+//        diff <<= *ip++;
+//        sum[*ip++] += diff;
 //      }
 //      for (g=colors; --g; ) {
-//  c = *ip++;
-//  pix[c] = sum[c] / *ip++;
+//        c = *ip++;
+//        pix[c] = sum[c]/(*ip++);
 //      }
 //      pix += 4;
 //    }
 //  }
 //  if (quick_interpolate)
 //    return;
+//
 //  for (row=0; row < 8; row++) {		/* Precalculate for VNG */
 //    ip = code[row];
 //    for (col=0; col < 2; col++) {
 //      for (cp=terms, t=0; t < 64; t++) {
-//  y1 = *cp++;  x1 = *cp++;
-//  y2 = *cp++;  x2 = *cp++;
-//  weight = *cp++;
-//  grads = *cp++;
-//  color = FC(row+y1,col+x1);
-//  if (FC(row+y2,col+x2) != color) continue;
-//  diag = (FC(row,col+1) == color && FC(row+1,col) == color) ? 2:1;
-//  if (abs(y1-y2) == diag && abs(x1-x2) == diag) continue;
-//  *ip++ = (y1*width + x1)*4 + color;
-//  *ip++ = (y2*width + x2)*4 + color;
-//  *ip++ = weight;
-//  for (g=0; g < 8; g++)
-//    if (grads & 1<<g) *ip++ = g;
-//  *ip++ = -1;
+//        y1 = *cp++;
+//        x1 = *cp++;
+//        y2 = *cp++;
+//        x2 = *cp++;
+//        weight = *cp++;
+//        grads = *cp++;
+//        color = FC(row+y1, col+x1);
+//        if (FC(row+y2, col+x2)!=color)
+//          continue;
+//        diag = (FC(row, col+1)==color && FC(row+1, col)==color) ? 2 : 1;
+//        if (abs(y1-y2) == diag && abs(x1-x2) == diag)
+//          continue;
+//        *ip++ = (y1*width+x1)*4+color;
+//        *ip++ = (y2*width+x2)*4+color;
+//        *ip++ = weight;
+//        for (g = 0; g<8; g++)
+//          if (grads&1<<g)
+//            *ip++ = g;
+//        *ip++ = -1;
 //      }
 //      *ip++ = INT_MAX;
-//      for (cp=chood, g=0; g < 8; g++) {
-//  y = *cp++;  x = *cp++;
-//  *ip++ = (y*width + x) * 4;
-//  color = FC(row,col);
-//  if ((g & 1) == 0 &&
-//      FC(row+y,col+x) != color && FC(row+y*2,col+x*2) == color)
-//    *ip++ = (y*width + x) * 8 + color;
-//  else
-//    *ip++ = 0;
+//      for (cp = chood, g = 0; g<8; g++) {
+//        y = *cp++;
+//        x = *cp++;
+//        *ip++ = (y*width+x)*4;
+//        color = FC(row, col);
+//        if ((g&1)==0&&
+//          FC(row+y, col+x)!=color&&FC(row+y*2, col+x*2)==color)
+//          *ip++ = (y*width+x)*8+color;
+//        else
+//          *ip++ = 0;
 //      }
 //    }
 //  }
 //  brow[4] = calloc (width*3, sizeof **brow);
 //  merror (brow[4], "vng_interpolate()");
-//  for (row=0; row < 3; row++)
-//    brow[row] = brow[4] + row*width;
-//  for (row=2; row < height-2; row++) {		/* Do VNG interpolation */
+//  for (row = 0; row<3; row++)
+//    brow[row] = brow[4]+row*width;
+//
+//  for (row = 2; row<height-2; row++) { /* Do VNG interpolation */
 //    pix = image[row*width+2];
-//    for (col=2; col < width-2; col++) {
-//      if ((col & 1) == 0)
-//  ip = code[row & 7];
-//      memset (gval, 0, sizeof gval);
-//      while ((g = *ip++) != INT_MAX) {		/* Calculate gradients */
-//  diff = abs(pix[g] - pix[*ip++]);
-//  diff <<= *ip++;
-//  while ((g = *ip++) != -1)
-//    gval[g] += diff;
+//    for (col = 2; col<width-2; col++) {
+//      if ((col&1)==0)
+//        ip = code[row&7];
+//      memset(gval, 0, sizeof gval);
+//      while ((g = *ip++) != INT_MAX) { /* Calculate gradients */
+//        diff = abs(pix[g]-pix[*ip++]);
+//        diff <<= *ip++;
+//        while ((g = *ip++)!=-1)
+//          gval[g] += diff;
 //      }
-//      gmin = INT_MAX;				/* Choose a threshold */
+//      gmin = INT_MAX; /* Choose a threshold */
 //      gmax = 0;
-//      for (g=0; g < 8; g++) {
-//  if (gmin > gval[g]) gmin = gval[g];
-//  if (gmax < gval[g]) gmax = gval[g];
+//      for (g = 0; g<8; g++) {
+//        if (gmin>gval[g])
+//          gmin = gval[g];
+//        if (gmax<gval[g])
+//          gmax = gval[g];
 //      }
-//      thold = gmin + (gmax >> 1);
-//      memset (sum, 0, sizeof sum);
-//      color = FC(row,col);
-//      for (num=g=0; g < 8; g++,ip+=2) {		/* Average the neighbors */
-//  if (gval[g] <= thold) {
-//    for (c=0; c < colors; c++)
-//      if (c == color && ip[1])
-//        sum[c] += (pix[c] + pix[ip[1]]) >> 1;
-//      else
-//        sum[c] += pix[ip[0] + c];
-//    num++;
-//  }
+//      thold = gmin + (gmax>>1);
+//      memset(sum, 0, sizeof sum);
+//      color = FC(row, col);
+//      for (num = g = 0; g<8; g++, ip += 2) { /* Average the neighbors */
+//        if (gval[g]<=thold) {
+//          for (c = 0; c<colors; c++)
+//            if (c==color&&ip[1])
+//              sum[c] += (pix[c]+pix[ip[1]])>>1;
+//            else
+//              sum[c] += pix[ip[0]+c];
+//          num++;
+//        }
 //      }
-//      for (c=0; c < colors; c++) {		/* Save to buffer */
-//  t = pix[color] + (sum[c] - sum[color])/num;
-//  brow[2][col][c] = t > 0 ? t:0;
+//      for (c = 0; c<colors; c++) { /* Save to buffer */
+//        t = pix[color]+(sum[c]-sum[color])/num;
+//        brow[2][col][c] = t>0 ? t : 0;
 //      }
 //      pix += 4;
 //    }
-//    if (row > 3)				/* Write buffer to image */
-//      memcpy (image[(row-2)*width+2], brow[0]+2, (width-4)*sizeof *image);
-//    for (g=0; g < 4; g++)
-//      brow[(g-1) & 3] = brow[g];
+//    if (row>3) /* Write buffer to image */
+//      memcpy(image[(row-2)*width+2], brow[0]+2, (width-4)*sizeof*image);
+//    for (g = 0; g<4; g++)
+//      brow[(g-1)&3] = brow[g];
 //  }
-//  memcpy (image[(row-2)*width+2], brow[0]+2, (width-4)*sizeof *image);
-//  memcpy (image[(row-1)*width+2], brow[1]+2, (width-4)*sizeof *image);
+//  memcpy(image[(row-2)*width+2], brow[0]+2, (width-4)*sizeof*image);
+//  memcpy(image[(row-1)*width+2], brow[1]+2, (width-4)*sizeof*image);
 //  free(brow[4]);
 //}
 
