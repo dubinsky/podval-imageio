@@ -63,4 +63,22 @@ public abstract class ViewAction extends Action {
       }
     }
   }
+
+
+
+  public static class Screensized extends ViewAction {
+
+    protected File getViewFile(Picture picture) throws IOException {
+      return picture.getScreensizedFile();
+    }
+  }
+
+
+
+  public static class ViewThumbnailAction extends ViewAction {
+
+    protected File getViewFile(Picture picture) throws IOException {
+      return picture.getThumbnailFile();
+    }
+  }
 }

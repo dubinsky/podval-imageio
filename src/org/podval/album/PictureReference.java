@@ -42,17 +42,17 @@ public class PictureReference extends Picture {
   }
 
 
-  public File getThumbnailFile() throws IOException {
+  public File getThumbnailFile() {
     return getReferent().getThumbnailFile();
   }
 
 
-  public File getScreensizedFile() throws IOException {
+  public File getScreensizedFile() {
     return getReferent().getScreensizedFile();
   }
 
 
-  public File getFullsizedFile() throws IOException {
+  public File getFullsizedFile() {
     return getReferent().getFullsizedFile();
   }
 

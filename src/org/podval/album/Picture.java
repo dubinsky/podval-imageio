@@ -209,47 +209,44 @@ public abstract class Picture implements Comparable {
 
 
   /**
-   * Returns file containing this picture's thumbnail.<p>
-   * Image size is 120 by 160 pixels.<p>
+   * Returns file containing this picture's thumbnail
+   * or <code>null</code> if it is not available.<br>
+   * Image size is 120 by 160 pixels.<br>
    * Image is oriented correctly in accordance with this
    * picture's orientation.
    *
    * @return
    *   file containing this picture's thumbnail
-   *
-   * @throws IOException
-   *   @todo
+   *   or <code>null</code> if it is not available
    */
-  public abstract File getThumbnailFile() throws IOException;
+  public abstract File getThumbnailFile();
 
 
   /**
-   * Returns file containing this picture's screen-sized image.<p>
-   * Image size is 480 by 640 pixels.<p>
+   * Returns file containing this picture's screen-sized image
+   * or <code>null</code> if it is not available.<br>
+   * Image size is 480 by 640 pixels.<br>
    * Image is oriented correctly in accordance with this
    * picture's orientation.
    *
    * @return
    *   file containing this picture's screen-sized image
-   *
-   * @throws IOException
-   *   @todo
+   *   or <code>null</code> if it is not available
    */
-  public abstract File getScreensizedFile() throws IOException;
+  public abstract File getScreensizedFile();
 
 
   /**
-   * Returns file containing this picture's full-sized image.<p>
+   * Returns file containing this picture's full-sized image
+   * or <code>null</code> if it is not available.<br>
    * Image is oriented correctly in accordance with this
    * picture's orientation.
    *
    * @return
    *   file containing this picture's full-sized image
-   *
-   * @throws IOException
-   *   @todo
+   *   or <code>null</code> if it is not available
    */
-  public abstract File getFullsizedFile() throws IOException;
+  public abstract File getFullsizedFile();
 
 
   /**

@@ -96,23 +96,37 @@ public class PictureLocal extends Picture {
   }
 
 
-  public File getThumbnailFile() throws IOException {
-    File result = getThumbnailGnereatedFile();
-    if (!result.exists())
-      scale(readCameraThumbnail(), 120, 160, result);
+  public File getThumbnailFile() {
+    File result = null;
+    File file = getThumbnailGnereatedFile();
+    if (!file.exists()) {
+      try {
+        scale(readCameraThumbnail(), 120, 160, result);
+        result = file;
+      } catch (IOException e) {
+        LOG.warn("Exception getting thumbnail file for " + this, e);
+      }
+    }
     return result;
   }
 
 
-  public File getScreensizedFile() throws IOException {
-    File result = getScreensizedGeneratedFile();
-    if (!result.exists())
-      scale(readCameraScreensized(), 480, 640, result);
+  public File getScreensizedFile() {
+    File result = null;
+    File file = getScreensizedGeneratedFile();
+    if (!file.exists()) {
+      try {
+        scale(readCameraScreensized(), 480, 640, result);
+        result = file;
+      } catch (IOException e) {
+        LOG.warn("Exception getting screen-sized image for " + this, e);
+      }
+    }
     return result;
   }
 
 
-  public File getFullsizedFile() throws IOException {
+  public File getFullsizedFile() {
     /** @todo logging */
     File result = null;
 
@@ -120,17 +134,23 @@ public class PictureLocal extends Picture {
       result = jpgFile;
 
     } else {
-      result = getFullsizedGeneratedFile();
+      File file = getFullsizedGeneratedFile();
 
       if (!result.exists()) {
-        RenderedImage image = readCameraFullsized();
-        /* Theoretically it is possible to losslesly rotate JPEG,
-           but if this will become a problem, I'll just switch to using
-           some other format for generated files - format that supports
-           lossless compression.
-         */
-        Util.writeImage(Util.rotate(image, getOrientation()), result);
+        try {
+          RenderedImage image = readCameraFullsized();
+          /* Theoretically it is possible to losslesly rotate JPEG,
+             but if this will become a problem, I'll just switch to using
+             some other format for generated files - format that supports
+             lossless compression.
+           */
+          Util.writeImage(Util.rotate(image, getOrientation()), result);
+        } catch (IOException e) {
+          LOG.warn("Exception getting full-sized image for " + this, e);
+        }
       }
+
+      result = file;
     }
 
     return result;
