@@ -10,8 +10,6 @@ public class CiffMetadataReader {
   public static void read(ImageInputStream in, MetadataHandler handler)
     throws IOException
   {
-    MetaMetadata.load();
-
     long heapLength = readPrologue(in);
     readHeap(Directory.get("ciff-root"), in, heapLength, handler);
   }
@@ -62,7 +60,7 @@ public class CiffMetadataReader {
     long entriesOffset = in.getStreamPosition();
 
     for (int i = 0; i < numEntries; i++) {
-      in.seek(entriesOffset + 10 * i);
+      in.seek(entriesOffset + 10*i);
 
       int typeCode = in.readUnsignedShort();
 

@@ -7,24 +7,19 @@ import java.io.IOException;
 
 public class ExifDecoder {
 
-  public static final String NATIVE_FORMAT_NAME = "org_podval_imageio_exif_1.0";
-
-
   public static void read(ImageInputStream in, MetadataHandler handler)
     throws IOException
   {
-    /** @todo move this to SPI? */
-    MetaMetadata.load();
-
     long offsetBase = readPrologue(in);
 
     /*
      Since virtually all the tags (except 513 and 514) seem to be allowed
-     both in IFD0 and IFD1 (including EXIF AND GPS IFDs), I just use the same
-     IFD twice!
+     both in IFD0 and IFD1 (including EXIF and GPS IFDs), I just use the same
+     directory descriptor twice!
     */
-    readIfd(Directory.get("exif-root"), in, offsetBase, handler);
-    readIfd(Directory.get("exif-root"), in, offsetBase, handler);
+    Directory ifd = Directory.get("exif-root");
+    readIfd(ifd, in, offsetBase, handler);
+    readIfd(ifd, in, offsetBase, handler);
   }
 
 
@@ -51,7 +46,7 @@ public class ExifDecoder {
   {
     long offset = in.readUnsignedInt();
     if (offset != 0) {
-      in.seek(offsetBase+offset);
+      in.seek(offsetBase + offset);
       readIfdInPlace(ifd, in, offsetBase, handler);
     }
   }
@@ -62,13 +57,11 @@ public class ExifDecoder {
   {
     handler.startFolder(ifd);
 
-    long offset = in.getStreamPosition()-offsetBase;
-
     int numEntries = in.readUnsignedShort();
+    long entriesOffset = in.getStreamPosition();
 
     for (int i = 0; ; i++) {
-      long entryOffset = offset + 2 + 12*i;
-      in.seek(offsetBase+entryOffset);
+      in.seek(entriesOffset + 12*i);
 
       if (i == numEntries)
         break;

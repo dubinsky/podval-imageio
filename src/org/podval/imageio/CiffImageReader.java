@@ -72,12 +72,8 @@ public class CiffImageReader extends ImageReader {
 
   private void readMetadata() throws IOException {
     if (metadata == null) {
-      ImageInputStream input = (ImageInputStream) getInput();
-      if (input == null)
-        throw new IllegalStateException("Input not set.");
-
       SimpleMetadataHandler handler =  new SimpleMetadataHandler(NATIVE_FORMAT_NAME);
-      CiffMetadataReader.read(input, handler);
+      CiffMetadataReader.read(getInputStream(), handler);
       metadata = handler.getResult();
     }
   }
@@ -86,6 +82,15 @@ public class CiffImageReader extends ImageReader {
   private void checkImageIndex(int imageIndex) {
     if (imageIndex!=0)
       throw new IndexOutOfBoundsException();
+  }
+
+
+  private ImageInputStream getInputStream() {
+    ImageInputStream result = (ImageInputStream) getInput();
+    if (result == null)
+      throw new IllegalStateException("Input not set.");
+    /** @todo reset? seek(0)? */
+    return result;
   }
 
 
