@@ -1,10 +1,11 @@
 package org.podval.imageio;
 
+import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
-import javax.imageio.spi.ImageReaderSpi;
 import javax.imageio.ImageReadParam;
 import javax.imageio.stream.ImageInputStream;
 import javax.imageio.metadata.IIOMetadata;
+import javax.imageio.spi.ImageReaderSpi;
 
 import java.awt.image.BufferedImage;
 
@@ -41,6 +42,50 @@ public class CiffImageReader extends ImageReader {
   }
 
 
+  public boolean readerSupportsThumbnails() {
+    return true;
+  }
+
+
+  public int getNumThumbnails(int imageIndex) {
+    checkImageIndex(imageIndex);
+    return 2;
+  }
+
+
+  public BufferedImage readThumbnail(int imageIndex, int thumbnailIndex)
+    throws IOException
+  {
+    if ((thumbnailIndex < 0) || (thumbnailIndex > 1))
+      throw new ArrayIndexOutOfBoundsException("Thumbnail index out of bounds: " + thumbnailIndex);
+
+    Metadata metadata = (Metadata) getImageMetadata(imageIndex);
+    Field.PointerValue pointer = null;
+
+    if (thumbnailIndex == 0)
+      pointer = (Field.PointerValue) metadata.find("jpegThumbnail");
+    else
+      pointer = (Field.PointerValue) metadata.find("bigJpegThumbnail");
+
+    ImageInputStream in = getInputStream();
+    in.seek(pointer.getOffset());
+
+    Iterator readers = ImageIO.getImageReaders(in);
+    ImageReader reader = (readers.hasNext()) ? (ImageReader) readers.next() : null;
+
+    BufferedImage result = null;
+
+    if (reader != null) {
+      reader.setInput(in);
+      result = reader.read(0);
+      reader.dispose();
+    }
+    /** @todo else: XXXX */
+
+    return result;
+  }
+
+
   public IIOMetadata getStreamMetadata() throws IOException {
     readMetadata();
     return null;
@@ -62,16 +107,12 @@ public class CiffImageReader extends ImageReader {
 
 
   public int getHeight(int imageIndex) throws IOException {
-    checkImageIndex(imageIndex);
-    readMetadata();
-    return metadata.getIntValue("imageHeight");
+    return ((Metadata) getImageMetadata(imageIndex)).getIntValue("imageHeight");
   }
 
 
   public int getWidth(int imageIndex) throws IOException {
-    checkImageIndex(imageIndex);
-    readMetadata();
-    return metadata.getIntValue("imageWidth");
+    return ((Metadata) getImageMetadata(imageIndex)).getIntValue("imageWidth");
   }
 
 
@@ -86,17 +127,17 @@ public class CiffImageReader extends ImageReader {
 
 
   private void checkImageIndex(int imageIndex) {
-    if (imageIndex!=0)
-      throw new IndexOutOfBoundsException();
+    if (imageIndex != 0)
+      throw new IndexOutOfBoundsException("Image index out of bounds: " + imageIndex);
   }
 
 
-  private ImageInputStream getInputStream() {
+  private ImageInputStream getInputStream() throws IOException {
     ImageInputStream result = (ImageInputStream) getInput();
     /** @todo in the SPI I check that this is an ImageInputStream... */
     if (result == null)
       throw new IllegalStateException("Input not set.");
-    /** @todo reset? seek(0)? */
+    result.seek(0); /** @todo use marl/reset instead!!! */
     return result;
   }
 
