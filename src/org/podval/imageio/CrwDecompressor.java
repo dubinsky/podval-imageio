@@ -1,15 +1,36 @@
 package org.podval.imageio;
 
+/*
+      26 3024436 Image
+ 3024433           Decode table?
+ 3024462   64598 Thumbnail
+ 3089060    5252 Small thumbnail
+ 3094312         ?
+ 3095358    2048 ?
+ 3097406    2048 ?
+ 3099454         ?
+
+  The following information from the metadata is used:
+  cameraObject/modelName/model (name)
+  imageProperties/canonRawProperties/sensor/width  (!= imageWidth)
+  imageProperties/canonRawProperties/sensor/height (!= imageHeight)
+  imageProperties/canonRawProperties/decodeTable/decodeTable-1 (table number: 0..2)
+*/
+
+
 /**
  */
 
 public class CrwDecompressor {
 
-  private static interface DecodeNode {
+  /**
+   *
+   */
+  private static class DecodeNode {
   }
 
 
-  private static class Branch implements DecodeNode {
+  private static class Branch extends DecodeNode {
     public Branch(DecodeNode zero, DecodeNode one) {
       this.zero = zero;
       this.one = one;
@@ -19,7 +40,7 @@ public class CrwDecompressor {
   }
 
 
-  private static class Leaf implements DecodeNode {
+  private static class Leaf extends DecodeNode {
     public Leaf(int value) {
       this.value = value;
     }
@@ -27,6 +48,10 @@ public class CrwDecompressor {
   }
 
 
+
+  /**
+   *
+   */
   private static class CodeIterator {
 
     public CodeIterator(int[][] source) {
@@ -34,20 +59,17 @@ public class CrwDecompressor {
     }
 
 
+    // Codes of length 0 are not possible.
     public int nextValue(int level) {
       int result = -1;
 
-      if (level>=2) {
-        int l = level-2;
-        if ((l<source.length) && (source[l] != null)) {
-          if (source[l].length > gaveValues[l]) {
-            result = source[l][gaveValues[l]];
-            gaveValues[l]++;
-          } else {
-            if (l == (source.length-1))
-              result = 0xff;
-          }
-        }
+      if ((1 <= level) && (level <= source.length)) {
+        if (source[level-1].length > gaveValues[level]) {
+          result = source[level-1][gaveValues[level]];
+          gaveValues[level]++;
+        } else
+        if (level == source.length)
+          result = 0xff;
       }
 
       return result;
@@ -57,8 +79,9 @@ public class CrwDecompressor {
     private int[][] source;
 
 
-    private int[] gaveValues = new int[14];
+    private int[] gaveValues = new int[16];
   }
+
 
 
   private static DecodeNode makeDecoder(int[][] source) {
@@ -67,23 +90,23 @@ public class CrwDecompressor {
   }
 
 
-
   private static DecodeNode makeDecoder(CodeIterator iterator, int level) {
     DecodeNode result;
     int value = iterator.nextValue(level);
     if (value != -1) {
       result = new Leaf(value);
     } else {
-      result = new Branch(makeDecoder(iterator, level+1), makeDecoder(iterator, level+1));
+      result = new Branch(
+        makeDecoder(iterator, level+1),
+        makeDecoder(iterator, level+1)
+      );
     }
     return result;
   }
 
 
-
-  // Starting with 2-bit, not 1-bit...
-
   private static final int[][] FIRST_0 = {
+    {},
     {0x04},
     {0x03, 0x05, 0x06, 0x02},
     {0x07, 0x01},
@@ -94,6 +117,7 @@ public class CrwDecompressor {
 
 
   private static final int[][] SECOND_0 = {
+    {},
     {0x03, 0x04},
     {0x02, 0x05},
     {0x01, 0x06},
@@ -105,9 +129,9 @@ public class CrwDecompressor {
     {0x21, 0x16, 0x0a, 0xf0, 0x23},
     {0x17},
     {0x24},
-    null,
-    null,
-    null,
+    {},
+    {},
+    {},
     {0x31, 0x32, 0x18, 0x19, 0x33, 0x25, 0x41, 0x34, 0x42, 0x35, 0x51, 0x36,
      0x37, 0x38, 0x29, 0x79, 0x26, 0x1a, 0x39, 0x56, 0x57, 0x28, 0x27, 0x52,
      0x55, 0x58, 0x43, 0x76, 0x59, 0x77, 0x54, 0x61, 0xf9, 0x71, 0x78, 0x75,
@@ -124,6 +148,7 @@ public class CrwDecompressor {
 
 
   private static final int[][] FIRST_1 = {
+    {},
     {0x03, 0x02},
     {0x04, 0x01},
     {0x05, 0x00, 0x06},
@@ -136,6 +161,7 @@ public class CrwDecompressor {
 
 
   private static final int[][] SECOND_1 = {
+    {},
     {0x02, 0x03},
     {0x01, 0x04},
     {0x05},
@@ -146,10 +172,10 @@ public class CrwDecompressor {
     {0x00, 0x23, 0x15},
     {0x31, 0x32, 0x0a},
     {0x16},
-    null,
-    null,
-    null,
-    null,
+    {},
+    {},
+    {},
+    {},
     {0xf0, 0x24, 0x33, 0x41, 0x42, 0x19, 0x17, 0x25, 0x18, 0x51, 0x34, 0x43,
      0x52, 0x29, 0x35, 0x61, 0x39, 0x71, 0x62, 0x36, 0x53, 0x26, 0x38, 0x1a,
      0x37, 0x81, 0x27, 0x91, 0x79, 0x55, 0x45, 0x28, 0x72, 0x59, 0xa1, 0xb1,
@@ -166,7 +192,8 @@ public class CrwDecompressor {
 
 
   private static final int[][] FIRST_2 = {
-    null,
+    {},
+    {},
     {0x06, 0x05, 0x07, 0x04, 0x08, 0x03},
     {0x09, 0x02, 0x00},
     {0x0a},
@@ -176,7 +203,8 @@ public class CrwDecompressor {
 
 
   private static final int[][] SECOND_2 = {
-    null,
+    {},
+    {},
     {0x04, 0x05, 0x03, 0x06, 0x02, 0x07},
     {0x01, 0x08},
     {0x09},
@@ -189,7 +217,7 @@ public class CrwDecompressor {
     {0x32, 0x31},
     {0x25, 0x33, 0x38, 0x37, 0x34, 0x35, 0x36, 0x39},
     {0x79, 0x57, 0x58, 0x59, 0x28, 0x56, 0x78, 0x27, 0x41, 0x29},
-    null,
+    {},
     {0x77, 0x26, 0x42, 0x76, 0x99, 0x1a, 0x55, 0x98, 0x97, 0xf9, 0x48, 0x54,
      0x96, 0x89, 0x47, 0xb7, 0x49, 0xfa, 0x75, 0x68, 0xb6, 0x67, 0x69, 0xb9,
      0xb8, 0xd8, 0x52, 0xd7, 0x88, 0xb5, 0x74, 0x51, 0x46, 0xd9, 0xf8, 0x3a,
@@ -203,205 +231,154 @@ public class CrwDecompressor {
   };
 
 
+  private int carry;
+  private int pixel;
+  private static final int BLOCK_LENGTH = 64;
+  int[] diffbuf = new int[BLOCK_LENGTH];
+  int[] base = new int[2];
+  int[] outbuf = null; /////
+
+
+  private void init() {
+    carry = 0;
+    pixel = 0;
+    //in.seek(540 + lowbits*height*width/4); // And not where the image starts!
+    //init bit reading
+  }
+
+
+  private void decompress(int numBlocks) {
+    int outIndex = 0;
+
+    for (; numBlocks > 0; numBlocks--) {
+      readBlock(diffbuf);
+
+      diffbuf[0] += carry;
+      carry = diffbuf[0];
+
+      for (int i=0; i < BLOCK_LENGTH; i++) {
+        if (pixel % raw_width == 0) {
+          base[0] = 512;
+          base[1] = 512;
+        }
+
+        pixel++;
+
+        int baseIndex = i & 1;
+        base[baseIndex] += diffbuf[i];
+        outbuf[outIndex+i] = base[baseIndex];
+      }
+      outIndex += BLOCK_LENGTH;
+    }
+  }
+
+
+  private void readBlock(int[] buf) {
+    for (int i = 0; i<BLOCK_LENGTH; i++)
+      buf[i] = 0;
+
+    for (int i = 0; i<BLOCK_LENGTH; i++) {
+      int token = readToken((i == 0) ? firstDecoder : secondDecoder);
+
+      if ((token == 0) && (i > 0))
+        break;
+
+      if (token != 0xff) {
+        int numSkipped = (token >> 4) & 0x0F;
+        int sampleLength = token & 0x0F;
+
+        i += numSkipped;
+
+        if (sampleLength != 0) {
+          int sample = readSample(sampleLength);
+          if (i < BLOCK_LENGTH)
+            buf[i] = sample;
+        }
+      }
+    }
+  }
+
+
+  private int readToken(DecodeNode decoder) {
+    DecodeNode node = decoder;
+    while (node instanceof Branch) {
+      Branch branch = (Branch) node;
+      node = (readBit() == 0) ? branch.one : branch.zero;
+    }
+    return ((Leaf) node).value;
+  }
+
+
+  private int readSample(int sampleLength) {
+    int sign = readBit();	/* 1 is positive, 0 is negative */
+
+    int result = readBits(sampleLength-1);
+
+    if (sign == 1)
+      result += 1 << (sampleLength-1);
+    else
+      result += (-1 << sampleLength) + 1;
+
+    return result;
+  }
+
+
+
+  void canon_compressed_load_raw() {
+    /* Set the width of the black borders */
+    switch (raw_width) {
+      case 2144:  top = 8;  left =  4;  break;	/* G1 */
+      case 2224:  top = 6;  left = 48;  break;	/* EOS D30 */
+      case 2376:  top = 6;  left = 12;  break;	/* G2 or G3 */
+      case 2672:  top = 6;  left = 12;  break;	/* S50 */
+      case 3152:  top =12;  left = 64;  break;	/* EOS D60 */
+    }
+
+    int[] outbuf = new int[raw_width*8];
+    lowbits = canon_has_lowbits();
+    shift = 4 - lowbits*2;
+    for (row = 0; row < raw_height; row += 8) {
+      decompress(outbuf, raw_width/8);		/* Get eight rows */
+      handleLowBits();
+      bordersAndStuff();
+    }
+    free(outbuf);
+    black = ((INT64) black << shift) / ((raw_width - width) * height);
+  }
+
+
+  private void bordersAndStuff() {
+    for (int r=0; r < 8; r++)
+      for (int col = 0; col < raw_width; col++) {
+        irow = row+r-top;
+        icol = col-left;
+        if (irow >= height) continue;
+        if (icol < width)
+          image[irow*width+icol][FC(irow,icol)] =
+            outbuf[r*raw_width+col] << shift;
+        else
+          black += outbuf[r*raw_width+col];
+      }
+  }
+
+
+  private void handleLowBits() {
+    if (haveLowBits) {
+      in.mark();
+      in.seek(26+row*raw_width /* seq. number of the pixel at the beginning of outbuf. */ /4);
+      for (int i = 0; i < raw_width*2; i++) {
+        int b = in.readByte();
+        for (int r = 0; r < 8; r += 2) {
+          outbuf[i] = (outbuf[i/*+1?*/] << 2) + ((b >> r) & 3);
+        }
+      }
+      in.reset();
+    }
+  }
+
 
   public static void main(String[] args) {
     DecodeNode x = makeDecoder(FIRST_0);
     System.out.println(x);
   }
 }
-
-
-/*
-     26 3024436 Image
- 3024433           Decode table?
- 3024462   64598 Thumbnail
- 3089060    5252 Small thumbnail
- 3094312         ?
- 3095358    2048 ?
- 3097406    2048 ?
- 3099454         ?
- */
-/*
-  The following information from the metadata is used:
-  cameraObject/modelName/model (name)
-  imageProperties/canonRawProperties/sensor/width  (!= imageWidth)
-  imageProperties/canonRawProperties/sensor/height (!= imageHeight)
-  imageProperties/canonRawProperties/decodeTable/decodeTable-1 (table number: 0..2)
- */
-/*
-   Return 0 if the image starts with compressed data,
-   1 if it starts with uncompressed low-order bits.
-   In Canon compressed data, 0xff is always followed by 0x00.
- int canon_has_lowbits() {
-  uchar test[8192];
-  int ret=1, i;
-  fseek (ifp, 0, SEEK_SET);
-  fread (test, 1, 8192, ifp);
-  for (i=540; i < 8191; i++)
-    if (test[i] == 0xff) {
-      if (test[i+1]) return 1;
-      ret=0;
-    }
-  return ret;
- }
-  fprintf(stderr,"name = %s, width = %d, height = %d, table = %d, bpp = %d\n",
-  name, width, height, table, 10+lowbits*2);
- */
-/*
-   A rough description of Canon's compression algorithm:
- +  Each pixel outputs a 10-bit sample, from 0 to 1023.
- +  Split the data into blocks of 64 samples each.
- +  Subtract from each sample the value of the sample two positions
-   to the left, which has the same color filter.  From the two
-   leftmost samples in each row, subtract 512.
- +  For each nonzero sample, make a token consisting of two four-bit
-   numbers.  The low nibble is the number of bits required to
-   represent the sample, and the high nibble is the number of
-   zero samples preceding this sample.
- +  Output this token as a variable-length bitstring using
-   one of three tablesets.  Follow it with a fixed-length
-   bitstring containing the sample.
-   The "first_decode" table is used for the first sample in each
-   block, and the "second_decode" table is used for the others.
- */
-/*
-   getbits(-1) initializes the buffer
-   getbits(n) where 0 <= n <= 25 returns an n-bit integer
- unsigned long getbits(int nbits) {
-  static unsigned long bitbuf=0, ret=0;
-  static int vbits=0;
-  unsigned char c;
-  if (nbits == 0) return 0;
-  if (nbits == -1)
-    ret = bitbuf = vbits = 0;
-  else {
-    ret = bitbuf << (32 - vbits) >> (32 - nbits);
-    vbits -= nbits;
-  }
-  while (vbits < 25) {
-    c=fgetc(ifp);
-    bitbuf = (bitbuf << 8) + c;
-    if (c == 0xff) fgetc(ifp);	// always extra 00 after ff
-    vbits += 8;
-  }
-  return ret;
- }
- */
-/*
- int main(int argc, char **argv) {
-  struct decode *decode, *dindex;
-  int i, j, leaf, len, sign, diff, diffbuf[64], r, save;
-  int carry=0, column=0, base[2];
-  unsigned short outbuf[64];
-  uchar c;
-  init_tables(table);
-  fseek (ifp, 540 + lowbits*height*width/4, SEEK_SET);
-  getbits(-1);			// Prime the bit buffer
-    if (lowbits) {
-      save = ftell(ifp);
-      fseek (ifp, (column-64)/4 + 26, SEEK_SET);
-      for (i=j=0; j < 64/4; j++ ) {
-  c = fgetc(ifp);
-  for (r = 0; r < 8; r += 2)
-    outbuf[i++] = (outbuf[i] << 2) + ((c >> r) & 3);
-      }
-      fseek (ifp, save, SEEK_SET);
-    }
-    fwrite(outbuf,2,64,stdout);
-  }
-  return 0;
- }
-    /*
-         Decompress "count" blocks of 64 samples each.
-         Note that the width passed to this function is slightly
-         larger than the global width, because it includes some
-         blank pixels that (*load_raw) will strip off.
-      void decompress(ushort *outbuf, int count) {
-        struct decode *decode, *dindex;
-        int i, leaf, len, sign, diff, diffbuf[64];
-        static int carry, pixel, base[2];
-        if (!outbuf) {			// Initialize
-          carry = pixel = 0;
-          fseek (ifp, count, SEEK_SET);
-          getbits(-1);
-          return;
-        }
-        while (count--) {
-          memset(diffbuf,0,sizeof diffbuf);
-          decode = first_decode;
-        for (i=0; i < 64; i++ ) {
-          for (dindex=decode; dindex->branch[0]; )
-      dindex = dindex->branch[getbits(1)];
-          leaf = dindex->leaf;
-          decode = second_decode;
-          if (leaf == 0 && i) break;
-          if (leaf == 0xff) continue;
-          i  += leaf >> 4;
-          len = leaf & 15;
-          if (len == 0) continue;
-          sign=(getbits(1));	// 1 is positive, 0 is negative
-          diff=getbits(len-1);
-          if (sign)
-      diff += 1 << (len-1);
-          else
-      diff += (-1 << len) + 1;
-          if (i < 64) diffbuf[i] = diff;
-        }
-          diffbuf[0] += carry;
-          carry = diffbuf[0];
-          for (i=0; i < 64; i++ ) {
-            if (pixel++ % raw_width == 0)
-        base[0] = base[1] = 512;
-            outbuf[i] = ( base[i & 1] += diffbuf[i] );
-          }
-          outbuf += 64;
-        }
-      }
-  */
- /*
-     void canon_compressed_load_raw() {
-       ushort *pixel, *prow;
-       int lowbits, shift, i, row, r, col, save;
-       unsigned top=0, left=0, irow, icol;
-       uchar c;
-     // Set the width of the black borders
-       switch (raw_width) {
-         case 2144:  top = 8;  left =  4;  break;	// G1
-         case 2224:  top = 6;  left = 48;  break;	// EOS D30
-         case 2376:  top = 6;  left = 12;  break;	// G2 or G3
-         case 2672:  top = 6;  left = 12;  break;	// S50
-         case 3152:  top =12;  left = 64;  break;	// EOS D60
-       }
-       pixel = calloc (raw_width*8, sizeof *pixel);
-       merror (pixel, "canon_compressed_load_raw()");
-       lowbits = canon_has_lowbits();
-       shift = 4 - lowbits*2;
-       decompress(0, 540 + lowbits*raw_height*raw_width/4);
-       for (row = 0; row < raw_height; row += 8) {
-         decompress(pixel, raw_width/8);		// Get eight rows
-         if (lowbits) {
-           save = ftell(ifp);			// Don't lose our place
-           fseek (ifp, 26 + row*raw_width/4, SEEK_SET);
-           for (prow=pixel, i=0; i < raw_width*2; i++) {
-       c = fgetc(ifp);
-       for (r = 0; r < 8; r += 2)
-  *prow++ = (*prow << 2) + ((c >> r) & 3);
-           }
-           fseek (ifp, save, SEEK_SET);
-         }
-         for (r=0; r < 8; r++)
-           for (col = 0; col < raw_width; col++) {
-       irow = row+r-top;
-       icol = col-left;
-       if (irow >= height) continue;
-       if (icol < width)
-         image[irow*width+icol][FC(irow,icol)] =
-         pixel[r*raw_width+col] << shift;
-         else
-           black += pixel[r*raw_width+col];
-           }
-       }
-       free(pixel);
-       black = ((INT64) black << shift) / ((raw_width - width) * height);
-     }
-  */
