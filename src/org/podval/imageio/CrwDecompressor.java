@@ -1,5 +1,25 @@
 package org.podval.imageio;
 
+import java.io.File;
+import java.io.IOException;
+
+import javax.imageio.stream.ImageInputStream;
+import javax.imageio.stream.FileImageInputStream;
+
+import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
+import java.awt.image.ComponentColorModel;
+import java.awt.image.WritableRaster;
+import java.awt.image.SampleModel;
+import java.awt.image.Raster;
+
+import java.awt.Transparency;
+import java.awt.image.DataBuffer;
+import java.awt.Point;
+
+import java.awt.color.ColorSpace;
+
+
 /*
       26 3024436 Image
  3024433           Decode table?
@@ -22,6 +42,18 @@ package org.podval.imageio;
  */
 
 public class CrwDecompressor {
+
+  private CrwDecompressor(ImageInputStream in, int decodeTableNumber, int width, int height)
+    throws IOException
+  {
+    this.in = in;
+    initDecoders(decodeTableNumber);
+    this.width = width;
+    this.height = height;
+//    in.seek(540 + lowbits*height*width/4); // And not where the image starts!
+    in.seek(540);
+  }
+
 
   /**
    *
@@ -79,7 +111,7 @@ public class CrwDecompressor {
     private int[][] source;
 
 
-    private int[] gaveValues = new int[16];
+    private int[] gaveValues = new int[17];
   }
 
 
@@ -231,49 +263,69 @@ public class CrwDecompressor {
   };
 
 
-  private int carry;
-  private int pixel;
-  private static final int BLOCK_LENGTH = 64;
-  int[] diffbuf = new int[BLOCK_LENGTH];
-  int[] base = new int[2];
-  int[] outbuf = null; /////
+
+  private DecodeNode firstDecoder;
 
 
-  private void init() {
-    carry = 0;
-    pixel = 0;
-    //in.seek(540 + lowbits*height*width/4); // And not where the image starts!
-    //init bit reading
-  }
+  private DecodeNode secondDecoder;
 
 
-  private void decompress(int numBlocks) {
-    int outIndex = 0;
+  private void initDecoders(int decodeTableNumber) {
+    if (decodeTableNumber > 2)
+      decodeTableNumber = 2;
 
-    for (; numBlocks > 0; numBlocks--) {
-      readBlock(diffbuf);
-
-      diffbuf[0] += carry;
-      carry = diffbuf[0];
-
-      for (int i=0; i < BLOCK_LENGTH; i++) {
-        if (pixel % raw_width == 0) {
-          base[0] = 512;
-          base[1] = 512;
-        }
-
-        pixel++;
-
-        int baseIndex = i & 1;
-        base[baseIndex] += diffbuf[i];
-        outbuf[outIndex+i] = base[baseIndex];
-      }
-      outIndex += BLOCK_LENGTH;
+    switch (decodeTableNumber) {
+    case 0:
+      firstDecoder  = makeDecoder(FIRST_0 );
+      secondDecoder = makeDecoder(SECOND_0);
+      break;
+    case 1:
+      firstDecoder  = makeDecoder(FIRST_1 );
+      secondDecoder = makeDecoder(SECOND_1);
+      break;
+    case 2:
+      firstDecoder  = makeDecoder(FIRST_2 );
+      secondDecoder = makeDecoder(SECOND_2);
+      break;
     }
   }
 
 
-  private void readBlock(int[] buf) {
+  private final ImageInputStream in;
+
+
+  private final int width;
+
+
+  private final int height;
+
+
+  private static final int BLOCK_LENGTH = 64;
+
+
+  private final int[] block = new int[BLOCK_LENGTH];
+
+
+  private int carry = 0;
+
+
+  private final int[] base = new int[2];
+
+
+  private int pixel = 0;
+
+
+  private void decompressBlock() throws IOException {
+    readBlock(block);
+
+    block[0] += carry;
+    carry = block[0];
+
+    inflateBlock();
+  }
+
+
+  private void readBlock(int[] buf) throws IOException {
     for (int i = 0; i<BLOCK_LENGTH; i++)
       buf[i] = 0;
 
@@ -299,17 +351,17 @@ public class CrwDecompressor {
   }
 
 
-  private int readToken(DecodeNode decoder) {
+  private int readToken(DecodeNode decoder) throws IOException {
     DecodeNode node = decoder;
     while (node instanceof Branch) {
       Branch branch = (Branch) node;
-      node = (readBit() == 0) ? branch.one : branch.zero;
+      node = (readBit() == 0) ? branch.zero : branch.one;
     }
     return ((Leaf) node).value;
   }
 
 
-  private int readSample(int sampleLength) {
+  private int readSample(int sampleLength) throws IOException {
     int sign = readBit();	/* 1 is positive, 0 is negative */
 
     int result = readBits(sampleLength-1);
@@ -323,62 +375,161 @@ public class CrwDecompressor {
   }
 
 
+  private long freshBits = 0;
+  private int numFreshBits = 0;
+
+
+  private void readMoreFreshBits() throws IOException {
+    while (numFreshBits < 25) {
+      int b = in.readByte();
+      freshBits = (freshBits << 8) | (b & 0xFF);
+      numFreshBits += 8;
+      if (b==0xFF)
+        in.readByte(); // Canon adds 0 after each FF.
+    }
+  }
+
+
+  private int readBits(int numBits) throws IOException {
+    int result = 0;
+    if (numBits != 0) {
+      if (numBits > numFreshBits)
+        readMoreFreshBits();
+      assert (numBits <= numFreshBits) : "Oops!"; /** @todo */
+      long significantFreshBits = (freshBits << (32 - numFreshBits)) & 0x00000000FFFFFFFFL;
+      long outputBits = significantFreshBits >> (32 - numBits);
+      result = (int) outputBits;
+      System.out.println(
+        "Fresh: " + Long.toHexString(freshBits) + "[" + numFreshBits + "] " +
+        "Significant: " + Long.toHexString(significantFreshBits) + " " +
+        "Output: " + Long.toHexString(outputBits)
+      );
+      numFreshBits -= numBits;
+    }
+    return result;
+  }
+
+
+  private int readBit() throws IOException {
+    return readBits(1);
+  }
+
+
+  private void inflateBlock() {
+    for (int i=0; i < BLOCK_LENGTH; i++) {
+      if (pixel % width == 0) {
+        base[0] = 512;
+        base[1] = 512;
+      }
+
+      pixel++;
+
+      int baseIndex = i & 1;
+      base[baseIndex] += block[i];
+      block[i] = base[baseIndex];
+    }
+  }
+
 
   void canon_compressed_load_raw() {
     /* Set the width of the black borders */
-    switch (raw_width) {
-      case 2144:  top = 8;  left =  4;  break;	/* G1 */
-      case 2224:  top = 6;  left = 48;  break;	/* EOS D30 */
-      case 2376:  top = 6;  left = 12;  break;	/* G2 or G3 */
-      case 2672:  top = 6;  left = 12;  break;	/* S50 */
-      case 3152:  top =12;  left = 64;  break;	/* EOS D60 */
-    }
+//    switch (raw_width) {
+//      case 2144:  top = 8;  left =  4;  break;	/* G1 */
+//      case 2224:  top = 6;  left = 48;  break;	/* EOS D30 */
+//      case 2376:  top = 6;  left = 12;  break;	/* G2 or G3 */
+//      case 2672:  top = 6;  left = 12;  break;	/* S50 */
+//      case 3152:  top =12;  left = 64;  break;	/* EOS D60 */
+//    }
 
-    int[] outbuf = new int[raw_width*8];
-    lowbits = canon_has_lowbits();
-    shift = 4 - lowbits*2;
-    for (row = 0; row < raw_height; row += 8) {
-      decompress(outbuf, raw_width/8);		/* Get eight rows */
-      handleLowBits();
-      bordersAndStuff();
-    }
-    free(outbuf);
-    black = ((INT64) black << shift) / ((raw_width - width) * height);
+//    int[] outbuf = new int[raw_width*8];
+    //in.seek(540 + lowbits*height*width/4); // And not where the image starts!
+    //init bit reading
+
+
+//    lowbits = canon_has_lowbits();
+//    shift = 4 - lowbits*2;
+//    for (row = 0; row < raw_height; row += 8) {
+//      for (int numBlocks = raw_width/8; numBlocks > 0; numBlocks--) {
+//        decompress();		/* Get eight rows */
+//      handleLowBits();
+//      bordersAndStuff();
+//    }
+//    free(outbuf);
+//    black = ((INT64) black << shift) / ((raw_width - width) * height);
   }
 
 
   private void bordersAndStuff() {
-    for (int r=0; r < 8; r++)
-      for (int col = 0; col < raw_width; col++) {
-        irow = row+r-top;
-        icol = col-left;
-        if (irow >= height) continue;
-        if (icol < width)
-          image[irow*width+icol][FC(irow,icol)] =
-            outbuf[r*raw_width+col] << shift;
-        else
-          black += outbuf[r*raw_width+col];
-      }
+//    for (int r=0; r < 8; r++)
+//      for (int col = 0; col < raw_width; col++) {
+//        irow = row+r-top;
+//        icol = col-left;
+//        if (irow >= height) continue;
+//        if (icol < width)
+//          image[irow*width+icol][FC(irow,icol)] =
+//            outbuf[r*raw_width+col] << shift;
+//        else
+//          black += outbuf[r*raw_width+col];
+//      }
   }
 
 
   private void handleLowBits() {
-    if (haveLowBits) {
-      in.mark();
-      in.seek(26+row*raw_width /* seq. number of the pixel at the beginning of outbuf. */ /4);
-      for (int i = 0; i < raw_width*2; i++) {
-        int b = in.readByte();
-        for (int r = 0; r < 8; r += 2) {
-          outbuf[i] = (outbuf[i/*+1?*/] << 2) + ((b >> r) & 3);
-        }
-      }
-      in.reset();
-    }
+//    if (haveLowBits) {
+//      in.mark();
+//      in.seek(26+row*raw_width /* seq. number of the pixel at the beginning of outbuf. */ /4);
+//      for (int i = 0; i < raw_width*2; i++) {
+//        int b = in.readByte();
+//        for (int r = 0; r < 8; r += 2) {
+//          outbuf[i] = (outbuf[i/*+1?*/] << 2) + ((b >> r) & 3);
+//        }
+//      }
+//      in.reset();
+//    }
   }
 
 
-  public static void main(String[] args) {
-    DecodeNode x = makeDecoder(FIRST_0);
-    System.out.println(x);
+  public BufferedImage decompress() {
+    ColorSpace cs = null;
+
+    boolean hasAlpha = false;
+    boolean isAlphaPremultiplied = true;
+    int transparency = Transparency.OPAQUE;
+    int dataType = DataBuffer.TYPE_USHORT;
+    ColorModel cm = new ComponentColorModel(
+      cs,
+      hasAlpha,
+      isAlphaPremultiplied,
+      transparency,
+      dataType
+    );
+
+    SampleModel sm = new ComponentSampleModel(
+      dataType,
+      width,
+      height,
+                          int pixelStride,
+                          int scanlineStride,
+                          int[] bankIndices,
+                          int[] bandOffsets
+    );
+
+
+    Point location = null;
+    WritableRaster raster = Raster.createWritableRaster(sm, location);
+    java.util.Hashtable properties = null;
+    return new BufferedImage(
+      cm,
+      raster,
+      isAlphaPremultiplied,
+      properties
+    );
+  }
+
+
+  public static void main(String[] args) throws IOException {
+    ImageInputStream in = new FileImageInputStream(new File("/tmp/2297.crw"));
+    CrwDecompressor decompressor = new CrwDecompressor(in, 0, 2376, 1728);
+    decompressor.decompressBlock();
   }
 }
