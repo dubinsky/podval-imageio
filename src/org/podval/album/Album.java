@@ -313,8 +313,15 @@ public class Album {
 
 
   private void clearPictures() {
+    savePictures();
     pictures.clear();
     sortedPictures.clear();
+  }
+
+
+  private void savePictures() {
+    for (Iterator i = sortedPictures.iterator(); i.hasNext();)
+      ((Picture) i.next()).save();
   }
 
 
@@ -433,10 +440,13 @@ public class Album {
 
 
   public void save() throws FileNotFoundException, IOException, JAXBException {
+    savePictures();
+
     if (albumMetadataChanged) {
       saveAlbumMetadata();
       albumMetadataChanged = false;
     }
+
     if (pictureReferencesChanged) {
       savePictureReferences();
       pictureReferencesChanged = false;

@@ -34,6 +34,10 @@ public class PictureReference extends Picture {
   }
 
 
+  public void save() {
+  }
+
+
   private Picture getReferent() {
     if (referent == null)
       throw new NullPointerException("Referent is null in " + getPath());

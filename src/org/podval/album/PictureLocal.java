@@ -142,6 +142,11 @@ public class PictureLocal extends Picture {
   }
 
 
+  public void save() {
+    /** @todo  */
+  }
+
+
   private File jpgFile;
 
 

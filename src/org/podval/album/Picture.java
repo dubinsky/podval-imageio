@@ -56,6 +56,19 @@ public abstract class Picture implements Comparable {
   }
 
 
+//  public void setTitle(String value) {
+//    ensureMetadataLoaded();
+//    title = value;
+//    metadataChanged = true;
+//  }
+//
+//
+//  public String getTitle() {
+//    ensureMetadataLoaded();
+//    return (title != null) ? title : name;
+//  }
+
+
   public int compareTo(Object o) {
     Picture other = (Picture) o;
     return getDateTime().compareTo(other.getDateTime());
@@ -83,8 +96,20 @@ public abstract class Picture implements Comparable {
   public abstract File getFullsizedFile() throws IOException;
 
 
+  public abstract void save();
+
+
   private final Album album;
 
 
   private final String name;
+
+
+//  private String title;
+
+
+  private long metadataLoaded = 0;
+
+
+  private boolean metadataChanged;
 }
