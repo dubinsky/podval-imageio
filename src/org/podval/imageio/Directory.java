@@ -7,6 +7,11 @@ import java.util.Iterator;
 
 public class Directory extends Typed {
 
+  /**
+   * ... autoregisters.
+   * @param name
+   * @return
+   */
   public static Directory get(String name) {
     Directory result = (Directory) directories.get(name);
 

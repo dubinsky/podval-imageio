@@ -19,7 +19,7 @@ public class Record extends Typed {
   }
 
 
-  public static void add(Record record) {
+  public static void register(Record record) {
     /** @todo sanity check: not yet there. */
     records.put(record.getName(), record);
   }
