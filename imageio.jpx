@@ -9,18 +9,23 @@
   <property category="idl" name="ProcessIDL" value="false"/>
   <property category="javaFormatting" name="EventStyle" value="0"/>
   <property category="javaFormatting" name="alignMultilineParenthesis" value="0"/>
+  <property category="javaFormatting" name="alwaysClasses" value="1"/>
   <property category="javaFormatting" name="arrayInitDataOnNewLine" value="0"/>
-  <property category="javaFormatting" name="blankLinesAfterClass" value="2"/>
-  <property category="javaFormatting" name="blankLinesAfterField" value="1"/>
+  <property category="javaFormatting" name="blankLinesAfterClass" value="3"/>
+  <property category="javaFormatting" name="blankLinesAfterField" value="2"/>
   <property category="javaFormatting" name="blankLinesAfterImports" value="2"/>
-  <property category="javaFormatting" name="blankLinesAfterMethod" value="2"/>
+  <property category="javaFormatting" name="blankLinesAfterMethod" value="3"/>
   <property category="javaFormatting" name="catchOnNewLine" value="0"/>
+  <property category="javaFormatting" name="closingBraceOwnLine" value="0"/>
   <property category="javaFormatting" name="elseOnNewLine" value="0"/>
   <property category="javaFormatting" name="extendsOnNewLine" value="0"/>
   <property category="javaFormatting" name="finallyOnNewLine" value="0"/>
   <property category="javaFormatting" name="implementsOnNewLine" value="0"/>
   <property category="javaFormatting" name="indentCase" value="0"/>
-  <property category="javaFormatting" name="packageThreshold" value="0"/>
+  <property category="javaFormatting" name="packagePrefixGroups" value="java;(blank line);javax;(blank line);(*)"/>
+  <property category="javaFormatting" name="packageThreshold" value="2"/>
+  <property category="javaFormatting" name="preservedBlankLinesInDecl" value="2"/>
+  <property category="javaFormatting" name="spaceAroundOperator" value="0"/>
   <property category="javaFormatting" name="spaceBeforeLparen" value="0"/>
   <property category="javaFormatting" name="whileOnNewLine" value="0"/>
   <property category="serverservices" name="disabled.services" value="connector;jdatastore"/>
@@ -33,11 +38,21 @@
   <property category="sys" name="DocPath" value="doc"/>
   <property category="sys" name="JDK" value="java version 1.4.2-beta-b19"/>
   <property category="sys" name="JvmVersion" value="1.2"/>
-  <property category="sys" name="Libraries" value="JAXB"/>
+  <property category="sys" name="Libraries" value="JAXB;JAI ImageIO"/>
   <property category="sys" name="OutPath" value="../../../../../../home/dub/Projects/imageio/classes"/>
   <property category="sys" name="SourcePath" value="src;test"/>
   <property category="sys" name="WorkingDirectory" value="../../../../../../home/dub/Projects/imageio"/>
   <property category="team" name="ignorePath.0" value="bak"/>
   <property category="team" name="ignorePath.1" value="classes"/>
   <property category="team" name="ignorePath.2" value="src/org/podval/imageio/jaxb"/>
+  <property category="team" name="ignorePath.3" value="test.jar"/>
+  <property category="team" name="ignorePath.4" value="imageio.oif"/>
+  <node name="Test" type="Archive">
+    <property category="archiving" name="archiverClass" value="com.borland.jbuilder.wizard.archive.ApplicationArchiver"/>
+    <property category="archiving" name="contentRules.1" value="I:**/*.*"/>
+    <property category="archiving" name="includeDeps" value="1"/>
+    <property category="archiving" name="libraryStates.1" value="3:JAXB"/>
+    <property category="archiving" name="targetPath" value="test.jar"/>
+    <property category="archiving" name="usingRules" value="1"/>
+  </node>
 </project>
