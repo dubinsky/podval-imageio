@@ -25,31 +25,30 @@
   <property category="javaFormatting" name="packagePrefixGroups" value="java;(blank line);javax;(blank line);(*)"/>
   <property category="javaFormatting" name="packageThreshold" value="2"/>
   <property category="javaFormatting" name="preservedBlankLinesInDecl" value="2"/>
-  <property category="javaFormatting" name="spaceAroundOperator" value="0"/>
   <property category="javaFormatting" name="spaceBeforeLparen" value="0"/>
   <property category="javaFormatting" name="whileOnNewLine" value="0"/>
   <property category="serverservices" name="disabled.services" value="connector;jdatastore;sqlj"/>
   <property category="serverservices" name="single.server.name" value="Tomcat 4.1"/>
-  <property category="sys" name="BackupPath" value="../../../../../../home/dub/Projects/imageio/bak"/>
+  <property category="sys" name="BackupPath" value="bak"/>
   <property category="sys" name="Company" value=""/>
   <property category="sys" name="CompanyLabel" value=""/>
-  <property category="sys" name="Copyright" value="Copyright (c) 2002"/>
-  <property category="sys" name="CopyrightLabel" value="Copyright:"/>
+  <property category="sys" name="Copyright" value="Copyright (c) 2003  Leonid Dubinsky"/>
+  <property category="sys" name="CopyrightLabel" value=""/>
   <property category="sys" name="DocPath" value="doc"/>
-  <property category="sys" name="JDK" value="java version 1.4.1_02-b06"/>
+  <property category="sys" name="JDK" value="java version 1.4.2-b28"/>
   <property category="sys" name="JvmVersion" value="1.2"/>
-  <property category="sys" name="Libraries" value="JAXB;JAI ImageIO;JAI;Servlet;Struts 1.1 EL;Struts 1.1;JSTL"/>
-  <property category="sys" name="OutPath" value="../../../../../../home/dub/Projects/imageio/classes"/>
+  <property category="sys" name="Libraries" value="JAXB;JAI;Servlet;Struts 1.1;JSTL;Commons Logging"/>
+  <property category="sys" name="OutPath" value="classes"/>
   <property category="sys" name="SourcePath" value="src;test"/>
-  <property category="sys" name="WorkingDirectory" value="../../../../../../home/dub/Projects/imageio"/>
+  <property category="sys" name="WorkingDirectory" value="."/>
   <property category="team" name="ignorePath.0" value="bak"/>
   <property category="team" name="ignorePath.1" value="classes"/>
-  <property category="team" name="ignorePath.10" value="defaultroot"/>
-  <property category="team" name="ignorePath.11" value="album.war"/>
-  <property category="team" name="ignorePath.12" value="album.war"/>
-  <property category="team" name="ignorePath.13" value="Servlet.library"/>
-  <property category="team" name="ignorePath.14" value="src/org/podval/album/jaxb"/>
-  <property category="team" name="ignorePath.15" value="album/WEB-INF/classes"/>
+  <property category="team" name="ignorePath.10" value="album/WEB-INF/lib"/>
+  <property category="team" name="ignorePath.11" value="album/WEB-INF/tlds"/>
+  <property category="team" name="ignorePath.12" value="defaultroot"/>
+  <property category="team" name="ignorePath.13" value="src/org/podval/album/jaxb"/>
+  <property category="team" name="ignorePath.14" value="Servlet.library"/>
+  <property category="team" name="ignorePath.15" value="album.war"/>
   <property category="team" name="ignorePath.16" value="album/WEB-INF/lib"/>
   <property category="team" name="ignorePath.17" value="album/WEB-INF/c-rt.tld"/>
   <property category="team" name="ignorePath.18" value="album/WEB-INF/c.tld"/>
@@ -67,26 +66,35 @@
   <property category="team" name="ignorePath.29" value="album/WEB-INF/x-rt.tld"/>
   <property category="team" name="ignorePath.3" value="test.jar"/>
   <property category="team" name="ignorePath.30" value="album/WEB-INF/x.tld"/>
+  <property category="team" name="ignorePath.31" value="album/WEB-INF/tlds"/>
+  <property category="team" name="ignorePath.32" value="podval-album.jar"/>
+  <property category="team" name="ignorePath.33" value="build.xml"/>
+  <property category="team" name="ignorePath.34" value="Tomcat"/>
   <property category="team" name="ignorePath.4" value="imageio.oif"/>
   <property category="team" name="ignorePath.5" value="ant.xml"/>
   <property category="team" name="ignorePath.6" value="doc"/>
   <property category="team" name="ignorePath.7" value="podval-imageio.jar"/>
   <property category="team" name="ignorePath.8" value="Tomcat"/>
-  <property category="team" name="ignorePath.9" value="../../../../../../home/dub/Projects/imageio/Tomcat"/>
+  <property category="team" name="ignorePath.9" value="album/WEB-INF/classes"/>
   <node name="Additional Settings" type="Folder">
     <property category="sys" name="SettingsFolder" value="1"/>
-    <file path="ant.xml">
-      <property category="ant" name="isantfile" value="1"/>
+    <file path="album/WEB-INF/jsps/index.jsp">
+      <property category="jspc" name="checkEnabled" value="0"/>
     </file>
-    <file path="ant.xml">
+    <file path="album/WEB-INF/jsps/picture.jsp">
+      <property category="jspc" name="checkEnabled" value="0"/>
+    </file>
   </node>
   <node name="album" type="WebContext">
     <property category="archiving" name="archiverClass" value="com.borland.jbuilder.wizard.webapp.WarArchiver"/>
     <property category="archiving" name="buildWithProject" value="0"/>
+    <property category="archiving" name="contentRules.1" value="I:**/*.*"/>
     <property category="archiving" name="defaultLibraryState" value="3"/>
     <property category="archiving" name="libraryStates.1" value="0:Servlet"/>
     <property category="archiving" name="libraryStates.2" value="0:Tomcat 4.1 Servlet"/>
+    <property category="archiving" name="libraryStates.3" value="0:Commons Logging"/>
     <property category="archiving" name="targetPath" value="album.war"/>
+    <property category="archiving" name="usingRules" value="1"/>
     <property category="kit.struts" name="struts-config.1" value="WEB-INF/struts-config.xml"/>
     <property category="webapp" name="docroot" value="album"/>
     <property category="webapp" name="kit.1" value="struts"/>
@@ -94,15 +102,41 @@
     <property category="webapp" name="kitlib.1" value="Struts 1.1"/>
     <property category="webapp" name="kitlib.2" value="JSTL"/>
     <property category="webapp" name="launch.uri" value="/"/>
+    <property category="webapp" name="webinf.include" value="1"/>
+    <property category="webapp" name="webinf.subdir.1" value="tlds"/>
   </node>
-  <node name="Command Line Tool" type="Archive">
+  <node name="album (CL)" type="Archive">
+    <property category="archiving" name="archiverClass" value="com.borland.jbuilder.wizard.archive.ApplicationArchiver"/>
+    <property category="archiving" name="buildWithProject" value="0"/>
+    <property category="archiving" name="contentRules.1" value="I:**/*.*"/>
+    <property category="archiving" name="libraryStates.1" value="3:JAXB"/>
+    <property category="archiving" name="libraryStates.2" value="3:JAI"/>
+    <property category="archiving" name="libraryStates.3" value="3:Commons Logging"/>
+    <property category="archiving" name="manifestMainClass" value="org.podval.album.Main"/>
+    <property category="archiving" name="targetPath" value="podval-album.jar"/>
+    <property category="archiving" name="usingRules" value="1"/>
+  </node>
+  <node name="imageio (CL)" type="Archive">
     <property category="archiving" name="archiverClass" value="com.borland.jbuilder.wizard.archive.ApplicationArchiver"/>
     <property category="archiving" name="buildWithProject" value="0"/>
     <property category="archiving" name="contentRules.1" value="I:**/*.*"/>
     <property category="archiving" name="includeDeps" value="1"/>
     <property category="archiving" name="libraryStates.1" value="3:JAXB"/>
     <property category="archiving" name="libraryStates.2" value="3:JAI ImageIO"/>
+    <property category="archiving" name="manifestMainClass" value="org.podval.imageio.Main"/>
     <property category="archiving" name="targetPath" value="podval-imageio.jar"/>
     <property category="archiving" name="usingRules" value="1"/>
   </node>
+  <node name="Standard Doclet" type="Javadoc">
+    <property category="docletJavadoc" name="additionalOptions" value="-source 1.4"/>
+    <property category="docletJavadoc" name="use" value="1"/>
+    <property category="nodeJavadoc" name="buildWithProject" value="0"/>
+    <property category="nodeJavadoc" name="directory" value="doc"/>
+    <property category="nodeJavadoc" name="displayAllOutput" value="0"/>
+    <property category="nodeJavadoc" name="useProjectJDK" value="1"/>
+  </node>
+  <file path="build-extra.xml">
+    <property category="ant" name="isantfile" value="1"/>
+    <property category="antparams" name="build.compiler" value="com.borland.jbuilder.ant.compiler.Bmj"/>
+  </file>
 </project>
