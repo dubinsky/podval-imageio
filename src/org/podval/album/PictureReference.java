@@ -6,9 +6,9 @@ import java.io.IOException;
 import java.util.Date;
 
 
-public class PictureRef extends Picture {
+public class PictureReference extends Picture {
 
-  public PictureRef(Album album, String name) {
+  public PictureReference(Album album, String name) {
     super(album, name);
     this.referent = Picture.getByPath(name);
   }

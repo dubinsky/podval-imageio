@@ -33,6 +33,9 @@ public abstract class Picture implements Comparable {
     if (name == null)
       throw new NullPointerException("Name is null!");
 
+    if (name.equals(""))
+      throw new IllegalArgumentException("Name is empty!");
+
     this.album = album;
     this.name = name;
   }

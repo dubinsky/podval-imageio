@@ -74,10 +74,13 @@ public class Album {
 
   public Album(Album parent, String name) {
     if (parent == null)
-      throw new NullPointerException("Directory parent is null.");
+      throw new NullPointerException("Parent is null.");
 
     if (name == null)
-      throw new NullPointerException("Directory name is null.");
+      throw new NullPointerException("Name is null.");
+
+    if (name.equals(""))
+      throw new IllegalArgumentException("Name is empty.");
 
     this.parent = parent;
     this.name = name;
@@ -95,8 +98,17 @@ public class Album {
 
 
   public String getPath() {
-    /** @todo for the root, result is incorrect ("" instead of "/"). Is this important? */
-    return (parent != null) ? parent.getPath() + "/" + name : name;
+    String result;
+
+    if (parent == root)
+      result = "/" + name;
+    else
+    if (this == root)
+      result = "/";
+    else
+      result = parent.getPath() + "/" + name;
+
+    return result;
   }
 
 
@@ -164,7 +176,6 @@ public class Album {
       /** @todo now it would be nice to be able to place generated directory inside the originals one ... */
       generatedDirectory = new File(parent.getGeneratedDirectory(), name);
       ensureDirectoryExists(generatedDirectory);
-      //checkCanWrite(generatedDirectory);
     }
 
     return generatedDirectory;
@@ -173,7 +184,6 @@ public class Album {
 
   public File getMetadataDirectory() {
     if (metadataDirectory == null) {
-      /** @todo alternative policy is - try originals directory first... */
       metadataDirectory = new File(parent.getMetadataDirectory(), name);
       ensureDirectoryExists(metadataDirectory);
     }
@@ -203,44 +213,54 @@ public class Album {
 
 
   private void ensureAlbumMetadataLoaded() {
-    if (!albumMetadataLoaded) {
-      albumMetadataLoaded = true;
-      loadAlbumMetadata();
-      albumMetadataChanged = false;
+    if (!albumMetadataChanged) {
+      File file = getAlbumMetadataReadFile();
+      if (file != null) {
+        long lastModified = file.lastModified();
+        if (albumMetadataLoaded<lastModified) {
+          albumMetadataLoaded = lastModified;
+          loadAlbumMetadata(file);
+          albumMetadataChanged = false;
+        }
+      }
     }
   }
 
 
   private void ensureSubalbumsLoaded() {
-    if (!subalbumsLoaded) {
-      loadSubalbums();
-      subalbumsLoaded = true;
+    File originalsDirectory = getOriginalsDirectory();
+    long lastModified = originalsDirectory.lastModified();
+
+    if (subalbumsLoaded<lastModified) {
+      subalbumsLoaded = lastModified;
+      loadSubalbums(originalsDirectory);
     }
   }
 
 
   private void ensurePicturesLoaded() {
-    if (!picturesLoaded) {
-      loadPictures();
-      picturesLoaded = true;
-      loadPictureReferences();
-      pictureReferencesChanged = false;
-      sortPicturesByDateTime();
+    if (!pictureReferencesChanged) {
+      File originalsDirectory = getOriginalsDirectory();
+      File pictureReferencesReadFile = getPictureReferencesReadFile();
+
+      long lastModified = originalsDirectory.lastModified();
+      if (pictureReferencesReadFile != null)
+        lastModified = Math.max(lastModified, pictureReferencesReadFile.lastModified());
+
+      if (picturesLoaded<lastModified) {
+        picturesLoaded = lastModified;
+        loadPictures(originalsDirectory, pictureReferencesReadFile);
+        pictureReferencesChanged = false;
+      }
     }
   }
 
 
-  private void loadAlbumMetadata() {
+  private void loadAlbumMetadata(File file) {
     try {
-      File file = getAlbumMetadataFile(false);
-      if (file != null) {
-        org.podval.album.jaxb.Album xml =
-          Metadata.unmarshallAlbum(file);
-
-        loadAlbumMetadata(xml);
-      }
+      loadAlbumMetadata(Metadata.unmarshallAlbum(file));
     } catch (JAXBException e) {
-      /** @todo  */
+    /** @todo  */
     }
   }
 
@@ -250,8 +270,25 @@ public class Album {
   }
 
 
-  private void loadSubalbums() {
-    File[] files = getOriginalsDirectory().listFiles();
+  private void saveAlbumMetadata()
+    throws FileNotFoundException, IOException, JAXBException
+  {
+    File file = getAlbumMetadataWriteFile();
+    if (file != null) {
+      org.podval.album.jaxb.Album result = Metadata.createAlbum();
+
+      if (title != null)
+        result.setTitle(title);
+
+      Metadata.marshallAlbum(result, file);
+    }
+  }
+
+
+  private void loadSubalbums(File directory) {
+    subalbums.clear();
+
+    File[] files = directory.listFiles();
 
     for (int i=0; i<files.length; i++) {
       File file = files[i];
@@ -265,8 +302,24 @@ public class Album {
   }
 
 
-  private void loadPictures() {
-    File[] files = getOriginalsDirectory().listFiles();
+  private void loadPictures(File originalsDirectory, File pictureReferencesReadFile) {
+    clearPictures();
+    loadPictures(originalsDirectory);
+    removeNonPictures();
+    if (pictureReferencesReadFile != null)
+      loadPictureReferences(pictureReferencesReadFile);
+    sortPicturesByDateTime();
+  }
+
+
+  private void clearPictures() {
+    pictures.clear();
+    sortedPictures.clear();
+  }
+
+
+  private void loadPictures(File directory) {
+    File[] files = directory.listFiles();
 
     for (int i=0; i<files.length; i++) {
       File file = files[i];
@@ -277,8 +330,6 @@ public class Album {
         /** @todo XXXX */
       }
     }
-
-    removeNonPictures();
   }
 
 
@@ -292,15 +343,9 @@ public class Album {
   }
 
 
-  private void loadPictureReferences() {
+  private void loadPictureReferences(File file) {
     try {
-      File file = getPictureReferencesFile(false);
-      if (file != null) {
-        org.podval.album.jaxb.PictureReferences xml =
-          Metadata.unmarshallPictureReferences(file);
-
-        loadPictureReferences(xml);
-      }
+      loadPictureReferences(Metadata.unmarshallPictureReferences(file));
     } catch (JAXBException e) {
       /** @todo  */
     }
@@ -355,7 +400,7 @@ public class Album {
 
     if (picture == null) {
       picture = new PictureLocal(this, name);
-      pictures.put(name, picture);
+      pictures.put(picture.getName(), picture);
     }
 
     picture.addFile(file, name, extension);
@@ -365,8 +410,9 @@ public class Album {
   public void addPictureReference(String path) {
     ensurePicturesLoaded();
     /** @todo fail fast if referrent is null? Why didn't it throw in the process??? */
-    PictureRef picture = new PictureRef(this, path);
+    PictureReference picture = new PictureReference(this, path);
     pictures.put(picture.getName(), picture);
+    sortedPictures.add(picture);
     pictureReferencesChanged = true;
   }
 
@@ -376,11 +422,11 @@ public class Album {
 
     Picture result = (Picture) pictures.get(name);
     if (result != null) {
-      if (!(result instanceof PictureRef))
-        throw new IllegalArgumentException(
-          "Only REFERENCES to pictures can be removed!");
-      pictures.remove(name);
+      if (!(result instanceof PictureReference))
+        throw new IllegalArgumentException("Not a reference picture!");
 
+      pictures.remove(name);
+      sortedPictures.remove(result);
       pictureReferencesChanged = true;
     }
   }
@@ -398,32 +444,17 @@ public class Album {
   }
 
 
-  private void saveAlbumMetadata()
-    throws FileNotFoundException, IOException, JAXBException
-  {
-    File file = getAlbumMetadataFile(true);
-    if (file != null) {
-      org.podval.album.jaxb.Album result = Metadata.createAlbum();
-
-      if (title!=null)
-        result.setTitle(title);
-
-      Metadata.marshallAlbum(result, file);
-    }
-  }
-
-
   private void savePictureReferences()
     throws FileNotFoundException, IOException, JAXBException
   {
-    File file = getPictureReferencesFile(true);
+    File file = getPictureReferencesWriteFile();
     if (file != null) {
       org.podval.album.jaxb.PictureReferences result = Metadata.
         createPictureReferences();
 
       for (Iterator i = getPictures().iterator(); i.hasNext(); ) {
         Picture picture = (Picture) i.next();
-        if (picture instanceof PictureRef) {
+        if (picture instanceof PictureReference) {
           org.podval.album.jaxb.PictureReferences.PictureType xml =
             Metadata.createPictureReference();
           xml.setPath(picture.getName());
@@ -437,33 +468,55 @@ public class Album {
   }
 
 
-  private File getAlbumMetadataFile(boolean write) {
-    return getMetadataFile("album", write);
+  private static final String ALBUM_METADATA_FILE_NAME = "album.xml";
+
+
+  private File getAlbumMetadataReadFile() {
+    if (albumMetadataReadFile == null)
+      albumMetadataReadFile = getMetadataReadFile(ALBUM_METADATA_FILE_NAME);
+    return albumMetadataReadFile;
   }
 
 
-  private File getPictureReferencesFile(boolean write) {
-    return getMetadataFile("pictures", write);
+  private File getAlbumMetadataWriteFile() {
+    return getMetadataWriteFile(ALBUM_METADATA_FILE_NAME);
   }
 
 
-  private File getMetadataFile(String name, boolean write) {
-    name = name + ".xml";
+  private static final String PICTURE_REFERENCES_FILE_NAME = "pictures.xml";
 
+
+  private File getPictureReferencesReadFile() {
+    if (pictureReferencesReadFile == null)
+      pictureReferencesReadFile = getMetadataReadFile(PICTURE_REFERENCES_FILE_NAME);
+    return pictureReferencesReadFile;
+  }
+
+
+  private File getPictureReferencesWriteFile() {
+    return getMetadataWriteFile(PICTURE_REFERENCES_FILE_NAME);
+  }
+
+
+  private File getMetadataReadFile(String name) {
     File result = null;
 
-    if (!write) {
-      if (result == null)
-        result = ifCanRead(new File(getMetadataDirectory(), name));
-      if (result == null)
-        result = ifCanRead(new File(getOriginalsDirectory(), name));
+    if (result == null)
+      result = ifCanRead(new File(getMetadataDirectory(), name));
+    if (result == null)
+      result = ifCanRead(new File(getOriginalsDirectory(), name));
 
-    } else {
-      if (result == null)
-        result = ifCanWrite(new File(getOriginalsDirectory(), name));
-      if (result == null)
-        result = ifCanWrite(new File(getMetadataDirectory(), name));
-    }
+    return result;
+  }
+
+
+  private File getMetadataWriteFile(String name) {
+    File result = null;
+
+    if (result == null)
+      result = ifCanWrite(new File(getOriginalsDirectory(), name));
+    if (result == null)
+      result = ifCanWrite(new File(getMetadataDirectory(), name));
 
     return result;
   }
@@ -476,12 +529,14 @@ public class Album {
 
   private File ifCanWrite(File file) {
     File result = null;
+
     try {
       file.createNewFile();
       if (file.canWrite())
         result = file;
     } catch (IOException e) {
     }
+
     return result;
   }
 
@@ -504,13 +559,25 @@ public class Album {
   private File generatedDirectory;
 
 
-  private boolean albumMetadataLoaded;
+  private File albumMetadataReadFile;
 
 
-  private boolean subalbumsLoaded;
+  private long albumMetadataLoaded = 0;
 
 
-  private boolean picturesLoaded;
+  private boolean albumMetadataChanged;
+
+
+  private long subalbumsLoaded;
+
+
+  private File pictureReferencesReadFile;
+
+
+  private long picturesLoaded = 0;
+
+
+  private boolean pictureReferencesChanged;
 
 
   /**
@@ -526,10 +593,4 @@ public class Album {
 
 
   private final Set sortedPictures = new TreeSet();
-
-
-  private boolean albumMetadataChanged;
-
-
-  private boolean pictureReferencesChanged;
 }

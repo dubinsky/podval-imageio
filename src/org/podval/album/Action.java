@@ -11,31 +11,23 @@ import javax.servlet.http.HttpServletResponse;
 public abstract class Action extends org.apache.struts.action.Action {
 
   protected Album setupAlbum(HttpServletRequest request) {
-    String path = getParameterOrEmpty(request, "path");
+    String path = getPath(request);
     Album result = Album.getByPath(path);
-    request.setAttribute("path", path);
     request.setAttribute("album", result);
     return result;
   }
 
 
   protected Picture setupPicture(HttpServletRequest request) {
-    Album directory = setupAlbum(request);
-
-    String name = getParameterOrEmpty(request, "name");
-    Picture result = directory.getPicture(name);
-    if (result == null)
-      throw new NullPointerException("No picture with this name.");
-
-    request.setAttribute("name", name);
+    String path = getPath(request);
+    Picture result = Picture.getByPath(path);
     request.setAttribute("picture", result);
-
     return result;
   }
 
 
-  private String getParameterOrEmpty(HttpServletRequest request, String name) {
-    String result = request.getParameter(name);
-    return (result != null) ? result : "";
+  private String getPath(HttpServletRequest request) {
+    String result = request.getParameter("path");
+    return (result != null) ? result : "/";
   }
 }
