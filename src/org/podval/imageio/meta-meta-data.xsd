@@ -79,6 +79,7 @@
 
       <xsd:attribute name="conversion" type="xsd:string"/>
 
+		  <xsd:attribute name="handler" type="xsd:string"/>
     </xsd:extension>
   </xsd:complexContent>
 </xsd:complexType>
@@ -116,6 +117,8 @@
       <xsd:attribute name="index" type="xsd:int">
         <xsd:annotation><xsd:appinfo><jxb:property generateIsSetMethod="true"/></xsd:appinfo></xsd:annotation>
       </xsd:attribute>
+
+      <xsd:attribute name="conversion" type="xsd:string"/>
 
     </xsd:extension>
   </xsd:complexContent>

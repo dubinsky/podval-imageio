@@ -68,6 +68,11 @@ public class Conversions {
   }
 
 
+  public static String extractStringFromBinary(Field.BinaryValue value) {
+    return new String(value.getValue());
+  }
+
+
 //  public float getExposure() {
 //    float result = 0;
 //    if ((brightness != 0) && (iso != 0)) {
@@ -79,7 +84,7 @@ public class Conversions {
 
 
   /** @todo this should be done through record handler, not conversion - if at all! */
-  public static String decodeFlashStatus(long v) {
+  public static String decodeExifFlashStatus(long v) {
     int value = (int) v;
     boolean fired = (value & 0x01) != 0;
     int strobeReturn = (value >> 1) & 0x03;
@@ -105,5 +110,27 @@ public class Conversions {
     result += '.';
 
     return result;
+  }
+
+
+  public static long decodeImageSerialNumber(long value) {
+    //chh-nnnn; c - cycle of 10000 images, starting 1; hh - hundreds of nnnn.
+    int number = (int) (value % 10000);
+    int chh = (int) (value / 10000);
+
+    int hundred1 = number / 100;
+    int hundred2 = chh % 100;
+    int cycle = (chh / 100) -1;
+
+    return 10000*cycle + number;
+  }
+
+
+  public static String decodeCanonCameraSerialNumber(long value) {
+    // High 16 bits are printed as a 4-digit hex number.
+    // Low 16 bits are printed as a 5-digit decimal number.
+    int high = (int) ((value >> 16) & 0xFFFF);
+    int low  = (int) ( value        & 0xFFFF);
+    return Integer.toHexString(high) + "-" + low;
   }
 }

@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.awt.image.BufferedImage;
 
 import java.util.Iterator;
+import java.util.Date;
 
 
 public class Main {
@@ -27,6 +28,11 @@ public class Main {
     IllegalArgumentException,
     javax.xml.transform.TransformerException
   {
+    if (args.length<2) {
+      usage();
+      return;
+    }
+
     /** @todo should register using jar manifest (also). */
     IIORegistry.getDefaultInstance().registerServiceProvider(new
       CiffImageReaderSpi());
@@ -34,39 +40,20 @@ public class Main {
     /** @todo where is the right place for this? */
     MetaMetadata.load();
 
-    String command;
-    String arg;
+    String command = args[0];
 
-    if (args.length>1) {
-      command = args[0];
-      arg = args[1];
-    } else {
-      command = "dump";
-      arg = args[0];
-    }
+    for (int i=1; i<args.length; i++)
+      doCommand(command, new File(args[i]));
+  }
 
-    File file = new File(arg);
-    File path = file.getParentFile();
-    String name = file.getName();
 
-    int star = name.indexOf('*');
-    String start = null;
-    String end = null;
-    if (star != -1) {
-      start = name.substring(0, star);
-      end = name.substring(star+1, name.length());
-      File[] files = path.listFiles();
-      for (int i=0; i<files.length; i++) {
-        file = files[i];
-        name = file.getName();
-
-        if (name.startsWith(start) && name.endsWith(end)) {
-          doCommand(command, file);
-        }
-      }
-    } else {
-      doCommand(command, file);
-    }
+  private static void usage() {
+    System.err.println("Usage: <command> <file>+");
+    System.err.println();
+    System.err.println("Recognized commands:");
+    System.err.println("  dump - print native metadata");
+    System.err.println("  number - print identification");
+    System.err.println("  decompress - extract raw image out of a .crw");
   }
 
 
@@ -96,72 +83,30 @@ public class Main {
       extension = null;
     }
 
-
     if ("number".equals(command))
       printNumber(file);
     else if ("decompress".equals(command))
       decompress(file, name);
     else if ("dump".equals(command)) {
       System.err.println();
-      readMetadata(file).print();
-    } else {
-      System.err.println("Usage: XXX <command> <arg>");
-      System.err.println();
-      System.err.println("Recognized commands:");
-      System.err.println("  dump - print native metadata");
-      System.err.println("  number - print identification");
-      System.err.println("  decompress - extract raw image out of a .crw");
-    }
+      Metadata.read(file).print();
+    } else
+      usage();
   }
 
 
-  private static Metadata readMetadata(File file) {
-    Metadata result = null;
-
-    try {
-      ImageInputStream in =
-        ImageIO.createImageInputStream(file);
-
-      javax.imageio.ImageReader reader =
-        (javax.imageio.ImageReader) ImageIO.getImageReaders(in).next();
-
-      reader.setInput(in);
-      IIOMetadata metadata = reader.getImageMetadata(0);
-      reader.dispose();
-      in.close();
-
-      /** @todo this should be done through a transcoder? */
-      if (metadata instanceof JPEGMetadata) {
-        metadata = ExifReader.transcodeJpegMetadata(metadata);
-      }
-
-      if (metadata instanceof Metadata) {
-        result = (Metadata) metadata;
-      } else {
-        System.out.println("unknown metadata " + metadata);
-      }
-    } catch (IOException e) {
-      System.out.println("Exception: " + e);
-      e.printStackTrace(System.out);
-    }
-
-    return result;
-  }
-
-
-  private static void printNumber(File file) {
-    Metadata metadata = readMetadata(file);
+  private static void printNumber(File file) throws IOException {
+    Metadata metadata = Metadata.read(file);
     if (metadata != null) {
       int number = metadata.getIntValue("serialNumber");
-      int fff = number / 10000;
-      int xxxx = number % 10000;
-      System.out.println("image # " + fff + "-" + xxxx);
+      Date dateTime = (Date) metadata.find("dateTime");
+      System.out.println("# " + number + " @ " + dateTime);
     }
   }
 
 
   private static void decompress(File file, String name) throws IOException {
-    Metadata metadata = readMetadata(file);
+    Metadata metadata = Metadata.read(file);
     String model = metadata.getStringValue("model"); // cameraObject/modelName/model
     int width = metadata.getIntValue("width"); // imageProperties/canonRawProperties/sensor/width
     int height = metadata.getIntValue("height"); // imageProperties/canonRawProperties/sensor/height

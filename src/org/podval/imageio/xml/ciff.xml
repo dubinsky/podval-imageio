@@ -43,23 +43,18 @@
   <record tag="5" type="string" name="description"/>
 
   <record tag="10" type="U16" name="targetImageType">
-    <field type="U16" name="targetImageType">
+    <field name="targetImageType">
       <enumeration>
         <item value="0" description="Real-world subject"/>
         <item value="1" description="Written document"/>
       </enumeration>
     </field>
-    <field type="U16" name="reserved"/>
-    <field type="U16" name="reserved"/>
-    <field type="U16" name="reserved"/>
+    <field name="reserved"/>
+    <field name="reserved"/>
+    <field name="reserved"/>
   </record>
 
-  <record tag="14" type="U32" name="capturedTime">
-    <!--
-      long millisFromEpoch = secondsFromEpoch*1000;
-      int timezoneOffset = TimeZone.getDefault().getRawOffset();
-      Date date = new Date(millisFromEpoch-timezoneOffset);
-    -->
+  <record tag="14" type="U32" name="capturedTime" handler="org.podval.imageio.CiffCapturedTimeHandler">
     <field type="U32" name="timeCount"/> <!-- Seconds from Epoch: 1/1/1970 -->
     <!-- Canon G2 writes 0s in the other two fields, so time is GMT/UTC. -->
     <field type="S32" name="timeZoneCode"/> <!-- Zone offset in seconds. -->
@@ -96,7 +91,9 @@
   <record tag="23" type="string" name="thumbnailFileName"/>
 
   <record tag="23" type="U32" name="serialNumber">
-    <field type="U32" name="serialNumber"/>
+    <field type="U32" name="serialNumber"
+      conversion="org.podval.imageio.Conversions.decodeImageSerialNumber"/>
+
     <field type="U32" name="reserved"/>
   </record>
 

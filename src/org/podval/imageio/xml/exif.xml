@@ -38,7 +38,8 @@
   -->
   <record tag="34856" name="oecf" type="X8"/>
 
-  <record tag="36864" name="exifVersion" type="X8-string" count="4"/>
+  <record tag="36864" name="exifVersion" type="X8" count="4"
+    conversion="org.podval.imageio.Conversions.extractStringFromBinary"/>
 
   <record tag="36867" name="dateTimeOriginal" type="string" count="20"
     conversion="org.podval.imageio.Conversions.parseExifDate"/>
@@ -163,7 +164,7 @@
   </record>
 
   <record tag="37385" name="flash"
-    conversion="org.podval.imageio.Conversions.decodeFlashStatus"/>
+    conversion="org.podval.imageio.Conversions.decodeExifFlashStatus"/>
     <!-- XXXX: Format: eummrrf
       f: flsh fired: 0/1
       r: strobe return light: 00 - no detection function; 01 - reserved; 10 - detected; 11 - not detected.
@@ -205,7 +206,8 @@
   <record tag="37521" name="subsecTimeOriginal" type="string"/>
   <record tag="37522" name="subsecTimeDigitized" type="string"/>
 
-  <record tag="40960" name="flashpixVersion" type="X8-string" count="4"/>
+  <record tag="40960" name="flashpixVersion" type="X8" count="4"
+    conversion="org.podval.imageio.Conversions.extractStringFromBinary"/>
 
   <record tag="40961" name="colorSpace">
     <enumeration>

@@ -114,6 +114,11 @@ public class Record extends Typed {
   }
 
 
+  public void setHandler(Class handlerClass) {
+    this.handlerClass = handlerClass;
+  }
+
+
   private Field getField(int index) {
     fields.ensureCapacity(index);
     for (int i = fields.size(); i<index; i++)
@@ -205,6 +210,19 @@ public class Record extends Typed {
       cnt = count;
     }
 
+    if (handlerClass != null) {
+      try {
+        FilteringMetadataHandler localHandler =
+          (FilteringMetadataHandler) handlerClass.newInstance();
+        localHandler.setNextHandler(handler);
+        handler = localHandler;
+      } catch (InstantiationException e) {
+        throw new IllegalArgumentException("Can not instantiate handler " + handlerClass); /** @todo wrong exception type! */
+      } catch (IllegalAccessException e) {
+        throw new IllegalArgumentException("Can not instantiate handler " + handlerClass); /** @todo wrong exception type! */
+      }
+    }
+
     handler.startGroup(this);
 
     for (int index=1; index<=nmb; index++) {
@@ -246,6 +264,9 @@ public class Record extends Typed {
 
 
   private boolean isSetCount;
+
+
+  private Class handlerClass;
 
 
   private final ArrayList fields = new ArrayList();

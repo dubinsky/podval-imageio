@@ -3,7 +3,16 @@ package org.podval.imageio;
 import javax.imageio.metadata.IIOMetadata;
 import javax.imageio.metadata.IIOMetadataNode;
 
+import javax.imageio.ImageIO;
+
+import javax.imageio.stream.ImageInputStream;
+
+import java.io.File;
+import java.io.IOException;
+
 import org.w3c.dom.Node;
+
+import com.sun.imageio.plugins.jpeg.JPEGMetadata;
 
 
 public class Metadata extends IIOMetadata {
@@ -86,6 +95,26 @@ public class Metadata extends IIOMetadata {
       new javax.xml.transform.dom.DOMSource(tree),
       new javax.xml.transform.stream.StreamResult(System.out)
     );
+  }
+
+
+  public static Metadata read(File file) throws IOException {
+    ImageInputStream in =
+      ImageIO.createImageInputStream(file);
+
+    javax.imageio.ImageReader reader =
+      (javax.imageio.ImageReader) ImageIO.getImageReaders(in).next();
+
+    reader.setInput(in);
+    IIOMetadata result = reader.getImageMetadata(0);
+    reader.dispose();
+    in.close();
+
+    /** @todo this should be done through a transcoder? */
+    if (result instanceof JPEGMetadata)
+      result = ExifReader.transcodeJpegMetadata(result);
+
+    return (Metadata) result;
   }
 
 

@@ -180,7 +180,6 @@ public class Type {
   public static final Type S16 = type("S16", 2);
   public static final Type U8 = selfType("U8", 1);
   public static final Type X8 = selfType("X8", 1);
-  public static final Type X8_STRING = selfType("X8-string", 1);
   public static final Type STRING = selfType("string", 1);
   public static final Type RATIONAL = selfType("rational", 8);
   public static final Type SRATIONAL = selfType("signedRational", 8);
@@ -192,14 +191,12 @@ public class Type {
   static {
     U8.setVariableLength();
     X8.setVariableLength();
-    X8_STRING.setVariableLength();
     STRING.setVariableLength();
 
     U32.setDirectoryAllowed();
     ONE.setDirectoryAllowed();
     TWO.setDirectoryAllowed();
 
-    X8_STRING.setActualTypes(new Type[] { X8 });
     U16_OR_U32.setActualTypes(new Type[] { U16, U32 });
 
     U32.setAllowedFieldTypes(new Type[] { U32, S32, F32 });

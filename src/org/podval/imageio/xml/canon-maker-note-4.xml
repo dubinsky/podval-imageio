@@ -36,7 +36,7 @@
   <field index="9" name="sequenceNumberInBurst"/>
 
   <field index="14" name="focusPointUsed"/>
-  <!--
+  <!-- XXXX: do a conversion
     I trust 0x01:19 more. This is not allways reliable.
     int c = code & 0x0FFF;
 
@@ -46,7 +46,7 @@
   -->
 
   <field index="15" name="flashBias"/>
-  <!--
+  <!-- XXXX: do a conversion
     private static int signify(int value) {
       return (value < 0x7FFF) ? value : value - 0x10000;
     }

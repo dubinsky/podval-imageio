@@ -53,7 +53,7 @@ class Group {
       result = ((Group) value).getNativeTree(name);
     } else {
       result = new IIOMetadataNode(name);
-      buildNativeTree(result, value);
+      result.setAttribute("value", value.toString());
     }
     return result;
   }
@@ -73,25 +73,7 @@ class Group {
   }
 
 
-  private static void buildNativeTree(IIOMetadataNode result, Object value) {
-    if (value instanceof ComplexValue) {
-      ((ComplexValue) value).buildNativeTree(result);
-    } else {
-      result.setAttribute("value", value.toString());
-    }
-  }
-
-
   private final List entries = new ArrayList();
-
-
-
-  /**
-   *
-   */
-  public static interface ComplexValue {
-    public void buildNativeTree(IIOMetadataNode result);
-  }
 
 
 

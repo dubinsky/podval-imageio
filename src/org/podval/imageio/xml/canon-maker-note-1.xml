@@ -11,7 +11,7 @@
     </enumeration>
   </field>
 
-  <field index="2" name="selfTimerDelay"/> <!-- TODO! -->
+  <field index="2" name="selfTimerDelay"/> <!-- XXXX: TODO! -->
 
   <field index="3" name="imageQuality">
     <enumeration>
@@ -46,7 +46,7 @@
     </enumeration>
   </field>
 
-  <field index="10" name="imageSize"/> <!-- TODO! -->
+  <field index="10" name="imageSize"/> <!-- XXXX: TODO! -->
 
   <field index="11" name="easyShootingMode">
     <enumeration>
@@ -65,7 +65,7 @@
     </enumeration>
   </field>
 
-  <field index="12" name="digitalZoom"/> <!-- TODO! -->
+  <field index="12" name="digitalZoom"/> <!-- XXXX: TODO! -->
 
   <field index="13" name="contrast">
     <enumeration>
@@ -110,7 +110,7 @@
     </enumeration>
   </field>
 
-  <field index="18" name="focusType"/> <!-- TODO! -->
+  <field index="18" name="focusType"/> <!-- XXXX: TODO! -->
 
   <field index="19" name="afPointSelected">
     <enumeration>
@@ -137,8 +137,8 @@
   <field index="24" name="shortFocalLengthInFocalUnits"/>
   <field index="25" name="focalUnitsPerMillimeter"/>
   <field index="28" name="flashFired"/> <!-- True if != 0 -->
-  <field index="29" name="flashDetails"/> <!-- TODO! -->
-  <field index="32" name="focusModeG1"/> <!-- TODO! -->
+  <field index="29" name="flashDetails"/> <!-- XXXX: TODO! -->
+  <field index="32" name="focusModeG1"/> <!-- XXXX: TODO! -->
 
 </record>
 

@@ -138,6 +138,7 @@ public class MetaMetadata {
     loadIsVector(result, xml);
     loadEnumeration(result, xml);
     loadConversion(result, xml);
+    loadHandler(result, xml);
     loadFields(result, xml);
 
     return result;
@@ -164,6 +165,11 @@ public class MetaMetadata {
 
   private static void loadConversion(Record result, org.podval.imageio.jaxb.Record xml) {
     result.setConversion(loadConversion(xml.getConversion()));
+  }
+
+
+  private static void loadHandler(Record result, org.podval.imageio.jaxb.Record xml) {
+    result.setHandler(loadHandler(xml.getHandler()));
   }
 
 
@@ -194,6 +200,7 @@ public class MetaMetadata {
     Field result = new Field(name);
     loadTyped(result, xml);
     loadEnumeration(result, xml);
+    loadConversion(result, xml);
     loadSubfields(result, xml);
     return result;
   }
@@ -201,6 +208,11 @@ public class MetaMetadata {
 
   private static void loadEnumeration(Field result, org.podval.imageio.jaxb.Field xml) {
     result.setEnumeration(loadEnumeration(xml.getEnumeration()));
+  }
+
+
+  private static void loadConversion(Field result, org.podval.imageio.jaxb.Field xml) {
+    result.setConversion(loadConversion(xml.getConversion()));
   }
 
 
@@ -234,7 +246,7 @@ public class MetaMetadata {
     if (name != null) {
       int dot = name.lastIndexOf('.');
       if (dot == -1)
-        throw new IllegalArgumentException("Conversion method name "+name+
+        throw new IllegalArgumentException("Conversion method name " + name +
           " does not contain a '.'");
       String className = name.substring(0, dot);
       String methodName = name.substring(dot+1, name.length());
@@ -242,7 +254,7 @@ public class MetaMetadata {
       try {
         cls = Class.forName(className);
       } catch (ClassNotFoundException e) {
-        throw new IllegalArgumentException("Class with conversion "+name+
+        throw new IllegalArgumentException("Class with conversion " + name +
           " not found");
       }
       /** @todo I can - and should - figure out argument type for the conversion method and ask for it directly... */
@@ -253,6 +265,22 @@ public class MetaMetadata {
           result = method;
           break;
         }
+      }
+    }
+
+    return result;
+  }
+
+
+  private static Class loadHandler(String name) {
+    Class result = null;
+
+    if (name != null) {
+      try {
+        result = Class.forName(name);
+      } catch (ClassNotFoundException e) {
+        throw new IllegalArgumentException("Class with conversion " + name +
+          " not found");
       }
     }
 

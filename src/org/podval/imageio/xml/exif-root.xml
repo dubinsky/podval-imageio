@@ -87,11 +87,20 @@
 
   <record tag="315" name="artist" type="string"/>
 
-  <!-- XXXX: Not used; colorspace is used instead.
-       Tag 318 is named 'whitePoint' in EXIF 2.2 specification.
-  <record tag="318" name="whitePointChromaticity" type="rational" count="2"/>
-  <record tag="319" name="primaryChromaticities" type="rational" count="6"/>
-  -->
+  <!-- Tags 318 and 319 are not used; colorspace is used instead. -->
+  <record tag="318" name="whitePointChromaticity" type="rational"> <!-- named 'whitePoint' in EXIF 2.2 specification -->
+    <field name="whitePointChromaticity1"/>
+    <field name="whitePointChromaticity2"/>
+  </record>
+
+  <record tag="319" name="primaryChromaticities" type="rational">
+    <field name="primaryChromaticity1Channel1"/>
+    <field name="primaryChromaticity2Channel1"/>
+    <field name="primaryChromaticity1Channel2"/>
+    <field name="primaryChromaticity2Channel2"/>
+    <field name="primaryChromaticity1Channel3"/>
+    <field name="primaryChromaticity2Channel3"/>
+  </record>
 
   <!-- Tags 513 and 514 are not used for primary image. -->
   <record tag="513" name="jpegInterchangeFormat" type="U32"/> <!-- Offset to JPEG SOI -->
@@ -101,7 +110,7 @@
   <record tag="529" name="YCbCrCoefficients" type="rational" count="3"/>
 
   <record tag="530" name="YCbCrSubSampling">
-    <field name="YCbCrSubsampling1"/> <!-- value 2 --> <!-- XXXX: skip? -->
+    <field name="YCbCrSubsampling1"/> <!-- value 2 -->
     <field name="YCbCrSubsampling">
       <enumeration>
         <item value="1" description="YCbCr4:2:2"/>
@@ -155,7 +164,10 @@
 <!-- XXXX: This has not been checked against EXIF 2.2 specification. -->
 <directory name="interoperability">
   <record tag="1" name="interoperabilityIndex" type="string" count="4"/>
-  <record tag="2" name="interoperabilityVersion" type="X8-string" count="4"/>
+
+  <record tag="2" name="interoperabilityVersion" type="X8" count="4"
+    conversion="org.podval.imageio.Conversions.extractStringFromBinary"/>
+
   <record tag="4096" name="relatedImageFileFormat" type="string"/>
   <record tag="4097" name="relatedImageWidth" type="U16orU32"/>
   <record tag="4098" name="relatedImageHeight" type="U16orU32"/>

@@ -91,67 +91,53 @@ public class Field extends Typed {
     assert (count == 1) || (type.isVariableLength());
 
     if (isSimple()) {
-      if (!type.isVariableLength())
-        readSimple(in, type, handler);
-      else
-        readVariableLength(in, type, count, handler);
+      addValue(readSimple(in, type, count), handler);
     } else
       readComplex(in, type, handler);
   }
 
 
-  private void readSimple(ImageInputStream in, Type type,
-    MetadataHandler handler) throws IOException
+  private static final int MAX_RECORD_LENGTH = 40;
+
+  private Object readSimple(ImageInputStream in, Type type, long count)
+    throws IOException
   {
+    Object result = null;
+
     Type fieldType = getType();
     if (fieldType != Type.U16_OR_U32)
       type = fieldType;
 
-    if (type == Type.U32) integerValue(in.readUnsignedInt()  , handler); else
-    if (type == Type.S32) integerValue(in.readInt()          , handler); else
-    if (type == Type.U16) integerValue(in.readUnsignedShort(), handler); else
-    if (type == Type.S16) integerValue(in.readShort()        , handler); else
+    if (type == Type.U32) result = readIntegerValue(in.readUnsignedInt()  ); else
+    if (type == Type.S32) result = readIntegerValue(in.readInt()          ); else
+    if (type == Type.U16) result = readIntegerValue(in.readUnsignedShort()); else
+    if (type == Type.S16) result = readIntegerValue(in.readShort()        ); else
 
-    if (type == Type.F32      ) floatingValue(in.readFloat()        , handler); else
-    if (type == Type.RATIONAL ) floatingValue(readRational      (in), handler); else
-    if (type == Type.SRATIONAL) floatingValue(readSignedRational(in), handler); else
+    if (type == Type.F32      ) result = new Float(in.readFloat()        ); else
+    if (type == Type.RATIONAL ) result = new Float(readRational(in)      ); else
+    if (type == Type.SRATIONAL) result = new Float(readSignedRational(in)); else
 
-      assert false : "Unexpected field type " + type;
-  }
+    if (type == Type.STRING) result = readString(in, (int) count); else
 
-
-  private static final int MAX_RECORD_LENGTH = 40;
-
-
-  private void readVariableLength(ImageInputStream in, Type type, long count,
-    MetadataHandler handler) throws IOException
-  {
-    Type fieldType = getType();
-    if ((fieldType == Type.X8_STRING) && (type == Type.X8)) {
-      type = Type.STRING;
-    } else {
-      type = fieldType;
-    }
-
-    if (type == Type.STRING)
-      addValue(readString(in, (int) count), handler);
-    else
     if ((type == Type.U8) || (type == Type.X8)) {
       if (count == 1)
-        integerValue(in.readUnsignedByte(), handler);
+        result = readIntegerValue(in.readUnsignedByte());
       else {
         if (count < MAX_RECORD_LENGTH) {
           byte[] value = new byte[(int) count];
           in.read(value);
-          addValue(new BinaryValue(value), handler);
+          result = new BinaryValue(value);
         } else {
-          addValue(new PointerValue(in.getStreamPosition(), count), handler);
+          result = new PointerValue(in.getStreamPosition(), count);
         }
       }
     } else
 
       assert false : "Unexpected field type " + type;
+
+    return result;
   }
+
 
 
   private void readComplex(ImageInputStream in, Type type, MetadataHandler handler)
@@ -177,26 +163,10 @@ public class Field extends Typed {
       } else
         throw new InternalError("Unexpected subfield type " + fieldType);
 
-      field.integerValue(value, handler);
+      field.addValue(field.readIntegerValue(value), handler);
     }
 
     handler.endGroup();
-  }
-
-
-  private void integerValue(long value, MetadataHandler handler) {
-    Object v;
-    if (enumeration == null)
-      v = new Long(value);
-    else
-      v = enumeration.getDescription((int) value);
-
-    addValue(v, handler);
-  }
-
-
-  private void floatingValue(float value, MetadataHandler handler) {
-    addValue(new Float(value), handler);
   }
 
 
@@ -212,6 +182,17 @@ public class Field extends Typed {
     }
 
     handler.addField(this, value);
+  }
+
+
+  private Object readIntegerValue(long value) {
+    Object result;
+    if (enumeration == null)
+      result = new Long(value);
+    else
+      result = enumeration.getDescription((int) value);
+
+    return result;
   }
 
 
@@ -266,15 +247,14 @@ public class Field extends Typed {
   /**
    *
    */
-  private static final class PointerValue implements Group.ComplexValue {
+  private static final class PointerValue {
     public PointerValue(long offset, long length) {
       this.offset = offset;
       this.length = length;
     }
 
-    public void buildNativeTree(IIOMetadataNode result) {
-      result.setAttribute("offset", Long.toString(offset));
-      result.setAttribute("length", Long.toString(length));
+    public String toString() {
+      return offset+ ":" +length;
     }
 
     public long getOffset() { return offset; }
@@ -288,13 +268,17 @@ public class Field extends Typed {
   /**
    *
    */
-  private static final class BinaryValue {
+  public static final class BinaryValue {
     public BinaryValue(byte[] value) { this.value = value; }
 
     private static final char[] HEX_DIGIT = new char[]
       { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
 
     private static char toHexDigit(int d) { return HEX_DIGIT[d]; }
+
+    public byte[] getValue() {
+      return value;
+    }
 
     public String toString() {
       StringBuffer result = new StringBuffer(2*value.length);

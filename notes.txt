@@ -1,10 +1,8 @@
 Defaulting of types: more intelligent?
 IFDs are U32?
 
-X8-string - through conversion?
-
-
-Enumerations with non-1 count: exif/37121
+Do IFD0/IFD1 through emulation of Handler events?
+Mapping handlers.
 
 
 
