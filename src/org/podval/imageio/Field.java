@@ -257,7 +257,7 @@ public class Field extends Typed {
   /**
    *
    */
-  private static final class PointerValue {
+  public static final class PointerValue {
     public PointerValue(long offset, long length) {
       this.offset = offset;
       this.length = length;

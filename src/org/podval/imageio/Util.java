@@ -49,11 +49,4 @@ public class Util {
 
     return result;
   }
-
-
-//  private static RenderedImage readJpegImage(FileImageInputStream stream) throws IOException {
-//    ImageReader imageReader = (ImageReader) ImageIO.getImageReadersByFormatName("JPEG").next();
-//    imageReader.setInput(stream, false/* true?*/, true);
-//    return imageReader.readAsRenderedImage(0, null);
-//  }
 }
