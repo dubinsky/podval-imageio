@@ -36,16 +36,16 @@
   <!-- XXX -->
   <record tag="273" name="stripOffsets" type="U16orU32" count="any"/>
 
-  <record tag="274" name="orientation">  <!-- 0th row 0th column; default 1 -->
+  <record tag="274" name="orientation">  <!-- 0th row - 0th column; default 1 -->
     <enumeration>
       <item value="1" description="Top left"/>
-      <item value="2" description="Top right"/>
-      <item value="3" description="Bottom right"/>
-      <item value="4" description="Bottom left"/>
-      <item value="5" description="Left top"/>
-      <item value="6" description="Right top"/>
-      <item value="7" description="Right bottom"/>
-      <item value="8" description="Left bottom"/>
+      <item value="2" description="Top right"/> <!-- flipped around horizontal and rortated 180 -->
+      <item value="3" description="Bottom right"/> <!-- rotated 180 -->
+      <item value="4" description="Bottom left"/> <!-- flipped around horizontal -->
+      <item value="5" description="Left top"/> <!-- flipped around horizontal and rotated 90 -->
+      <item value="6" description="Right top"/> <!-- rotated 270 -->
+      <item value="7" description="Right bottom"/> <!-- flipped around horizontal and rotated 270 -->
+      <item value="8" description="Left bottom"/> <!-- rotated 90 -->
     </enumeration>
   </record>
 
