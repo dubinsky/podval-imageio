@@ -16,6 +16,8 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.JAXBException;
 
+import org.podval.imageio.MetaMetadata;
+
 
 /**
  */
@@ -24,19 +26,9 @@ public class Album {
 
   public static void setRoot(String originalsRoot, String metadataRoot, String generatedRoot) {
     /** @todo check that directories exist (and have proper permissions) - or else what? */
-    root = new Album("",
-      new File(originalsRoot),
-      new File(metadataRoot),
-      new File(generatedRoot)
-    );
+    root = new Album(originalsRoot, metadataRoot, generatedRoot);
 
-
-    /** @todo should register using jar manifest! */
-    javax.imageio.spi.IIORegistry.getDefaultInstance().registerServiceProvider(new
-      org.podval.imageio.CiffImageReaderSpi());
-
-    /** @todo where is the right place for this? */
-    org.podval.imageio.MetaMetadata.load();
+    MetaMetadata.init();
   }
 
 
@@ -64,52 +56,40 @@ public class Album {
   private static Album root;
 
 
-  public Album(String name,
-    File originalsDirectory,
-    File metadataDirectory,
-    File generatedDirectory
-  ) {
+  public Album(String originalsRoot, String metadataRoot, String generatedRoot) {
+    /** @todo check that directories exist (and have proper permissions) - or else what? */
+    this.parent = null;
+    this.name = "";
+    this.originalsDirectory = new File(originalsRoot);
+    this.metadataDirectory = new File(metadataRoot);
+    this.generatedDirectory = new File(generatedRoot);
+  }
+
+
+  public Album(Album parent, String name) {
+    this.parent = parent;
     this.name = name;
-    this.originalsDirectory = originalsDirectory;
-    this.metadataDirectory = metadataDirectory;
-    this.generatedDirectory = generatedDirectory;
+
+    if (parent == null)
+      throw new NullPointerException("Directory parent is null.");
 
     if (name == null)
       throw new NullPointerException("Directory name is null.");
+  }
 
-    if (originalsDirectory == null)
-      throw new NullPointerException("Originals directory is null.");
 
-    if (metadataDirectory == null)
-      throw new NullPointerException("Metadata directory is null.");
-
-    if (generatedDirectory == null)
-      throw new NullPointerException("Generated directory is null.");
-
-    if (!originalsDirectory.exists())
-      throw new IllegalArgumentException("Directory does not exist: " + originalsDirectory);
-
-    if (!originalsDirectory.isDirectory())
-      throw new IllegalArgumentException("Not a directory: " + originalsDirectory);
-
-//    if (!generatedDirectory.canRead())
-//      throw new IllegalArgumentException("Can not read: " + originalsDirectory);
-
-    if (generatedDirectory.exists()) {
-      if (!generatedDirectory.isDirectory())
-        throw new IllegalArgumentException("Not a directory: " + generatedDirectory);
-
-//      if (!generatedDirectory.canWrite())
-//        throw new IllegalArgumentException("Can not write to: " + generatedDirectory);
-    } else {
-      if (!generatedDirectory.mkdirs())
-        throw new IllegalArgumentException("Can not create: " + generatedDirectory);
-    }
+  public Album getParent() {
+    return parent;
   }
 
 
   public String getName() {
     return name;
+  }
+
+
+  public String getTitle() {
+    return (title != null) ? title : name;
   }
 
 
@@ -149,6 +129,63 @@ public class Album {
   }
 
 
+  public File getOriginalsDirectory() {
+    if (originalsDirectory == null) {
+      originalsDirectory = new File(parent.getOriginalsDirectory(), name);
+
+      if (!originalsDirectory.exists())
+        throw new IllegalArgumentException("Directory does not exist: " + originalsDirectory);
+
+      if (!originalsDirectory.isDirectory())
+        throw new IllegalArgumentException("Not a directory: " + originalsDirectory);
+    }
+
+    return originalsDirectory;
+  }
+
+
+  public File getGeneratedDirectory() {
+    if (generatedDirectory == null) {
+      /** @todo now it would be nice to be able to place generated directory inside the originals one ... */
+      generatedDirectory = new File(parent.getGeneratedDirectory(), name);
+
+      if (generatedDirectory.exists()) {
+        if (!generatedDirectory.isDirectory())
+          throw new IllegalArgumentException("Not a directory: " + generatedDirectory);
+
+//      if (!generatedDirectory.canWrite())
+//        throw new IllegalArgumentException("Can not write to: " + generatedDirectory);
+      } else {
+        if (!generatedDirectory.mkdirs())
+          throw new IllegalArgumentException("Can not create: " + generatedDirectory);
+      }
+    }
+
+    return generatedDirectory;
+  }
+
+
+  public File getMetadataDirectory() {
+    if (metadataDirectory == null) {
+      /** @todo alternative policy is - try originals directory first... */
+      metadataDirectory = new File(parent.getMetadataDirectory(), name);
+
+      if (metadataDirectory.exists()) {
+        if (!metadataDirectory.isDirectory())
+          throw new IllegalArgumentException("Not a directory: " + metadataDirectory);
+
+//      if (!metadataDirectory.canWrite())
+//        throw new IllegalArgumentException("Can not write to: " + metadataDirectory);
+      } else {
+        if (!metadataDirectory.mkdirs())
+          throw new IllegalArgumentException("Can not create: " + metadataDirectory);
+      }
+    }
+
+    return metadataDirectory;
+  }
+
+
   private void ensureSubdirectoriesLoaded() {
     if (!subdirectoriesLoaded) {
       loadSubdirectories();
@@ -161,12 +198,13 @@ public class Album {
     if (!picturesLoaded) {
       loadPictures();
       picturesLoaded = true;
+      loadMetadata();
     }
   }
 
 
   private void loadSubdirectories() {
-    File[] files = originalsDirectory.listFiles();
+    File[] files = getOriginalsDirectory().listFiles();
 
     for (int i=0; i<files.length; i++) {
       File file = files[i];
@@ -181,7 +219,7 @@ public class Album {
 
 
   private void loadPictures() {
-    File[] files = originalsDirectory.listFiles();
+    File[] files = getOriginalsDirectory().listFiles();
 
     for (int i=0; i<files.length; i++) {
       File file = files[i];
@@ -193,9 +231,9 @@ public class Album {
       }
     }
 
-    for (Iterator i=pictures.entrySet().iterator(); i.hasNext();) {
+    for (Iterator i = pictures.entrySet().iterator(); i.hasNext();) {
       Map.Entry entry = (Map.Entry) i.next();
-      Picture picture = (Picture) entry.getValue();
+      PictureLocal picture = (PictureLocal) entry.getValue();
       if (!picture.isPicture())
         i.remove();
     }
@@ -210,14 +248,7 @@ public class Album {
     if (subdirectories.get(name) != null)
       throw new IOException("Duplicate case-sensitive subdirectory name " + name);
 
-    /** @todo now it would be nice to be able to place generated directory inside the originals one ... */
-    Album subdirectory = new Album(name,
-      new File(originalsDirectory, name),
-      new File(metadataDirectory , name),
-      new File(generatedDirectory, name)
-    );
-
-    subdirectories.put(name, subdirectory);
+    subdirectories.put(name, new Album(this, name));
   }
 
 
@@ -241,10 +272,10 @@ public class Album {
     String name      = fileName.substring(startName     , endName);
     String extension = fileName.substring(startExtension, endExtension);
 
-    Picture picture = (Picture) pictures.get(name);
+    PictureLocal picture = (PictureLocal) pictures.get(name);
 
     if (picture == null) {
-      picture = new Picture(name, metadataDirectory, generatedDirectory);
+      picture = new PictureLocal(this, name);
       pictures.put(name, picture);
     }
 
@@ -252,18 +283,24 @@ public class Album {
   }
 
 
-  private void loadMetadata() throws IOException, JAXBException {
-    File file = new File(metadataDirectory, "album.xml");
-    if (file.exists()) {
-      InputStream in = new FileInputStream(file);
-      JAXBContext jc = JAXBContext.newInstance("org.podval.album.jaxb");
-      Unmarshaller u = jc.createUnmarshaller();
-      u.setValidating(true);
+  private void loadMetadata() {
+    try {
+      File file = new File(getMetadataDirectory(), "album.xml");
+      if (file.exists()) {
+        InputStream in = new FileInputStream(file);
+        JAXBContext jc = JAXBContext.newInstance("org.podval.album.jaxb");
+        Unmarshaller u = jc.createUnmarshaller();
+        u.setValidating(true);
 
-      org.podval.album.jaxb.Album xml =
-        (org.podval.album.jaxb.Album) u.unmarshal(in);
+        org.podval.album.jaxb.Album xml =
+          (org.podval.album.jaxb.Album) u.unmarshal(in);
 
-      loadMetadata(xml);
+        loadMetadata(xml);
+      }
+    } catch (IOException e) {
+      /** @todo  */
+    } catch (JAXBException e) {
+      /** @todo  */
     }
   }
 
@@ -278,9 +315,23 @@ public class Album {
   private void loadPictureRef(org.podval.album.jaxb.PictureRef xml) {
     String path = xml.getAlbum();
     String name = xml.getName();
-    /** @todo XXXX */
-////    Picture picture = new PictureRef(path, name);
+    Picture referent = Album.getByPath(path).getPicture(name);
+    Picture picture = new PictureRef(this, referent);
+    /** @todo I do not have to put references into the Map,
+     * since there is no need to be able to reference them,
+     * and their names may conflict with the others, but FOR NOW....
+     *  */
+    while (true) {
+      Object old = pictures.get(name);
+      if (old == null) break;
+      name += "_";
+    }
+
+    pictures.put(name, picture);
   }
+
+
+  private final Album parent;
 
 
   private final String name;
@@ -289,13 +340,13 @@ public class Album {
   private String title;
 
 
-  private final File originalsDirectory;
+  private File originalsDirectory;
 
 
-  private final File metadataDirectory;
+  private File metadataDirectory;
 
 
-  private final File generatedDirectory;
+  private File generatedDirectory;
 
 
   private boolean subdirectoriesLoaded = false;
@@ -305,7 +356,7 @@ public class Album {
 
 
   /**
-   * map<String name, PictureDirectory>
+   * map<String name, Album>
    */
   private final Map subdirectories = new TreeMap(String.CASE_INSENSITIVE_ORDER);
 

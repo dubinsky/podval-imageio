@@ -7,7 +7,7 @@
 
 <html>
   <head>
-    <title><c:out value="${directory.name}"/></title>
+    <title><c:out value="${directory.title}"/></title>
     <link href="../../res/styles.css" rel=stylesheet>
     <meta name="Generator" content="Podval photo album by Leonid Dubinsky, www.podval.org">
   </head>
@@ -24,7 +24,7 @@
     </td>
 
     <td align="center" nowrap>
-      <h1>Directory: <c:out value="${directory.name}"/> (<c:out value="${path}"/>)</h1>
+      <h1>Directory: <c:out value="${directory.title}"/> (<c:out value="${path}"/>)</h1>
     </td>
     <td class="number" width="10%" align="right" nowrap/>
   </tr>
@@ -39,7 +39,7 @@
       <tr>
         <td valign="bottom" width="160">
           <a href="<c:url value='/do/index'><c:param name='path' value='${path}/${subdirectory.name}'/></c:url>">
-            <c:out value="${subdirectory.name}"/>
+            <c:out value="${subdirectory.title}"/>
           </a>
         </td>
       </tr>

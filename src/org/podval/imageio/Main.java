@@ -1,6 +1,5 @@
 package org.podval.imageio;
 
-import javax.imageio.spi.IIORegistry;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.ImageWriter;
@@ -9,8 +8,6 @@ import javax.imageio.stream.ImageOutputStream;
 import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.FileImageOutputStream;
 import javax.imageio.metadata.IIOMetadata;
-
-import com.sun.imageio.plugins.jpeg.JPEGMetadata;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -32,14 +29,6 @@ public class Main {
     IllegalArgumentException,
     javax.xml.transform.TransformerException
   {
-    /** @todo should register using jar manifest (also). */
-    IIORegistry.getDefaultInstance().registerServiceProvider(new
-      CiffImageReaderSpi());
-
-    /** @todo where is the right place for this? */
-    MetaMetadata.load();
-
-
     String command = "number";
 
     for (int i=0; i<args.length; i++) {
@@ -117,41 +106,10 @@ public class Main {
   }
 
 
-
-  public static Metadata readMetadata(ImageReader reader) throws IOException {
-    IIOMetadata result = reader.getImageMetadata(0);
-
-    /** @todo this should be done through a transcoder? */
-    if (result instanceof JPEGMetadata)
-      result = ExifReader.transcodeJpegMetadata(result);
-
-    return (Metadata) result;
-  }
-
-
-  public static void printMetadata(Metadata metadata) throws
-    javax.xml.transform.TransformerFactoryConfigurationError,
-    IllegalArgumentException,
-    javax.xml.transform.TransformerException
-  {
-    Node tree = metadata.getNativeTree();
-    javax.xml.transform.Transformer transformer =
-      javax.xml.transform.TransformerFactory.newInstance().newTransformer();
-    transformer.setOutputProperty("indent", "yes");
-    transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
-    transformer.transform(
-      new javax.xml.transform.dom.DOMSource(tree),
-      new javax.xml.transform.stream.StreamResult(System.out)
-    );
-  }
-
-
-
-
   private static void number(ImageReader reader, File file, String name)
     throws IOException
   {
-    Metadata metadata = readMetadata(reader);
+    Metadata metadata = Metadata.read(reader);
     if (metadata != null) {
       int number = metadata.getIntValue("serialNumber");
       Date imageDateTime = (Date) metadata.find("dateTime");
@@ -182,7 +140,7 @@ public class Main {
   private static void decompress(ImageReader reader, File file, String name)
     throws IOException
   {
-    Metadata metadata = readMetadata(reader);
+    Metadata metadata = Metadata.read(reader);
     String model = metadata.getStringValue("model"); // cameraObject/modelName/model
     int width = metadata.getIntValue("width"); // imageProperties/canonRawProperties/sensor/width
     int height = metadata.getIntValue("height"); // imageProperties/canonRawProperties/sensor/height
@@ -208,7 +166,7 @@ public class Main {
     javax.xml.transform.TransformerException
   {
     System.err.println();
-    printMetadata(readMetadata(reader));
+    Metadata.read(reader).dump();
   };
 
 

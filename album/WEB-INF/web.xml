@@ -3,16 +3,16 @@
 <web-app>
   <display-name>Podval photo album</display-name>
   <context-param>
-    <param-name>originalsRoot</param-name>
-    <param-value>/mnt/extra/Photo</param-value>
+    <param-name>generatedRoot</param-name>
+    <param-value>/tmp/generatedDirectory</param-value>
   </context-param>
   <context-param>
     <param-name>metadataRoot</param-name>
     <param-value>/tmp/metadataDirectory</param-value>
   </context-param>
   <context-param>
-    <param-name>generatedRoot</param-name>
-    <param-value>/tmp/generatedDirectory</param-value>
+    <param-name>originalsRoot</param-name>
+    <param-value>/mnt/extra/Photo</param-value>
   </context-param>
   <listener>
     <listener-class>org.podval.album.Context</listener-class>
@@ -21,12 +21,12 @@
     <servlet-name>action</servlet-name>
     <servlet-class>org.apache.struts.action.ActionServlet</servlet-class>
     <init-param>
-      <param-name>debug</param-name>
-      <param-value>2</param-value>
-    </init-param>
-    <init-param>
       <param-name>config</param-name>
       <param-value>/WEB-INF/struts-config.xml</param-value>
+    </init-param>
+    <init-param>
+      <param-name>debug</param-name>
+      <param-value>2</param-value>
     </init-param>
     <load-on-startup>2</load-on-startup>
   </servlet>

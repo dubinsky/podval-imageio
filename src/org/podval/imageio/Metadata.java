@@ -4,13 +4,18 @@ import javax.imageio.metadata.IIOMetadata;
 import javax.imageio.metadata.IIOMetadataNode;
 
 import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
 
 import javax.imageio.stream.ImageInputStream;
+
+import java.util.Iterator;
 
 import java.io.File;
 import java.io.IOException;
 
 import org.w3c.dom.Node;
+
+import com.sun.imageio.plugins.jpeg.JPEGMetadata;
 
 
 public class Metadata extends IIOMetadata {
@@ -74,10 +79,59 @@ public class Metadata extends IIOMetadata {
   }
 
 
-  public Node getNativeTree() {
+  private Node getNativeTree() {
     return root.getNativeTree(getNativeMetadataFormatName());
   }
 
 
   private final Group root;
+
+
+
+
+  public static IIOMetadata read(File file) throws IOException {
+    IIOMetadata result = null;
+
+    ImageInputStream in = ImageIO.createImageInputStream(file);
+    Iterator readers = ImageIO.getImageReaders(in);
+    ImageReader reader = (readers.hasNext()) ? (ImageReader) readers.next() : null;
+
+    if (reader != null) {
+      reader.setInput(in);
+      result = read(reader);
+      reader.dispose();
+    }
+
+    in.close();
+
+    return (Metadata) result;
+  }
+
+
+  public static Metadata read(ImageReader reader) throws IOException {
+    IIOMetadata result = reader.getImageMetadata(0);
+
+    /** @todo this should be done through a transcoder? */
+    if (result instanceof JPEGMetadata)
+      result = ExifReader.transcodeJpegMetadata(result);
+
+    return (Metadata) result;
+  }
+
+
+  public void dump() throws
+    javax.xml.transform.TransformerFactoryConfigurationError,
+    IllegalArgumentException,
+    javax.xml.transform.TransformerException
+  {
+    Node tree = getNativeTree();
+    javax.xml.transform.Transformer transformer =
+      javax.xml.transform.TransformerFactory.newInstance().newTransformer();
+    transformer.setOutputProperty("indent", "yes");
+    transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+    transformer.transform(
+      new javax.xml.transform.dom.DOMSource(tree),
+      new javax.xml.transform.stream.StreamResult(System.out)
+    );
+  }
 }

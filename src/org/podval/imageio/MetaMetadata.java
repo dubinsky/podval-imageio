@@ -11,10 +11,22 @@ import java.util.Iterator;
 
 import java.lang.reflect.Method;
 
+import javax.imageio.spi.IIORegistry;
+
 
 public class MetaMetadata {
 
-  public static void load() {
+  public static void init() {
+    /** @todo should register using jar manifest (also). */
+    IIORegistry.getDefaultInstance().registerServiceProvider(new
+      CiffImageReaderSpi());
+
+    /** @todo where is the right place for this? */
+    load();
+  }
+
+
+  private static void load() {
     if (!loaded) {
       Class cls = org.podval.imageio.MetaMetadata.class;
       load(cls, "xml/canon-maker-note-1.xml");
