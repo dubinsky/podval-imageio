@@ -31,8 +31,6 @@
   <img
     class="image"
     src="<c:url value='/do/view-screensized'><c:param name='path' value='${picture.path}'/></c:url>"
-    width="640"
-    height="480"
     border="0"
   >
   <br>
