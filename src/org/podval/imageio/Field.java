@@ -85,6 +85,11 @@ public class Field extends Typed {
   }
 
 
+  public void setSkip(boolean value) {
+    skip = value;
+  }
+
+
   public void read(ImageInputStream in, Type type, long count,
     MetadataHandler handler) throws IOException
   {
@@ -171,17 +176,19 @@ public class Field extends Typed {
 
 
   private void addValue(Object value, MetadataHandler handler) {
-    Method conversion = getConversion();
-    if (conversion != null) {
-      try {
-        /** @todo when the method is not static, error message is very confusing... */
-        value = conversion.invoke(null, new Object[] {value});
-      } catch (IllegalAccessException e) {
-      } catch (InvocationTargetException e) {
+    if (!skip) {
+      Method conversion = getConversion();
+      if (conversion!=null) {
+        try {
+            /** @todo when the method is not static, error message is very confusing... */
+          value = conversion.invoke(null, new Object[] {value});
+        } catch (IllegalAccessException e) {
+        } catch (InvocationTargetException e) {
+        }
       }
-    }
 
-    handler.addField(this, value);
+      handler.addField(this, value);
+    }
   }
 
 
@@ -241,6 +248,9 @@ public class Field extends Typed {
 
 
   private List subfields = null;
+
+
+  private boolean skip = false;
 
 
 

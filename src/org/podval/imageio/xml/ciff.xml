@@ -37,7 +37,7 @@
 
   <record tag="4" type="U32" name="recordID"> <!-- 0 for G2... -->
     <field type="U32" name="recordID"/> <!-- Number of images (not audio recordings) taken since the camera shipped. -->
-    <field type="U32" name="reserved"/>
+    <field type="U32" name="reserved" skip="true"/>
   </record>
 
   <record tag="5" type="string" name="description"/>
@@ -49,9 +49,9 @@
         <item value="1" description="Written document"/>
       </enumeration>
     </field>
-    <field name="reserved"/>
-    <field name="reserved"/>
-    <field name="reserved"/>
+    <field name="reserved" skip="true"/>
+    <field name="reserved" skip="true"/>
+    <field name="reserved" skip="true"/>
   </record>
 
   <record tag="14" type="U32" name="capturedTime" handler="org.podval.imageio.CiffCapturedTimeHandler">
@@ -69,8 +69,8 @@
     <field type="U32" name="componentBitDepth"/> <!-- bits for one color component -->
     <field type="U32" name="colorBitDepth"/> <!-- bits for all color information -->
     <field type="U32" name="colorBW">
-      <field type="U8" name="reserved"/>
-      <field type="U8" name="reserved"/>
+      <field type="U8" name="reserved" skip="true"/>
+      <field type="U8" name="reserved" skip="true"/>
       <field type="U8" name="pixelAaspectRatioConversionNeeded">
         <enumeration>
           <item value="0" description="No"/>
@@ -94,7 +94,7 @@
     <field type="U32" name="serialNumber"
       conversion="org.podval.imageio.Conversions.decodeImageSerialNumber"/>
 
-    <field type="U32" name="reserved"/>
+    <field type="U32" name="reserved" skip="true"/>
   </record>
 
 </directory>
@@ -109,7 +109,7 @@
 
   <record tag="7" type="U32" name="targetDistanceSetting">
     <field type="F32" name="targetDistanceSettingInMillimeters"/>
-    <field type="F32" name="reserved"/>
+    <field type="F32" name="reserved" skip="true"/>
   </record>
 
   <record tag="16" type="U16" name="releaseMethod">
@@ -119,9 +119,9 @@
         <item value="1" description="Continuous/successive exposures"/>
       </enumeration>
     </field>
-    <field type="U16" name="reserved"/>
-    <field type="U16" name="reserved"/>
-    <field type="U16" name="reserved"/>
+    <field type="U16" name="reserved" skip="true"/>
+    <field type="U16" name="reserved" skip="true"/>
+    <field type="U16" name="reserved" skip="true"/>
   </record>
 
   <record tag="17" type="U16" name="releaseTiming">
@@ -131,9 +131,9 @@
         <item value="1" description="Priority on focus"/>
       </enumeration>
     </field>
-    <field type="U16" name="reserved"/>
-    <field type="U16" name="reserved"/>
-    <field type="U16" name="reserved"/>
+    <field type="U16" name="reserved" skip="true"/>
+    <field type="U16" name="reserved" skip="true"/>
+    <field type="U16" name="reserved" skip="true"/>
   </record>
 
   <record tag="19" type="U32" name="EF">
@@ -154,7 +154,7 @@
 
   <record tag="20" type="U32" name="measuredEvAlsoLuminance">
     <field type="F32" name="ev"/>
-    <field type="F32" name="reserved"/>
+    <field type="F32" name="reserved" skip="true"/>
   </record>
 
 </directory>
@@ -176,7 +176,7 @@
 
   <record tag="11" type="U32" name="BodyID">
     <field type="U32" name="BodyID"/>
-    <field type="U32" name="reserved"/>
+    <field type="U32" name="reserved" skip="true"/>
   </record>
 
   <record tag="11" type="string" name="firmwareVersion"/>
@@ -185,9 +185,9 @@
 
   <record tag="28" type="U16" name="bodySensitivity">
     <field type="U16" name="defaultISONumberAlsoBaseISO"/>
-    <field type="U16" name="reserved"/>
-    <field type="U16" name="reserved"/>
-    <field type="U16" name="reserved"/>
+    <field type="U16" name="reserved" skip="true"/>
+    <field type="U16" name="reserved" skip="true"/>
+    <field type="U16" name="reserved" skip="true"/>
   </record>
 
 </directory>

@@ -133,4 +133,14 @@ public class Conversions {
     int low  = (int) ( value        & 0xFFFF);
     return Integer.toHexString(high) + "-" + low;
   }
+
+
+
+  public static float convertTenthsOfSecondToSeconds(long value) {
+    return value / 10f;
+  }
+
+  public static boolean convertIntegerToBoolean(long value) {
+    return (value == 1);
+  }
 }

@@ -33,7 +33,7 @@
   <record tag="271" name="make" type="string"/>
   <record tag="272" name="model" type="string"/>
 
-  <!-- XXX: weird format; not used? -->
+  <!-- XXX -->
   <record tag="273" name="stripOffsets" type="U16orU32" count="any"/>
 
   <record tag="274" name="orientation">  <!-- 0th row 0th column; default 1 -->
@@ -53,7 +53,7 @@
 
   <record tag="278" name="rowsPerStrip" type="U16orU32"/>
 
-  <!-- XXX: weird format; not used? -->
+  <!-- XXX -->
   <record tag="279" name="stripByteCounts" type="U16orU32" count="any"/>
 
   <record tag="282" name="xResolution" type="rational"/> <!-- default 72 dpi -->
@@ -66,7 +66,7 @@
     </enumeration>
   </record>
 
-  <!-- XXXX: see also 41488... -->
+  <!-- see also exif/41488 -->
   <record tag="296" name="resolutionUnit"> <!-- default 2 -->
     <enumeration>
       <!--<item value="1" description="Undefined"/>-->
@@ -76,9 +76,8 @@
   </record>
 
 
-  <!-- XXXX: Not used; colorspace is used instead.
-  <record tag="301" name="transferFunction" count=3*256/>
-  -->
+  <!-- Not used; colorspace is used instead. -->
+  <record tag="301" name="transferFunction" count="768"/> <!-- 3*256 -->
 
   <record tag="305" name="software" type="string"/>  <!-- Missing in G2's .THM file. -->
 
@@ -87,12 +86,13 @@
 
   <record tag="315" name="artist" type="string"/>
 
-  <!-- Tags 318 and 319 are not used; colorspace is used instead. -->
+  <!-- Not used; colorspace is used instead. -->
   <record tag="318" name="whitePointChromaticity" type="rational"> <!-- named 'whitePoint' in EXIF 2.2 specification -->
     <field name="whitePointChromaticity1"/>
     <field name="whitePointChromaticity2"/>
   </record>
 
+  <!-- Not used; colorspace is used instead. -->
   <record tag="319" name="primaryChromaticities" type="rational">
     <field name="primaryChromaticity1Channel1"/>
     <field name="primaryChromaticity2Channel1"/>

@@ -2,21 +2,21 @@
 
 <meta-metadata>
 
-<record name="canon-maker-note-2" type="U16" count="4"/>
+<record name="canon-maker-note-2" type="U16" count="4" skip="true"/>
 
-<record name="canon-maker-note-3-focalLength" type="U16">
+<record name="canon-maker-note-3-focalLength" type="U16" skip="true">
   <field type="U16" name="typeOrScale"/>
   <field type="U16" name="focalLengthInMillimeters"/>
   <field type="U16" name="sensorXinMilliinches"/>
   <field type="U16" name="sensorYinMilliInches"/>
 </record>
 
-<record name="canon-maker-note-13" type="U16" vector="true" count="20"/>
+<record name="canon-maker-note-13" type="U16" vector="true" count="20" skip="true"/>
 
 
 <makerNote make="Canon" name="canon-maker-note">
 
-  <!-- XXXX: I see this twice, with different values! WTF? -->
+  <!-- XXXX: I see this twice, with different values (and count)! WTF? -->
   <record tag="0" name="canonMakerNote-0-justZeroes" type="U16" count="6"/>
 
   <record tag="1" name="canon-maker-note-1"/>

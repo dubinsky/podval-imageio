@@ -158,6 +158,11 @@ public class Record extends Typed {
   }
 
 
+  public void setSkip(boolean value) {
+    skip = value;
+  }
+
+
   public void readWithLength(ImageInputStream in, Type type, long length,
     MetadataHandler handler) throws IOException
   {
@@ -194,6 +199,8 @@ public class Record extends Typed {
 
       count--;
     }
+
+    if (skip) return; /** @todo split the method, but avoid return! */
 
     if ((fields.size() == 0) && ((count == 1) || (type.isVariableLength()))) {
       addField(1, createDefaultField());
@@ -270,4 +277,7 @@ public class Record extends Typed {
 
 
   private final ArrayList fields = new ArrayList();
+
+
+  private boolean skip = false;
 }

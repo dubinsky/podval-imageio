@@ -134,46 +134,18 @@ public class MetaMetadata {
       result = new Record(name);
 
     loadTyped(result, xml);
-    loadCount(result, xml);
-    loadIsVector(result, xml);
-    loadEnumeration(result, xml);
-    loadConversion(result, xml);
-    loadHandler(result, xml);
-    loadFields(result, xml);
 
-    return result;
-  }
-
-
-  private static void loadIsVector(Record result, org.podval.imageio.jaxb.Record xml) {
-    if (xml.isSetVector())
-      result.setIsVector(xml.isVector());
-  }
-
-
-  private static void loadCount(Record result, org.podval.imageio.jaxb.Record xml) {
     Object o = xml.getCount();
     if (o != null)
       result.setCount((o instanceof Integer) ? ((Integer) o).intValue() : 0);
-  }
 
+    if (xml.isSetVector())
+      result.setIsVector(xml.isVector());
 
-  private static void loadEnumeration(Record result, org.podval.imageio.jaxb.Record xml) {
     result.setEnumeration(loadEnumeration(xml.getEnumeration()));
-  }
-
-
-  private static void loadConversion(Record result, org.podval.imageio.jaxb.Record xml) {
     result.setConversion(loadConversion(xml.getConversion()));
-  }
-
-
-  private static void loadHandler(Record result, org.podval.imageio.jaxb.Record xml) {
     result.setHandler(loadHandler(xml.getHandler()));
-  }
 
-
-  private static void loadFields(Record result, org.podval.imageio.jaxb.Record xml) {
     int index = 0;
     for (Iterator i = xml.getFields().iterator(); i.hasNext();) {
       org.podval.imageio.jaxb.Field fieldXml =
@@ -183,7 +155,13 @@ public class MetaMetadata {
 
       result.addField(index, loadField(fieldXml));
     }
+
     /** @todo if count was set, check. If not, set. */
+
+    if (xml.isSetSkip())
+      result.setSkip(xml.isSkip());
+
+    return result;
   }
 
 
@@ -199,26 +177,13 @@ public class MetaMetadata {
     String name = xml.getName();
     Field result = new Field(name);
     loadTyped(result, xml);
-    loadEnumeration(result, xml);
-    loadConversion(result, xml);
-    loadSubfields(result, xml);
-    return result;
-  }
-
-
-  private static void loadEnumeration(Field result, org.podval.imageio.jaxb.Field xml) {
     result.setEnumeration(loadEnumeration(xml.getEnumeration()));
-  }
-
-
-  private static void loadConversion(Field result, org.podval.imageio.jaxb.Field xml) {
     result.setConversion(loadConversion(xml.getConversion()));
-  }
-
-
-  private static void loadSubfields(Field result, org.podval.imageio.jaxb.Field xml) {
     for (Iterator i = xml.getSubfields().iterator(); i.hasNext();)
       result.addSubfield(loadField((org.podval.imageio.jaxb.Field) i.next()));
+    if (xml.isSetSkip())
+      result.setSkip(xml.isSkip());
+    return result;
   }
 
 

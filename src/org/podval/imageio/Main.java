@@ -84,7 +84,7 @@ public class Main {
     }
 
     if ("number".equals(command))
-      printNumber(file);
+      printNumber(file, name);
     else if ("decompress".equals(command))
       decompress(file, name);
     else if ("dump".equals(command)) {
@@ -95,12 +95,33 @@ public class Main {
   }
 
 
-  private static void printNumber(File file) throws IOException {
+  private static void printNumber(File file, String name) throws IOException {
     Metadata metadata = Metadata.read(file);
     if (metadata != null) {
       int number = metadata.getIntValue("serialNumber");
-      Date dateTime = (Date) metadata.find("dateTime");
-      System.out.println("# " + number + " @ " + dateTime);
+      Date imageDateTime = (Date) metadata.find("dateTime");
+      long fileMillis = file.lastModified();
+
+      int fileNumber = 0;
+      try {
+        fileNumber = Integer.parseInt(name);
+      } catch (NumberFormatException e) {
+      }
+      boolean wrongNumber = (fileNumber != number);
+      long imageMillis = imageDateTime.getTime();
+      boolean wrongDate = Math.abs(imageMillis-fileMillis)>2*1000;
+
+      System.out.print("# " + number + " @ " + imageDateTime);
+
+      if (wrongNumber)
+        System.out.print(" wrong number");
+      if (wrongDate) {
+        System.out.print(" wrong date: " + new Date(fileMillis));
+        file.setLastModified(imageMillis);
+        System.out.print(" -corrected");
+      }
+
+      System.out.println();
     }
   }
 

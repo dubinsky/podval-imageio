@@ -11,7 +11,8 @@
     </enumeration>
   </field>
 
-  <field index="2" name="selfTimerDelay"/> <!-- XXXX: TODO! -->
+  <field index="2" name="selfTimerDelay"
+    conversion="org.podval.imageio.Conversions.convertTenthsOfSecondToSeconds"/>
 
   <field index="3" name="imageQuality">
     <enumeration>
@@ -35,7 +36,8 @@
     </enumeration>
   </field>
 
-  <field index="5" name="continuousDrive"/> <!-- True if ==1 -->
+  <field index="5" name="continuousDrive"
+    conversion="org.podval.imageio.Conversions.convertIntegerToBoolean"/>
 
   <field index="7" name="focusMode"> <!-- TODO! -->
     <enumeration>

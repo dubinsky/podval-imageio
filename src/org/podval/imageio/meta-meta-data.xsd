@@ -80,6 +80,13 @@
       <xsd:attribute name="conversion" type="xsd:string"/>
 
 		  <xsd:attribute name="handler" type="xsd:string"/>
+
+			<xsd:attribute name="skip" type="xsd:boolean">
+        <xsd:annotation>
+          <xsd:appinfo><jxb:property generateIsSetMethod="true"/></xsd:appinfo>
+        </xsd:annotation>
+      </xsd:attribute>
+
     </xsd:extension>
   </xsd:complexContent>
 </xsd:complexType>
@@ -120,6 +127,11 @@
 
       <xsd:attribute name="conversion" type="xsd:string"/>
 
+      <xsd:attribute name="skip" type="xsd:boolean">
+        <xsd:annotation>
+          <xsd:appinfo><jxb:property generateIsSetMethod="true"/></xsd:appinfo>
+        </xsd:annotation>
+      </xsd:attribute>
     </xsd:extension>
   </xsd:complexContent>
 </xsd:complexType>
