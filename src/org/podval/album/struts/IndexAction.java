@@ -18,7 +18,7 @@ public class IndexAction extends Action {
     HttpServletResponse response)
   {
     /** @todo THIS IS NOT SUPPOSED TO BE HERE AT ALL!!!!! */
-    Album.saveChanged();
+    AlbumLocal.saveChanged();
 
 
 

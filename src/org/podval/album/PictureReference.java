@@ -12,8 +12,8 @@ import javax.xml.bind.JAXBException;
 
 public class PictureReference extends Picture {
 
-  public PictureReference(String name) {
-    super(name);
+  public PictureReference(String path) {
+    super(path);
   }
 
 

@@ -52,7 +52,7 @@ public class PictureLocal extends Picture {
 
   private void checkExtension(File file, String extension) throws IOException {
     if (file != null)
-        throw new IOException("Duplicate case-sensitive extension " + extension);
+      throw new IOException("Duplicate case-sensitive extension " + extension);
   }
 
 
@@ -62,7 +62,7 @@ public class PictureLocal extends Picture {
 
 
   protected String getDefaultTitle() {
-    getName();
+    return getName();
   }
 
 
@@ -111,7 +111,7 @@ public class PictureLocal extends Picture {
       RenderedImage image = readCameraScreensized();
 
       if (image != null)
-        Util.rotate(image, orientation);
+        image = Util.rotate(image, orientation);
       else
         image = scale(480, 640);
 
@@ -151,8 +151,9 @@ public class PictureLocal extends Picture {
       result = getFullsizedGeneratedFile();
 
       if (!result.exists()) {
-        RenderedImage image = ((jpgFile != null) ? Util.readImage(jpgFile) : Util.convert(crwFile));
-        Util.writeImage(Util.rotate(image, orientation), result);
+        RenderedImage image = readCameraFullsized();
+        image = Util.rotate(image, orientation);
+        Util.writeImage(image, result);
       }
     }
 
@@ -165,6 +166,18 @@ public class PictureLocal extends Picture {
       originalFile = getGeneratedFile("original");
 
     return originalFile;
+  }
+
+
+  private RenderedImage readCameraFullsized() throws IOException {
+    RenderedImage result = null;
+
+    if (jpgFile != null)
+      result = Util.readImage(jpgFile);
+    else
+      result = Util.convert(crwFile);
+
+    return result;
   }
 
 

@@ -38,10 +38,10 @@ public class Main {
         setAlbumTitle(album, args, argNum);
       else
       if ("add".equals(command))
-        addToAlbum(album, args, argNum);
+        addToAlbum((AlbumLocal) album, args, argNum);
       else
       if ("remove".equals(command))
-        removeFromAlbum(album, args, argNum);
+        removeFromAlbum((AlbumLocal) album, args, argNum);
       else {
         System.out.println("Command not recognized: "+command);
         usage();
@@ -66,7 +66,7 @@ public class Main {
       }
     }
 
-    Album.saveChanged();
+    AlbumLocal.saveChanged();
   }
 
 
@@ -110,7 +110,7 @@ public class Main {
   }
 
 
-  private static void addToAlbum(Album album, String[] args, int argNum) {
+  private static void addToAlbum(AlbumLocal album, String[] args, int argNum) {
     if (argNum+1 >= args.length) { usage(); return; }
 
     String fromPath = args[argNum++];
@@ -119,7 +119,7 @@ public class Main {
   }
 
 
-  private static void removeFromAlbum(Album album, String[] args, int argNum) {
+  private static void removeFromAlbum(AlbumLocal album, String[] args, int argNum) {
     if (argNum+1 >= args.length) { usage(); return; }
 
     String fromPath = args[argNum++];

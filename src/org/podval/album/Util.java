@@ -14,6 +14,8 @@ import javax.imageio.metadata.IIOMetadata;
 import javax.imageio.stream.ImageInputStream;
 import javax.imageio.stream.ImageOutputStream;
 
+import javax.imageio.ImageWriteParam;
+
 import java.awt.image.RenderedImage;
 
 import java.awt.RenderingHints;
@@ -31,35 +33,60 @@ import org.podval.imageio.Orientation;
 
 public class Util {
 
-  public static synchronized RenderedImage readImage(File file) throws IOException {
+  public static synchronized RenderedImage readImage(File file)
+    throws IOException
+  {
     RenderedImage result = null;
-    ImageInputStream in = ImageIO.createImageInputStream(file);
-    Iterator readers = ImageIO.getImageReaders(in);
-    ImageReader reader = (readers.hasNext()) ? (ImageReader) readers.next() : null;
 
-    if (reader != null) {
-      reader.setInput(in, false, true);
-      result = reader.read(0);
-      reader.dispose();
+    ImageInputStream in = ImageIO.createImageInputStream(file);
+    try {
+      ImageReader reader = getImageReader(in);
+      if (reader != null) {
+        try {
+          result = reader.read(0);
+        } finally {
+          reader.dispose();
+        }
+      }
+    } finally {
+      in.close();
     }
-    in.close();
 
     return result;
   }
 
 
-  public static synchronized RenderedImage readThumbnail(File file, int number) throws IOException {
+  public static synchronized RenderedImage readThumbnail(File file, int number)
+    throws IOException
+  {
     RenderedImage result = null;
-    ImageInputStream in = ImageIO.createImageInputStream(file);
-    Iterator readers = ImageIO.getImageReaders(in);
-    ImageReader reader = (readers.hasNext()) ? (ImageReader) readers.next() : null;
 
-    if (reader != null) {
-      reader.setInput(in, false, true);
-      result = reader.readThumbnail(0, number);
-      reader.dispose();
+    ImageInputStream in = ImageIO.createImageInputStream(file);
+    try {
+      ImageReader reader = getImageReader(in);
+      if (reader != null) {
+        try {
+          result = reader.readThumbnail(0, number);
+        } finally {
+          reader.dispose();
+        }
+      }
+    } finally {
+      in.close();
     }
-    in.close();
+
+    return result;
+  }
+
+
+  private static ImageReader getImageReader(ImageInputStream in) {
+    ImageReader result = null;
+
+    Iterator readers = ImageIO.getImageReaders(in);
+    if (readers.hasNext()) {
+      result = (ImageReader) readers.next();
+      result.setInput(in, false, true);
+    }
 
     return result;
   }
@@ -68,11 +95,15 @@ public class Util {
   public static void writeImage(RenderedImage result, File file) throws IOException {
     Iterator writers = ImageIO.getImageWritersBySuffix("jpg");
     ImageWriter writer = (ImageWriter) writers.next();
-    /** @todo  */
+    /** @todo what if there are no writers? */
+
+    /** @todo set compression quality to maximum... */
+//    ImageWriteParam param = writer.getDefaultWriteParam();
+//    param.setCompressionQuality(1.0f);
 
     ImageOutputStream out = ImageIO.createImageOutputStream(file);
     writer.setOutput(out);
-    writer.write(result); /** @todo parameters can be used to specify 'quality'... */
+    writer.write(result);
     out.close();
     writer.dispose();
   }
@@ -130,7 +161,7 @@ public class Util {
 
   public static RenderedImage convert(File file) {
     RenderedImage result = null;
-    /** @todo XXXXX */
+    /** @todo implement CRW conversion. */
     return result;
   }
 }

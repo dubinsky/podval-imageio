@@ -48,6 +48,7 @@ public class AlbumLocal extends Album {
     super(parent, name);
   }
 
+
   public String getPath() {
     String result;
 
@@ -63,19 +64,9 @@ public class AlbumLocal extends Album {
   }
 
 
-  public void setTitle(String value) {
-    loadMetadata();
-    super.setTitle(value);
+  protected String getDefaultTitle() {
+    return getName();
   }
-
-
-  public String getTitle() {
-    loadMetadata();
-    return (title != null) ? title : getName();
-  }
-
-
-
 
 
   public int getNumSubalbums() {
@@ -114,18 +105,7 @@ public class AlbumLocal extends Album {
   }
 
 
-  public File getGeneratedDirectory() {
-    if (generatedDirectory == null) {
-      /** @todo ability to make generated directory a subdirectory of originals one? */
-      generatedDirectory = new File(getParent().getGeneratedDirectory(), getName());
-      ensureDirectoryExists(generatedDirectory);
-    }
-
-    return generatedDirectory;
-  }
-
-
-  private void loadMetadata() {
+  protected void loadMetadata() {
     if (!metadataChanged) {
       File file = getMetadataReadFile();
       if (file != null) {
@@ -147,6 +127,12 @@ public class AlbumLocal extends Album {
     } catch (JAXBException e) {
     /** @todo  */
     }
+  }
+
+
+  protected void metadataChanged() {
+    metadataChanged = true;
+    changed();
   }
 
 
@@ -482,16 +468,6 @@ public class AlbumLocal extends Album {
   }
 
 
-  public File getMetadataDirectory() {
-    if (metadataDirectory == null) {
-      metadataDirectory = new File(getParent().getMetadataDirectory(), getName());
-      ensureDirectoryExists(metadataDirectory);
-    }
-
-    return metadataDirectory;
-  }
-
-
   public File getDirectory() {
     if (directory == null) {
       directory = new File(getParent().getDirectory(), getName());
@@ -499,6 +475,27 @@ public class AlbumLocal extends Album {
     }
 
     return directory;
+  }
+
+
+  public File getGeneratedDirectory() {
+    if (generatedDirectory == null) {
+      /** @todo ability to make generated directory a subdirectory of originals one? */
+      generatedDirectory = new File(getParent().getGeneratedDirectory(), getName());
+      ensureDirectoryExists(generatedDirectory);
+    }
+
+    return generatedDirectory;
+  }
+
+
+  public File getMetadataDirectory() {
+    if (metadataDirectory == null) {
+      metadataDirectory = new File(getParent().getMetadataDirectory(), getName());
+      ensureDirectoryExists(metadataDirectory);
+    }
+
+    return metadataDirectory;
   }
 
 
@@ -547,9 +544,6 @@ public class AlbumLocal extends Album {
 
 
   private static final Set changedAlbums = new HashSet();
-
-
-  private String title;
 
 
   private File directory;

@@ -9,6 +9,12 @@ public class AlbumReference extends Album {
     return getParent().getPath() + ":" + getName();
   }
 
+
+  protected String getDefaultTitle() {
+    return getReferent().getTitle();
+  }
+
+
   public int getNumSubalbums() {
     return getReferent().getNumSubalbums();
   }
@@ -36,6 +42,14 @@ public class AlbumReference extends Album {
 
   public Collection getPictures() {
     return getReferent().getPictures();
+  }
+
+
+  protected void loadMetadata() {
+  }
+
+
+  protected void metadataChanged() {
   }
 
 

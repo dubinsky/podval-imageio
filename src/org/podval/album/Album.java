@@ -80,20 +80,25 @@ public abstract class Album {
   }
 
 
-  public abstract String getPath();
-
-
-  public void setTitle(String value) {
+  public final void setTitle(String value) {
+    loadMetadata();
     if (((title == null) && (value != null)) || !title.equals(value)) {
       title = value;
-      /** @todo !!!!! */
-////      metadataChanged = true;
-      changed();
+      metadataChanged();
     }
   }
 
 
-  public abstract String getTitle();
+  public final String getTitle() {
+    loadMetadata();
+    return (title != null) ? title : getDefaultTitle();
+  }
+
+
+  public abstract String getPath();
+
+
+  protected abstract String getDefaultTitle();
 
 
   public abstract int getNumSubalbums();
@@ -114,7 +119,10 @@ public abstract class Album {
   public abstract Collection getPictures();
 
 
-  protected abstract void changed();
+  protected abstract void loadMetadata();
+
+
+  protected abstract void metadataChanged();
 
 
   private final AlbumLocal parent;
@@ -123,5 +131,5 @@ public abstract class Album {
   private final String name;
 
 
-  private String title;
+  protected String title;
 }

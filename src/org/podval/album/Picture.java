@@ -18,7 +18,7 @@ public abstract class Picture implements Comparable {
     if (path == null)
       throw new NullPointerException("Path is null!");
 
-    int colon = path.indexOf(':');
+    int colon = path.lastIndexOf(':');
 
     if (colon == -1)
       throw new IllegalArgumentException("No ':' in the picture path!");
@@ -139,7 +139,7 @@ public abstract class Picture implements Comparable {
   private AlbumLocal album;
 
 
-  private String title;
+  protected String title;
 
 
   protected boolean changed;
