@@ -72,6 +72,7 @@
   <property category="team" name="ignorePath.6" value="doc"/>
   <property category="team" name="ignorePath.7" value="podval-imageio.jar"/>
   <property category="team" name="ignorePath.8" value="Tomcat"/>
+  <property category="team" name="ignorePath.9" value="../../../../../../home/dub/Projects/imageio/Tomcat"/>
   <node name="Additional Settings" type="Folder">
     <property category="sys" name="SettingsFolder" value="1"/>
     <file path="ant.xml">
