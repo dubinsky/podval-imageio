@@ -12,7 +12,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.OutputStream;
 import java.io.IOException;
-import org.podval.album.*;
+
+import org.podval.album.Picture;
 
 
 public abstract class ViewAction extends Action {
@@ -40,9 +41,6 @@ public abstract class ViewAction extends Action {
   }
 
 
-  protected abstract File getViewFile(Picture picture) throws IOException;
-
-
   private static final int BUF_SIZE = 512;
 
 
@@ -65,6 +63,8 @@ public abstract class ViewAction extends Action {
   }
 
 
+  protected abstract File getViewFile(Picture picture) throws IOException;
+
 
   public static class Screensized extends ViewAction {
 
@@ -75,7 +75,7 @@ public abstract class ViewAction extends Action {
 
 
 
-  public static class ViewThumbnailAction extends ViewAction {
+  public static class Thumbnail extends ViewAction {
 
     protected File getViewFile(Picture picture) throws IOException {
       return picture.getThumbnailFile();

@@ -6,7 +6,6 @@ import org.apache.struts.action.ActionForward;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.podval.album.*;
 
 
 public class IndexAction extends Action {
@@ -18,8 +17,7 @@ public class IndexAction extends Action {
     HttpServletResponse response)
   {
     /** @todo THIS IS NOT SUPPOSED TO BE HERE AT ALL!!!!! */
-    AlbumLocal.saveChanged();
-
+    org.podval.album.AlbumLocal.saveChanged();
 
 
     setupAlbum(request);

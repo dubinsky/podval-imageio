@@ -6,7 +6,9 @@ import org.apache.struts.action.ActionForward;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.podval.album.*;
+
+import org.podval.album.Album;
+import org.podval.album.Picture;
 
 
 public abstract class Action extends org.apache.struts.action.Action {

@@ -11,7 +11,7 @@
     <action type="org.podval.album.struts.PictureAction" parameter="path" path="/picture">
       <forward name="jsp" path="/WEB-INF/jsps/picture.jsp" />
     </action>
-    <action type="org.podval.album.struts.ViewThumbnailAction" parameter="path" path="/view-thumbnail"/>
-    <action type="org.podval.album.struts.ViewScreensizedAction" parameter="path" path="/view-screensized"/>
+    <action type="org.podval.album.struts.ViewAction.Thumbnail" parameter="path" path="/view-thumbnail"/>
+    <action type="org.podval.album.struts.ViewAction.Screensized" parameter="path" path="/view-screensized"/>
   </action-mappings>
 </struts-config>

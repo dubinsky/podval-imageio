@@ -5,7 +5,8 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContext;
 
 import java.io.File;
-import org.podval.album.*;
+
+import org.podval.album.Album;
 
 
 public class Context implements ServletContextListener {
