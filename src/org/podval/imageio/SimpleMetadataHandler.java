@@ -12,6 +12,7 @@ public class SimpleMetadataHandler implements MetadataHandler {
   public void startFolder(Typed folder) {
     Group group = new Group();
     group.setName(folder.getName());
+    tip.addEntry(group);
     group.setParent(tip);
     tip = group;
   }
@@ -19,7 +20,7 @@ public class SimpleMetadataHandler implements MetadataHandler {
 
   public void endFolder() {
     Group parent = tip.getParent();
-    parent.addEntry(tip.flatten());
+    parent.flatten(tip);
     tip = parent;
     assert (tip != null) : "Invalid folder nesting";
   }
@@ -57,7 +58,7 @@ public class SimpleMetadataHandler implements MetadataHandler {
 
 
   public MakerNote getMakerNote() {
-    return MakerNote.get(getResult().getStringValue("make"));
+    return MakerNote.get(result.getStringValue("make"));
   }
 
 

@@ -7,18 +7,70 @@ import javax.imageio.metadata.IIOMetadata;
 
 import com.sun.imageio.plugins.jpeg.JPEGMetadata;
 
+import java.io.File;
+import java.io.IOException;
+
 
 public class Main {
 
-  public static void main(String[] args) {
+  public static void main(String[] args) throws
+    javax.xml.transform.TransformerFactoryConfigurationError,
+    IllegalArgumentException,
+    javax.xml.transform.TransformerException
+  {
     /** @todo should register using jar manifest (also). */
     IIORegistry.getDefaultInstance().registerServiceProvider(new CiffImageReaderSpi());
 
-    String path = args[0];
+    /** @todo where is the right place for this? */
+    MetaMetadata.load();
+
+    String command;
+    File path;
+
+    if (args.length>1) {
+      command = args[0];
+      path = new File(args[1]);
+    } else {
+      command = null;
+      path = new File(args[0]);
+    }
+
+    if ("number".equals(command)) {
+      printNumber(path);
+    } else
+
+    if ("numbers".equals(command)) {
+      File[] files = path.listFiles();
+      for (int i=0; i<files.length; i++) {
+        File file = files[i];
+        if (!file.isDirectory()) {
+          printNumber(file);
+        }
+      }
+
+    } else {
+      Metadata metadata = readMetadata(path);
+      metadata.print();
+    }
+  }
+
+  private static void printNumber(File path) {
+    Metadata metadata = readMetadata(path);
+    if (metadata != null) {
+      int number = metadata.getIntegerValue("serialNumber");
+      int fff = number / 10000;
+      int xxxx = number % 10000;
+      System.out.println("File " + path + "; image # " + fff + "-" + xxxx);
+    }
+  }
+
+
+  private static Metadata readMetadata(File path) {
+    Metadata result = null;
 
     try {
       ImageInputStream in =
-        ImageIO.createImageInputStream(new java.io.File(path));
+        ImageIO.createImageInputStream(path);
 
       javax.imageio.ImageReader reader =
         (javax.imageio.ImageReader) ImageIO.getImageReaders(in).next();
@@ -34,14 +86,15 @@ public class Main {
       }
 
       if (metadata instanceof Metadata) {
-        ((Metadata) metadata).print();
+        result = (Metadata) metadata;
       } else {
-        System.out.println("Unknown metadata " + metadata);
+        System.out.println("File " + path + "; unknown metadata " + metadata);
       }
-
-    } catch (Exception e) {
+    } catch (IOException e) {
       System.out.println("Exception: " + e);
       e.printStackTrace(System.out);
     }
+
+    return result;
   }
 }

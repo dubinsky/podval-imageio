@@ -28,7 +28,7 @@
 
   <record tag="7" name="cameraSoftware" type="string" count="24"/>
 
-  <record tag="8" name="imageNumber" type="U32"/>
+  <record tag="8" name="serialNumber " type="U32"/>  <!-- FFF-XXXX image number -->
 
   <record tag="9" name="ownerName" type="string" count="32"/>
 

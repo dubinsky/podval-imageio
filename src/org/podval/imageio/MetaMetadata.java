@@ -12,12 +12,7 @@ import java.util.Iterator;
 
 public class MetaMetadata {
 
-  static {
-    load();
-  }
-
-
-  private static void load() {
+  public static void load() {
     if (!loaded) {
       Class cls = org.podval.imageio.MetaMetadata.class;
       load(cls, "xml/canon-maker-note-1.xml");

@@ -27,6 +27,15 @@ public class Group extends Entry {
   }
 
 
+  public void flatten(Group child) {
+    int index = entries.indexOf(child);
+    assert (index != -1) : "Alleged child is not!";
+    Entry flat = child.flatten();
+    if (flat != child)
+      entries.set(index, flat);
+  }
+
+
   public Entry flatten() {
     return (entries.size() == 1) ? (Entry) entries.get(0) : this;
   }

@@ -60,7 +60,7 @@ public class Metadata extends IIOMetadata {
 
   public String getStringValue(String name) {
     String result = null;
-    Entry entry =  getEntry(name);
+    Entry entry = getEntry(name);
     if ((entry != null) && (entry instanceof Value.StringValue)) {
       result = ((Value.StringValue) entry).getValue();
     }
