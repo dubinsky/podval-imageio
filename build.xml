@@ -4,8 +4,12 @@
 
   <taskdef name="xjc" classname="com.sun.tools.xjc.XJCTask"/>
 
-  <target name="JAXB for metadata">
+  <target name="Compile meta-meta-schema">
     <xjc schema="src/org/podval/imageio/meta-meta-data.xsd" target="src"/>
+  </target>
+
+  <target name="Compile DIG35 schema">
+    <xjc schema="src/org/podval/imageio/DIG35-2001-04-16-1.1.xsd" target="src" package="org.podval.imageio.dig35"/>
   </target>
 
   <target name="Deploy documentation">
