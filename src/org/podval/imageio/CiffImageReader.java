@@ -23,6 +23,11 @@ public class CiffImageReader extends ImageReader {
   }
 
 
+  public static boolean canDecodeInput(ImageInputStream in) {
+    return CiffDecoder.canDecodeInput(in);
+  }
+
+
   public int getNumImages(boolean allowSearch) {
     return 1;
   }
@@ -87,6 +92,7 @@ public class CiffImageReader extends ImageReader {
 
   private ImageInputStream getInputStream() {
     ImageInputStream result = (ImageInputStream) getInput();
+    /** @todo in the SPI I check that this is an ImageInputStream... */
     if (result == null)
       throw new IllegalStateException("Input not set.");
     /** @todo reset? seek(0)? */

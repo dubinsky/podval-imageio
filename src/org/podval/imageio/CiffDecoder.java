@@ -15,12 +15,25 @@ public class CiffDecoder {
   }
 
 
+  public static boolean canDecodeInput(ImageInputStream in) {
+    boolean result = false;
+    try {
+      in.mark();
+      readPrologue(in);
+      result = true;
+      in.reset();
+    } catch (IOException e) {
+    }
+    return result;
+  }
+
+
   private static long readPrologue(ImageInputStream in) throws IOException {
     Util.determineByteOrder(in);
 
     long headerLength = in.readUnsignedInt();
 
-    if (!readSignature(in))
+    if (!Util.readSignature(in, CIFF_SIGNATURE))
       throw new IOException("Bad CIFF signature.");
 
     if (in.readUnsignedInt() != 0x00010002)
@@ -35,11 +48,6 @@ public class CiffDecoder {
 
 
   private static final int[] CIFF_SIGNATURE = {'H', 'E', 'A', 'P', 'C', 'C', 'D', 'R'};
-
-
-  public static boolean readSignature(ImageInputStream in) throws IOException {
-    return Util.readSignature(in, CIFF_SIGNATURE);
-  }
 
 
   /**

@@ -39,21 +39,8 @@ public class CiffImageReaderSpi extends ImageReaderSpi {
 
 
   public boolean canDecodeInput(Object source) throws IOException {
-    if (!(source instanceof ImageInputStream))
-      return false;
-
-    ImageInputStream in = (ImageInputStream) source;
-    in.mark();
-
-    // Skip byteorder indicator and length
-    in.read();
-    in.read();
-    in.readUnsignedInt();
-
-    boolean result = CiffDecoder.readSignature(in);
-    in.reset();
-
-    return result;
+    return ((source instanceof ImageInputStream) &&
+      CiffImageReader.canDecodeInput((ImageInputStream) source));
   }
 
 
