@@ -1,4 +1,11 @@
+/* @(#)$Id$*/
+
 package org.podval.imageio;
+
+import java.awt.image.RenderedImage;
+
+import javax.media.jai.operator.TransposeType;
+import javax.media.jai.operator.TransposeDescriptor;
 
 
 public enum Orientation {
@@ -83,6 +90,28 @@ public enum Orientation {
 
   public Orientation inverse() {
     return valueOf(flipAroundHorizontal, (flipAroundHorizontal) ? rotation : rotation.inverse());
+  }
+
+
+  public RenderedImage transpose(RenderedImage image) {
+    RenderedImage result = image;
+
+    if (isFlipAroundHorizontal()) {
+      result = TransposeDescriptor.create(result, TransposeDescriptor.FLIP_VERTICAL, null);
+    }
+
+    TransposeType rotation = null;
+    switch (getRotation()) {
+    case LEFT : rotation = TransposeDescriptor.ROTATE_270; break;
+    case RIGHT: rotation = TransposeDescriptor.ROTATE_90 ; break;
+    case OVER : rotation = TransposeDescriptor.ROTATE_180; break;
+    }
+
+    if (rotation != null) {
+      result = TransposeDescriptor.create(result, rotation, null);
+    }
+
+    return result;
   }
 
 

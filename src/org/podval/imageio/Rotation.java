@@ -1,53 +1,57 @@
+/* @(#)$Id$*/
+
 package org.podval.imageio;
 
 
 public enum Rotation {
 
-  NOTHING, LEFT, OVER, RIGHT;
+  NOTHING(0), LEFT(-90), RIGHT(90), OVER(180);
 
 
-  public Rotation left() { return left; }
+  private static Rotation valueOf(int degrees) {
+    degrees = degrees % 360;
+
+    Rotation result;
+    if (degrees ==   0) { result = NOTHING; } else
+    if (degrees == -90) { result = LEFT   ; } else
+    if (degrees ==  90) { result = RIGHT  ; } else
+    if (degrees == 180) { result = OVER   ; } else {
+      throw new IllegalArgumentException();
+    }
+
+    return result;
+  }
 
 
-  public Rotation over() {
-    return over;
+  private Rotation(int degrees) {
+    this.degrees = degrees;
+  }
+
+
+  private int getDegrees() {
+    return degrees;
+  }
+
+
+  private final int degrees;
+
+
+  public Rotation left() {
+    return valueOf(getDegrees() + LEFT.getDegrees());
   }
 
 
   public Rotation right() {
-    return right;
+    return valueOf(getDegrees() + RIGHT.getDegrees());
+  }
+
+
+  public Rotation over() {
+    return valueOf(getDegrees() + OVER.getDegrees());
   }
 
 
   public Rotation inverse() {
-    return inverse;
-  }
-
-
-  private void setTransform(Rotation left, Rotation right, Rotation over, Rotation inverse) {
-    this.left = left;
-    this.right = right;
-    this.over = over;
-    this.inverse = inverse;
-  }
-
-
-  private Rotation left;
-
-
-  private Rotation right;
-
-
-  private Rotation over;
-
-
-  private Rotation inverse;
-
-
-  static {
-    NOTHING.setTransform(LEFT   , RIGHT  , OVER   , NOTHING);
-    LEFT   .setTransform(OVER   , NOTHING, RIGHT  , RIGHT  );
-    OVER   .setTransform(RIGHT  , LEFT   , NOTHING, OVER   );
-    RIGHT  .setTransform(NOTHING, OVER   , LEFT   , LEFT   );
+    return valueOf(-getDegrees());
   }
 }

@@ -10,8 +10,6 @@ import javax.imageio.IIOImage;
 import javax.imageio.ImageReader;
 import javax.imageio.ImageWriter;
 
-import javax.imageio.metadata.IIOMetadata;
-
 import javax.imageio.stream.ImageInputStream;
 import javax.imageio.stream.ImageOutputStream;
 
@@ -26,11 +24,6 @@ import javax.media.jai.Interpolation;
 import javax.media.jai.BorderExtender;
 
 import javax.media.jai.operator.ScaleDescriptor;
-import javax.media.jai.operator.TransposeDescriptor;
-import javax.media.jai.operator.TransposeType;
-
-import org.podval.imageio.Rotation;
-import org.podval.imageio.Orientation;
 
 
 public class Util {
@@ -141,27 +134,6 @@ public class Util {
 
   private static final RenderingHints RENDERING_HINTS =
     new RenderingHints(JAI.KEY_BORDER_EXTENDER, BorderExtender.createInstance(BorderExtender.BORDER_COPY));
-
-
-  public static RenderedImage rotate(RenderedImage image, Orientation orientation) {
-    RenderedImage result = image;
-
-    if (orientation.isFlipAroundHorizontal())
-      result = TransposeDescriptor.create(result, TransposeDescriptor.FLIP_VERTICAL, null);
-
-    TransposeType rotation = null;
-    switch (orientation.getRotation()) {
-    case LEFT   : rotation = TransposeDescriptor.ROTATE_270; break;
-    case RIGHT  : rotation = TransposeDescriptor.ROTATE_90; break;
-    case OVER   : rotation = TransposeDescriptor.ROTATE_180; break;
-    }
-
-    if (rotation != null) {
-      result = TransposeDescriptor.create(result, rotation, null);
-    }
-
-    return result;
-  }
 
 
   public static RenderedImage convert(File file) {
