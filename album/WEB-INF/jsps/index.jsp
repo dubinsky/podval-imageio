@@ -56,8 +56,8 @@
     <c:forEach var="picture" items="${album.pictures}">
       <td valign="bottom" width="160">
         <a href="<c:url value='/do/picture'><c:param name='path' value='${picture.path}'/></c:url>">
-          <img class="image" border="0" width="160" height="120"
-            src="<c:url value='/do/view-thumbnail'><c:param name='path' value='${picture.path}'/></c:url>"
+          <img class="image" border="0"
+               src="<c:url value='/do/view-thumbnail'><c:param name='path' value='${picture.path}'/></c:url>"
           >
         </a>
         <br>
