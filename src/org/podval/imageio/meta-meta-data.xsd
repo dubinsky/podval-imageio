@@ -1,0 +1,166 @@
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns:jxb="http://java.sun.com/xml/ns/jaxb"
+            jxb:version="1.0">
+
+<xsd:annotation><xsd:appinfo>
+  <jxb:schemaBindings><jxb:package name="org.podval.imageio.jaxb"/></jxb:schemaBindings>
+</xsd:appinfo></xsd:annotation>
+
+<xsd:element name="meta-metadata">
+  <xsd:complexType>
+    <xsd:choice minOccurs="0" maxOccurs="unbounded">
+      <xsd:annotation><xsd:appinfo><jxb:property name="descriptors"/></xsd:appinfo></xsd:annotation>
+      <xsd:element name="record" type="Record"/>
+      <xsd:element name="directory" type="Directory"/>
+      <xsd:element name="makerNote" type ="MakerNote"/>
+    </xsd:choice>
+  </xsd:complexType>
+</xsd:element>
+
+<xsd:complexType name="Typed">
+  <xsd:attribute name="name" type="xsd:NCName" use="required"/>
+  <xsd:attribute name="type" type="Type"/>
+</xsd:complexType>
+
+<xsd:complexType name="Directory">
+  <xsd:complexContent>
+    <xsd:extension base="Typed">
+      <xsd:choice minOccurs="0" maxOccurs="unbounded">
+        <xsd:annotation><xsd:appinfo><jxb:property name="entries"/></xsd:appinfo></xsd:annotation>
+        <xsd:element name="record" type="SubRecord"/>
+        <xsd:element name="directory" type="SubDirectory">
+          <xsd:annotation><xsd:appinfo><jxb:class name="Subdirectory"/></xsd:appinfo></xsd:annotation>
+        </xsd:element>
+        <xsd:element name="makerNoteMarker" type="MakerNoteMarker"/>
+      </xsd:choice>
+    </xsd:extension>
+  </xsd:complexContent>
+</xsd:complexType>
+
+<xsd:complexType name="SubDirectory">
+  <xsd:complexContent>
+    <xsd:extension base="Directory">
+      <xsd:attribute name="tag" type="xsd:unsignedShort" use="required"/>
+    </xsd:extension>
+  </xsd:complexContent>
+</xsd:complexType>
+
+<xsd:complexType name="Record">
+  <xsd:complexContent>
+    <xsd:extension base="Typed">
+
+      <xsd:choice>
+        <xsd:element name="field" type="Field" minOccurs="0" maxOccurs="unbounded">
+          <xsd:annotation><xsd:appinfo><jxb:property name="fields"/></xsd:appinfo></xsd:annotation>
+        </xsd:element>
+        <xsd:element name="enumeration" type="Enumeration" minOccurs="0"/>
+      </xsd:choice>
+
+      <xsd:attribute name="vector" type="xsd:boolean" default="false">
+        <xsd:annotation>
+          <xsd:documentation>
+            Vectors consist of X16s; in the beginning, there is a U16 length in bytes,
+            counting the length itself.
+          </xsd:documentation>
+          <xsd:appinfo><jxb:property generateIsSetMethod="true"/></xsd:appinfo>
+        </xsd:annotation>
+      </xsd:attribute>
+
+      <xsd:attribute name="count" type="Count"/>
+
+    </xsd:extension>
+  </xsd:complexContent>
+</xsd:complexType>
+
+<xsd:complexType name="SubRecord">
+  <xsd:complexContent>
+    <xsd:extension base="Record">
+      <xsd:attribute name="tag" type="xsd:unsignedShort" use="required"/>
+    </xsd:extension>
+  </xsd:complexContent>
+</xsd:complexType>
+
+<xsd:complexType name="MakerNote">
+  <xsd:complexContent>
+    <xsd:extension base="Directory">
+      <xsd:attribute name="make" type="xsd:string" use="required"/>
+      <xsd:attribute name="signature" type="xsd:string"/>
+    </xsd:extension>
+  </xsd:complexContent>
+</xsd:complexType>
+
+<xsd:complexType name="MakerNoteMarker">
+  <xsd:attribute name="tag" type="xsd:unsignedShort" use="required"/>
+  <xsd:attribute name="type" type="Type" use="required"/>
+</xsd:complexType>
+
+<xsd:complexType name="Field">
+  <xsd:complexContent>
+    <xsd:extension base="Typed">
+
+      <xsd:choice>
+        <xsd:element name="enumeration" type="Enumeration" minOccurs="0"/>
+
+        <xsd:element name="field" type="Field" minOccurs="2" maxOccurs="unbounded">
+          <xsd:annotation>
+            <xsd:documentation>
+              Subfields are read most- to least-significant.
+            </xsd:documentation>
+            <xsd:appinfo><jxb:property name="subfields"/></xsd:appinfo>
+          </xsd:annotation>
+        </xsd:element>
+      </xsd:choice>
+
+      <xsd:attribute name="index" type="xsd:int">
+        <xsd:annotation><xsd:appinfo><jxb:property generateIsSetMethod="true"/></xsd:appinfo></xsd:annotation>
+      </xsd:attribute>
+
+    </xsd:extension>
+  </xsd:complexContent>
+</xsd:complexType>
+
+<xsd:complexType name="Enumeration">
+  <xsd:sequence minOccurs="0" maxOccurs="unbounded">
+    <xsd:annotation><xsd:appinfo><jxb:property name="items"/></xsd:appinfo></xsd:annotation>
+    <xsd:element name="item" type="EnumItem"/>
+  </xsd:sequence>
+</xsd:complexType>
+
+<xsd:complexType name="EnumItem">
+  <xsd:attribute name="value" type="xsd:int" use="required"/>
+  <xsd:attribute name="description" type="xsd:string" use="required"/>
+</xsd:complexType>
+
+<xsd:simpleType name="Type">
+  <xsd:restriction base="xsd:string">
+    <xsd:enumeration value="X32"/>
+    <xsd:enumeration value="U32"/>
+    <xsd:enumeration value="S32"/>
+    <xsd:enumeration value="X16"/>
+    <xsd:enumeration value="U16"/>
+    <xsd:enumeration value="S16"/>
+    <xsd:enumeration value="U16orU32"/>
+    <xsd:enumeration value="X8"/>
+    <xsd:enumeration value="U8"/>
+    <xsd:enumeration value="structure"/>
+    <xsd:enumeration value="string"/>
+    <xsd:enumeration value="X8-string"/>
+    <xsd:enumeration value="F32"/>
+    <xsd:enumeration value="rational"/>
+    <xsd:enumeration value="signedRational"/>
+    <xsd:enumeration value="one"/>
+    <xsd:enumeration value="two"/>
+  </xsd:restriction>
+</xsd:simpleType>
+
+<xsd:simpleType name="Count">
+  <xsd:union memberTypes="xsd:unsignedShort">
+   <xsd:simpleType>
+    <xsd:restriction base="xsd:NMTOKEN">
+     <xsd:enumeration value="any"/>
+    </xsd:restriction>
+   </xsd:simpleType>
+  </xsd:union>
+</xsd:simpleType>
+
+</xsd:schema>

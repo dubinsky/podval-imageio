@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<meta-metadata>
+
+<directory name="exif">
+
+  <record tag="33434" name="exposureTime" type="rational"/>
+  <record tag="33437" name="fNumber" type="rational"/>
+
+  <record tag="34850" name="exposureProgram"> <!-- G2 does not put this into .THM file. -->
+    <enumeration>
+      <item value="0" description="Undefined"/>
+      <item value="1" description="Manual"/>
+      <item value="2" description="Auto"/>
+      <item value="3" description="Aperture priority"/>
+      <item value="4" description="Shutter priority"/>
+      <item value="5" description="Creative"/>
+      <item value="6" description="Action"/>
+      <item value="7" description="Portrait"/>
+      <item value="8" description="Landscape"/>
+    </enumeration>
+  </record>
+
+  <record tag="34852" name="spectralSensitivity" type="string"/>
+
+  <record tag="34855" name="isoSpeedRatings" type="U16"/> <!-- G2 does not put this into .THM file. -->
+  <!-- if (result<50) result *= 200 -->
+
+  <record tag="34856" name="oecf" type="X8">
+    <!-- Not used; complex format. -->
+  </record>
+
+  <record tag="36864" name="exifVersion" type="X8-string" count="4"/>
+  <record tag="36867" name="dateTimeOriginal" type="string" count="20"/> <!-- date -->
+  <record tag="36868" name="dateTimeDigitized" type="string" count="20"/> <!-- date -->
+
+  <record tag="37121" name="componentsConfiguration" type="X8" count="4">
+    <!--
+    <enumeration>
+      <item value="0" description="-"/>
+      <item value="1" description="Y"/>
+      <item value="2" description="Cb"/>
+      <item value="3" description="Cr"/>
+      <item value="4" description="R"/>
+      <item value="5" description="G"/>
+      <item value="6" description="B"/>
+    </enumeration>
+    -->
+  </record>
+
+  <record tag="37122" name="compressedBitsPerPixel" type="rational"/>
+
+  <record tag="37377" name="shutterSpeedValue" type="signedRational"/>
+  <record tag="37378" name="apertureValue" type="rational"/>
+  <record tag="37379" name="brightnessValue" type="signedRational"/> <!-- G2 does not put this into .THM file. -->
+  <!-- When numerator is 0xFFFFFFFF, treat as unknown. -->
+  <record tag="37380" name="exposureBiasValue" type="signedRational"/>
+  <record tag="37381" name="maxApertureValue" type="rational"/>
+  <record tag="37382" name="subjectDistance" type="rational"/>
+  <!-- When numerator is 0xFFFFFFFF, treat as infinity; when 0 - as unknown. -->
+
+  <record tag="37383" name="meteringMode">
+    <enumeration>
+      <item value="0" description="Unknown"/>
+      <item value="1" description="Average"/>
+      <item value="2" description="Centerweighted"/>
+      <item value="3" description="Spot"/>
+      <item value="4" description="Multispot"/>
+      <item value="5" description="Evaluative"/>
+      <item value="6" description="Partial"/>
+      <item value="255" description="Other"/>
+    </enumeration>
+  </record>
+
+  <record tag="37384" name="lightSource"> <!-- G2 does not put this into .THM file. -->
+    <enumeration>
+      <item value="0" description="Unknown"/>
+      <item value="1" description="Daylight"/>
+      <item value="2" description="Fluorescent"/>
+      <item value="3" description="Tungsten"/>
+      <item value="4" description="Flash"/>
+      <item value="9" description="Fine weather"/>
+      <item value="10" description="Flash (cloudy weather)"/>
+      <item value="11" description="Shade"/>
+      <item value="12" description="Daylight fluorescent"/>
+      <item value="13" description="Day white fluorescent"/>
+      <item value="14" description="Cool white fluorescent"/>
+      <item value="15" description="White fluorescent"/>
+      <item value="17" description="Standard A"/>
+      <item value="18" description="Standard B"/>
+      <item value="19" description="Standard C"/>
+      <item value="20" description="D55"/>
+      <item value="21" description="D65"/>
+      <item value="22" description="D75"/>
+      <item value="23" description="D50"/>
+      <item value="24" description="ISO studio tungsten"/>
+      <item value="255" description="Other"/>
+    </enumeration>
+  </record>
+
+  <record tag="37385" name="flash">
+    <!-- Format: eummrrf
+      f: flsh fired: 0/1
+      r: strobe return: 00 - no detection function; 01 - reserved; 10 - detected; 11 - not detected.
+      m: flash mode: 00 - unknown; 01 - on; 10 - off; 11 - auto.
+      u: flash function: 0/1
+      e: red eye reduction: 0 - no or unknown; 1 - yes.
+    -->
+    <enumeration>
+      <item value="0" description="Did not fire"/>
+      <item value="1" description="Fired"/>
+      <item value="5" description="Fired, strobe return light not detected"/>
+      <item value="7" description="Fires, strobe return light detected"/>
+    </enumeration>
+  </record>
+
+  <record tag="37386" name="focalLength" type="rational"/> <!-- millimeters -->
+
+  <!--
+  <record tag="37396" name="subjectArea" count="2 or 3 or 4"/>
+  -->
+
+  <makerNoteMarker tag="37500" type="X8"/>
+
+  <record tag="37510" name="userComment" type="X8" count="any">
+    <!-- This has encoding (ASCII/JIS/UNICODE) spelled out in the first 8 bytes, padded with 0s.-->
+  </record>
+
+  <record tag="37520" name="subsecTime" type="string"/>
+  <record tag="37521" name="subsecTimeOriginal" type="string"/>
+  <record tag="37522" name="subsecTimeDigitized" type="string"/>
+
+  <record tag="40960" name="flashpixVersion" type="X8-string" count="4"/>
+
+  <record tag="40961" name="colorSpace">
+    <enumeration>
+      <item value="1" description="sRGB"/>
+      <item value="65535" description="Uncalibrated"/>
+    </enumeration>
+  </record>
+
+  <record tag="40962" name="pixelXDimension" type="U16orU32"/>
+  <record tag="40963" name="pixelYDimension" type="U16orU32"/>
+
+  <record tag="40964" name="relatedSoundFile" type="string" count="13"/>
+
+  <record tag="41483" name="flashEnergy" type="rational"/>
+
+  <!--
+  <record tag="41484" name="spacialFriquencyResponse" type="X8" count="any"/>
+  -->
+
+  <record tag="41486" name="focalPlaneXResolution" type="rational"/> <!-- Pixels per unit -->
+  <record tag="41487" name="focalPlaneYResolution" type="rational"/> <!-- Pixels per unit -->
+
+  <record tag="41488" name="focalPlaneResolutionUnit"> <!-- same value as resolutionUnit -->
+    <enumeration>
+      <item value="1" description="Inch"/> <!-- 25.4f -->
+      <item value="2" description="Inch"/> <!-- 25.4f -->
+ <!-- <item value="2" description="Meter" --> <!-- 1000.0f -->
+      <item value="3" description="Centimeter"/> <!-- 10.0f -->
+      <item value="4" description="Millimeter"/> <!-- 1.0f -->
+      <item value="5" description="Micrometer"/> <!-- 0.001f -->
+    </enumeration>
+  </record>
+
+  <!--
+  <record tag="41492" name="subjectLocation" type="U16" count="2"/>
+  -->
+
+  <record tag="41493" name="exposureIndex" type="rational"/>
+
+  <record tag="41495" name="sensingMethod" type="U16">
+    <enumeration>
+      <item value="1" description="Unknown"/>
+      <item value="2" description="One-chip color area sensor"/>
+      <item value="3" description="Two-chip color area sensor"/>
+      <item value="4" description="Three-chip color area sensor"/>
+      <item value="5" description="Color sequential area sensor"/>
+      <item value="7" description="Trilinear sensor"/>
+      <item value="8" description="Color sequential linear sensor"/>
+    </enumeration>
+  </record>
+
+  <record tag="41728" name="fileSource" type="X8" count="1">
+    <enumeration>
+      <item value="3" description="DSC"/>
+    </enumeration>
+  </record>
+
+  <record tag="41729" name="sceneType" type="X8" count="1">
+    <enumeration>
+      <item value="1" description="Directly photographed image"/>
+    </enumeration>
+  </record>
+
+  <record tag="41730" name="cfaPattern" type="X8">
+    <!-- Complex format!!! -->
+  </record>
+
+  <record tag="41985" name="customRendered">
+    <enumeration>
+      <item value="0" description="Normal"/>
+      <item value="1" description="Custom"/>
+    </enumeration>
+  </record>
+
+  <record tag="41986" name="exposureMode">
+    <enumeration>
+      <item value="0" description="Auto"/>
+      <item value="1" description="Manual"/>
+      <item value="2" description="Auto bracket"/>
+    </enumeration>
+  </record>
+
+  <record tag="41987" name="whiteBalance">
+    <enumeration>
+      <item value="0" description="Auto"/>
+      <item value="1" description="Manual"/>
+    </enumeration>
+  </record>
+
+  <record tag="41988" name="digitalZoomRatio" type="rational"/>
+
+  <record tag="41989" name="focalLengthIn35mmFilm" type="U16"/>
+
+  <record tag="41990" name="sceneCapturedType">
+    <enumeration>
+      <item value="0" description="Standard"/>
+      <item value="1" description="Landscape"/>
+      <item value="2" description="Portrait"/>
+      <item value="3" description="Night scene"/>
+    </enumeration>
+  </record>
+
+  <record tag="41991" name="gainControl">
+    <enumeration>
+      <item value="0" description="None"/>
+      <item value="1" description="Low gain up"/>
+      <item value="2" description="High gain up"/>
+      <item value="3" description="Low gain down"/>
+      <item value="4" description="High gain down"/>
+    </enumeration>
+  </record>
+
+  <record tag="41992" name="contrast">
+    <enumeration>
+      <item value="0" description="None"/>
+      <item value="1" description="Soft"/>
+      <item value="2" description="Hard"/>
+    </enumeration>
+  </record>
+
+  <record tag="41993" name="saturation">
+    <enumeration>
+      <item value="0" description="None"/>
+      <item value="1" description="Low"/>
+      <item value="2" description="High"/>
+    </enumeration>
+  </record>
+
+  <record tag="41994" name="sharpness">
+    <enumeration>
+      <item value="0" description="None"/>
+      <item value="1" description="Soft"/>
+      <item value="2" description="Hard"/>
+    </enumeration>
+  </record>
+
+  <record tag="41995" name="deviceSettingConditions" type="X8">
+    <!-- Complex format. -->
+  </record>
+
+  <record tag="41996" name="subjectDistanceRange">
+    <enumeration>
+      <item value="0" description="Unknown"/>
+      <item value="1" description="Macro"/>
+      <item value="2" description="Close view"/>
+      <item value="3" description="Distant view"/>
+    </enumeration>
+  </record>
+
+  <record tag="42016" name="imageUniqueId" type="string" count="33">
+    <!-- String HEX representation. 128 bits. -->
+  </record>
+
+</directory>
+
+</meta-metadata>
+
+
+<!--
+  Date: DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
+
+  private static final DateFormat dateTimeFormat =
+    new SimpleDateFormat("yyyy:MM:dd HH:mm:ss");
+
+
+  public Date readDate() throws IOException {
+    Date result = null;
+
+    try {
+      String value = readString(20);
+      result = dateTimeFormat.parse(value);
+    } catch (ParseException e) {
+      throw new IOException("Bad date format.");
+    }
+
+    return result;
+  }
+
+
+  Exposure time APEX: (float) (1.0f / Math.pow(2.0, value))
+  Aperture APEX: (float) Math.pow(Math.sqrt(2.0), value)
+
+  public float getExposure() {
+    float result = 0;
+    if ((brightness != 0) && (iso != 0)) {
+      float sensitivity = (float) (Math.log(iso/3.125f) / Math.log(2));
+      result = brightness + sensitivity;
+    }
+    return result;
+  }
+
+-->

@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<meta-metadata>
+
+<directory name="exif-root">
+
+  <directory tag="34665" name="exif" type="U32">
+    <directory tag="40965" name="interop" type="U32"/>
+  </directory>
+
+  <directory tag="34853" name="gps" type="U32"/>
+
+  <record tag="256" name="imageWidth" type="U16orU32"/>
+  <record tag="257" name="imageHeight" type="U16orU32"/>
+
+  <record tag="258" name="bitsPerSample" type="U16" count="3"/> <!-- value=8 -->
+
+  <record tag="259" name="compression">
+    <enumeration>
+      <item value="1" description="Uncompressed"/>
+      <item value="6" description="JPEG compression"/>
+    </enumeration>
+  </record>
+
+  <record tag="262" name="photometricInterpretation">
+    <enumeration>
+      <!--<item value="1" description="Monochrome"/>-->
+      <item value="2" description="RGB"/>
+      <item value="6" description="YCbCr"/>
+    </enumeration>
+  </record>
+
+  <record tag="270" name="imageDescription" type="string"/>
+  <record tag="271" name="make" type="string"/>
+  <record tag="272" name="model" type="string"/>
+  <record tag="273" name="stripOffsets" type="U16orU32"/>
+
+  <record tag="274" name="orientation">
+    <!-- 0th row 0th column -->
+    <enumeration>
+      <item value="1" description="Top left"/>
+      <item value="2" description="Top right"/>
+      <item value="3" description="Bottom right"/>
+      <item value="4" description="Bottom left"/>
+      <item value="5" description="Left top"/>
+      <item value="6" description="Right top"/>
+      <item value="7" description="Right bottom"/>
+      <item value="8" description="Left bottom"/>
+    </enumeration>
+  </record>
+
+  <record tag="277" name="samplesPerPixel" type="U16"/> <!-- value=3 -->
+
+  <record tag="278" name="rowsPerStrip" type="U16orU32"/>
+  <record tag="279" name="stripByteCounts" type="U16orU32" count="any"/>
+  <record tag="282" name="resolutionXPerUnit" type="rational"/> <!-- default 72 dpi -->
+  <record tag="283" name="resolutionYPerUnit" type="rational"/> <!-- default 72 dpi -->
+
+  <record tag="284" name="planarConfiguration">
+    <enumeration>
+      <item value="1" description="Chunky"/>
+      <item value="2" description="Planar"/>
+    </enumeration>
+  </record>
+
+  <!-- see also 0xA210... -->
+  <record tag="296" name="resolutionUnit">
+    <enumeration>
+      <item value="1" description="Undefined"/>
+      <item value="2" description="Inch"/>
+      <item value="3" description="Centimeter"/>
+      <!--
+      <item value="1" description="Inch"/>
+      <item value="2" description="Centimeter"/>
+      -->
+    </enumeration>
+  </record>
+
+
+  <!-- Not used; colorspace is used instead.
+  <record tag="301" name="transferFunction" count=3*256/>
+  -->
+
+  <record tag="305" name="software" type="string"/>  <!-- Missing in G2's .THM file. -->
+  <record tag="306" name="dateTime" type="string" count="20"/> <!-- date -->
+  <record tag="315" name="Artist" type="string"/>
+
+  <!--
+  <record tag="318" name="whitePoint" type="rational" count="2"/>
+  <record tag="319" name="primaryChromaticities" format="rational" count="6"/>
+    Not used; colorspace is used instead.
+  -->
+
+  <record tag="513" name="jpegIfOffset" type="U32"/>
+  <record tag="514" name="jpegIfByteCount" type="U32"/>
+
+  <record tag="529" name="YCbCrCoefficients" type="rational" count="3"/>
+
+  <record tag="530" name="YCbCrSubsampling" type="rational" count="2"/>
+  <!-- value1=2; value2=1 for YCbCr4:2:2 and 2 for YCbCr4:2:0 -->
+
+  <record tag="531" name="YCbCrPositioning">
+    <enumeration>
+      <item value="1" description="Centered"/>
+      <item value="2" description="Co-sited"/>
+    </enumeration>
+  </record>
+
+  <record tag="532" name="referenceBlackWhite" type="rational" count="6"/>
+
+  <record tag="33432" name="copyright" type="string">
+    <!--
+    fotographer
+    editor
+    -->
+  </record>
+
+</directory>
+
+
+<directory name="interop">
+  <record tag="1" name="interoperabilityIndex" type="string" count="4"/>
+  <record tag="2" name="interoperabilityVersion" type="X8-string" count="4"/>
+  <record tag="4096" name="relatedImageFileFormat" type="string" count="any"/>
+  <record tag="4097" name="relatedImageWidth" type="U16orU32"/>
+  <record tag="4098" name="relatedImageHeight" type="U16orU32"/>
+</directory>
+
+</meta-metadata>

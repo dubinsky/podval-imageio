@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+
+<project basedir="." default="meta-meta-schema">
+
+  <taskdef name="xjc" classname="com.sun.tools.xjc.XJCTask"/>
+
+  <target name="JAXB for metadata">
+    <xjc schema="src/org/podval/imageio/meta-meta-data.xsd" target="src"/>
+  </target>
+
+  <target name="Deploy documentation">
+    <delete dir="/var/www/html/imageio/"/>
+    <copy todir="/var/www/html/imageio/">
+      <fileset dir="doc"/>
+    </copy>
+  </target>
+
+</project>

@@ -1,0 +1,199 @@
+<?xml version="1.0"?>
+
+<meta-metadata>
+
+<directory name="ciff-root">
+  <directory tag="10" type="two" name="imageProperties">
+    <directory tag="2" type="two" name="shootingRecord"/>
+    <directory tag="3" type="two" name="measuredInfo"/>
+    <directory tag="7" type="one" name="cameraObject">
+      <directory tag="4" type="two" name="cameraSpecification"/>
+    </directory>
+  </directory>
+</directory>
+
+
+
+<directory name="imageProperties">
+
+  <record tag="3" type="U32" name="imageFormat">
+    <field type="U32" name="fileFormat">
+      <field type="U16" name="fileFormat">
+        <enumeration>
+          <item value="1" description="JPEG"/>
+          <item value="2" description="Canon CRW"/>
+        </enumeration>
+      </field>
+      <field type="U16" name="compressionType">
+        <enumeration>
+          <item value="0" description="Lossy JPEG"/>
+          <item value="1" description="None (CRW)"/>
+          <item value="2" description="Non-quantization JPEG"/>
+          <item value="3" description="Lossy/non-quantization JPEG depending on picture/text switch (Canon PS600)"/>
+        </enumeration>
+      </field>
+    </field>
+    <field type="F32" name="targetCompressionRatioBitsPerPixel"/>
+  </record>
+
+  <record tag="4" type="U32" name="recordID"> <!-- 0 for G2... -->
+    <field type="U32" name="recordID"/> <!-- Number of images (not audio recordings) taken since the camera shipped. -->
+    <field type="U32" name="reserved"/>
+  </record>
+
+  <record tag="5" type="string" name="description"/>
+
+  <record tag="10" type="U16" name="targetImageType">
+    <field type="U16" name="targetImageType">
+      <enumeration>
+        <item value="0" description="Real-world subject"/>
+        <item value="1" description="Written document"/>
+      </enumeration>
+    </field>
+    <field type="U16" name="reserved"/>
+    <field type="U16" name="reserved"/>
+    <field type="U16" name="reserved"/>
+  </record>
+
+  <record tag="14" type="U32" name="capturedTime">
+    <!--
+      long millisFromEpoch = secondsFromEpoch*1000;
+      int timezoneOffset = TimeZone.getDefault().getRawOffset();
+      Date date = new Date(millisFromEpoch-timezoneOffset);
+    -->
+    <field type="U32" name="timeCount"/> <!-- Seconds from Epoch: 1/1/1970 -->
+    <!-- Canon G2 writes 0s in the other two fields, so time is GMT/UTC. -->
+    <field type="S32" name="timeZoneCode"/> <!-- Zone offset in seconds. -->
+    <field type="U32" name="timeZoneInfo"/> <!-- If MSB is 0, treat zone code as 0. -->
+  </record>
+
+  <record tag="16" type="U32" name="imageSpec">
+    <field type="U32" name="imageWidth"/>
+    <field type="U32" name="imageHeight"/>
+    <field type="F32" name="pixelAspectRatio"/> <!-- horizontal/vertical -->
+    <field type="S32" name="rotationAngle"/> <!-- counter-clockwise -->
+    <field type="U32" name="componentBitDepth"/> <!-- bits for one color component -->
+    <field type="U32" name="colorBitDepth"/> <!-- bits for all color information -->
+    <field type="U32" name="colorBW">
+      <field type="U8" name="reserved"/>
+      <field type="U8" name="reserved"/>
+      <field type="U8" name="pixelAaspectRatioConversionNeeded">
+        <enumeration>
+          <item value="0" description="No"/>
+          <item value="1" description="Yes"/>
+        </enumeration>
+      </field>
+      <field type="U8" name="colorBW">
+        <enumeration>
+          <item value="0" description="Grayscale"/>
+          <item value="1" description="Color"/>
+        </enumeration>
+      </field>
+    </field>
+  </record>
+
+  <record tag="22" type="string" name="imageFileName"/>
+
+  <record tag="23" type="string" name="thumbnailFileName"/>
+
+  <record tag="23" type="U32" name="serialNumber">
+    <field type="U32" name="serialNumber"/>
+    <field type="U32" name="reserved"/>
+  </record>
+
+</directory>
+
+
+<directory name="shootingRecord">
+
+  <record tag="6" type="U32" name="selfTimerTime">
+    <field type="U32" name="selfTimerTimeInMilliseconds"/>
+    <field type="U32" name="reserved"/>
+  </record>
+
+  <record tag="7" type="U32" name="targetDistanceSetting">
+    <field type="F32" name="targetDistanceSettingInMillimeters"/>
+    <field type="F32" name="reserved"/>
+  </record>
+
+  <record tag="16" type="U16" name="releaseMethod">
+    <field type="U16" name="releaseMethod">
+      <enumeration>
+        <item value="0" description="Single shot"/>
+        <item value="1" description="Continuous/successive exposures"/>
+      </enumeration>
+    </field>
+    <field type="U16" name="reserved"/>
+    <field type="U16" name="reserved"/>
+    <field type="U16" name="reserved"/>
+  </record>
+
+  <record tag="17" type="U16" name="releaseTiming">
+    <field type="U16" name="releaseTiming">
+      <enumeration>
+        <item value="0" description="Priority on shutter"/>
+        <item value="1" description="Priority on focus"/>
+      </enumeration>
+    </field>
+    <field type="U16" name="reserved"/>
+    <field type="U16" name="reserved"/>
+    <field type="U16" name="reserved"/>
+  </record>
+
+  <record tag="19" type="U32" name="EF">
+    <field type="F32" name="efGuideNumberOr0WhenFlashWasNotDischarged"/>
+    <field type="F32" name="efThresholdForFlashDischargeWhenMeasuredEvIsLower"/>
+  </record>
+
+  <record tag="24" type="U32" name="exposure">
+    <field type="F32" name="exposureCompensation"/>
+    <field type="F32" name="tv"/>
+    <field type="F32" name="av"/>
+  </record>
+
+</directory>
+
+
+<directory name="measuredInfo">
+
+  <record tag="20" type="U32" name="measuredEvAlsoLuminance">
+    <field type="F32" name="ev"/>
+    <field type="F32" name="reserved"/>
+  </record>
+
+</directory>
+
+
+<directory name="cameraObject">
+
+  <record tag="10" type="string" name="modelName">
+    <field type="string" name="make"/>
+    <field type="string" name="model"/>
+  </record>
+
+  <record tag="16" type="string" name="ownerName"/>
+
+</directory>
+
+
+<directory name="cameraSpecification">
+
+  <record tag="11" type="U32" name="BodyID">
+    <field type="U32" name="BodyID"/>
+    <field type="U32" name="reserved"/>
+  </record>
+
+  <record tag="11" type="string" name="firmwareVersion"/>
+  <record tag="12" type="string" name="componentVersion"/>
+  <record tag="13" type="string" name="romOperationMode"/>
+
+  <record tag="28" type="U16" name="bodySensitivity">
+    <field type="U16" name="defaultISONumberAlsoBaseISO"/>
+    <field type="U16" name="reserved"/>
+    <field type="U16" name="reserved"/>
+    <field type="U16" name="reserved"/>
+  </record>
+
+</directory>
+
+</meta-metadata>

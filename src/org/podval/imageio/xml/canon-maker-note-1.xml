@@ -1,0 +1,145 @@
+<?xml version="1.0"?>
+
+<meta-metadata>
+
+<record name="canon-maker-note-1" vector="true" count="40">
+
+  <field index="1" name="macroMode">
+    <enumeration>
+      <item value="1" description="true"/>
+      <item value="2" description="false"/>
+    </enumeration>
+  </field>
+
+  <field index="2" name="selfTimerDelay"/> <!-- TODO! -->
+
+  <field index="3" name="imageQuality">
+    <enumeration>
+      <item value="2" description="Normal"/>
+      <item value="3" description="Fine"/>
+      <item value="4" description="Raw"/>
+      <item value="5" description="Superfine"/>
+    </enumeration>
+  </field>
+
+  <field index="4" name="flashMode">
+    <enumeration>
+      <item value="0" description="Off"/>
+      <item value="1" description="Auto"/>
+      <item value="2" description="On"/>
+      <item value="3" description="Eye"/>
+      <item value="4" description="Slow"/>
+      <item value="5" description="Auto and Eye"/>
+      <item value="6" description="On and Eye"/>
+      <item value="16" description="External"/>
+    </enumeration>
+  </field>
+
+  <field index="5" name="continuousDrive"/> <!-- True if ==1 -->
+
+  <field index="7" name="focusMode"> <!-- TODO! -->
+    <enumeration>
+      <item value="3" description="Manual"/>
+      <item value="1" description="AI servo"/>
+      <item value="0" description="Single"/>
+      <!-- 4 - in EXIF when 2 in CIFF?? -->
+    </enumeration>
+  </field>
+
+  <field index="10" name="imageSize"/> <!-- TODO! -->
+
+  <field index="11" name="easyShootingMode">
+    <enumeration>
+      <item value="1" description="Use index 20 instead of this"/>
+      <item value="0" description="Auto"/>
+      <item value="2" description="Landscape"/>
+      <item value="3" description="Fast"/>
+      <item value="4" description="Slow"/>
+      <item value="5" description="Night"/>
+      <item value="6" description="Black and white"/>
+      <item value="7" description="Sepia"/>
+      <item value="8" description="Portrait"/>
+      <item value="9" description="Action"/>
+      <item value="10" description="Macro"/>
+      <item value="11" description="Pan"/>
+    </enumeration>
+  </field>
+
+  <field index="12" name="digitalZoom"/> <!-- TODO! -->
+
+  <field index="13" name="contrast">
+    <enumeration>
+      <item value="-1" description="Low"/>
+      <item value="0" description="Normal"/>
+      <item value="1" description="High"/>
+    </enumeration>
+  </field>
+
+  <field index="14" name="saturation">
+    <enumeration>
+      <item value="-1" description="Low"/>
+      <item value="0" description="Normal"/>
+      <item value="1" description="High"/>
+    </enumeration>
+  </field>
+
+  <field index="15" name="sharpness">
+    <enumeration>
+      <item value="-1" description="Low"/>
+      <item value="0" description="Normal"/>
+      <item value="1" description="High"/>
+    </enumeration>
+  </field>
+
+  <field index="16" name="iso">
+    <enumeration>
+      <item value="0" description="Use EXIF tag instead of this"/>
+      <item value="15" description="Auto"/>
+      <item value="16" description="50"/>
+      <item value="17" description="100"/>
+      <item value="18" description="200"/>
+      <item value="19" description="400"/>
+    </enumeration>
+  </field>
+
+  <field index="17" name="meteringMode">
+    <enumeration>
+      <item value="3" description="Matrix"/>
+      <item value="4" description="Partial"/>
+      <item value="5" description="Center"/>
+    </enumeration>
+  </field>
+
+  <field index="18" name="focusType"/> <!-- TODO! -->
+
+  <field index="19" name="afPointSelected">
+    <enumeration>
+      <item value="12288" description="None"/>
+      <item value="12289" description="Auto"/>
+      <item value="12290" description="Right"/>
+      <item value="12291" description="Center"/>
+      <item value="12292" description="Left"/>
+    </enumeration>
+  </field>
+
+  <field index="20" name="exposureMode">
+    <enumeration>
+      <item value="0" description="Easy shooting mode - see index 11"/>
+      <item value="1" description="Program"/>
+      <item value="2" description="Tv"/>
+      <item value="3" description="Av"/>
+      <item value="4" description="Manual"/>
+      <item value="5" description="A-DEP"/>
+    </enumeration>
+  </field>
+
+  <field index="23" name="longFocalLengthInFocalUnits"/>
+  <field index="24" name="shortFocalLengthInFocalUnits"/>
+  <field index="25" name="focalUnitsPerMillimeter"/>
+  <field index="28" name="flashFired"/> <!-- True if != 0 -->
+  <field index="29" name="flashDetails"/> <!-- TODO! -->
+  <field index="32" name="focusModeG1"/> <!-- TODO! -->
+
+</record>
+
+</meta-metadata>

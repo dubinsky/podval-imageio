@@ -1,0 +1,70 @@
+<?xml version="1.0"?>
+
+<meta-metadata>
+
+<directory name="ciff-root">
+  <record tag="5" type="X8" name="crwImage"/>
+  <record tag="7" type="X8" name="jpegThumbnail"/>
+  <record tag="8" type="X8" name="smallJpegThumbnail"/>
+</directory>
+
+
+
+<directory name="imageProperties">
+  <directory tag="4" type="one" name="canonImageDescription"/>
+  <directory tag="11" type="two" name="canonRawProperties"/>
+</directory>
+
+
+
+<directory name="canonImageDescription">
+  <record tag="5" type="string" name="canonImageDescription-5"/> <!-- G2: "[CRW:]High definition CCD image". -->
+  <record tag="21" type="string" name="canonImageDescription-21"/>
+</directory>
+
+
+
+<directory name="canonRawProperties">
+
+  <record tag="40" type="U16" name="canon-maker-note-3-focalLength"/>
+
+  <record tag="41" type="U16" name="canon-maker-note-2"/>
+
+  <record tag="42" type="U16" name="canon-maker-note-4"/>
+
+  <record tag="44" type="U16" name="canonRawProperties-44" count="128"/>
+
+  <record tag="45" type="U16" name="canon-maker-note-1"/>
+
+  <record tag="48" type="U16" name="canonRawProperties-48" vector="true" count="50"/>
+
+  <record tag="49" type="U16" name="sensor" vector="true" count="16">
+    <field index="1" name="width"/>
+    <field index="2" name="height"/>
+    <field index="5" name="offsetX"/>
+    <field index="6" name="offsetY"/>
+    <field index="7" name="sensor-7"/> <!-- outX = this-offsetX+1 -->
+    <field index="8" name="sensor-8"/> <!-- outY = this-offsetY+1 -->
+  </record>
+
+  <record tag="50" type="U8" name="canonRawProperties-50" count="2048"/>
+
+  <!-- tag="51" name="CFn" : canon=maker-note-15? -->
+
+  <record tag="52" type="U32" name="canonRawProperties-52" count="2"/>
+
+  <record tag="53" type="U32" name="decodeTable">
+    <field type="U32" name="decodeTable-1"/>
+    <field type="U32" name="decodeTable-2"/>
+    <field type="U32" name="decodeTable-3"/>
+    <field type="U32" name="looksLikeOffset"/>
+  </record>
+
+  <record tag="54" type="U8" name="canonRawProperties-54" count="2048"/>
+
+  <record tag="127" type="U16" name="canon-maker-note-13"/>
+
+</directory>
+
+
+</meta-metadata>
