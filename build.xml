@@ -2,7 +2,27 @@
 
 <project basedir="." default="meta-meta-schema">
 
+<!--
+  <taskdef name="xjc" classname="com.sun.tools.xjc.XJCTask">
+    <classpath>
+      <fileset dir="/opt/jwsdp-1.2/jaxb/lib/">
+  			<include name="jaxb-api.jar"/>
+  			<include name="jaxb-impl.jar"/>
+  			<include name="jaxb-libs.jar"/>
+  			<include name="jaxb-xjc.jar"/>
+      </fileset>
+      <fileset dir="/opt/jwsdp-1.2/jwsdp-shared/lib/">
+				<include name="jax-qname.jar"/>
+				<include name="namespace.jar"/>
+				<include name="relaxngDatatype.jar"/>
+				<include name="xsdlib.jar"/>
+      </fileset>
+    </classpath>
+  </taskdef>
+-->
+
   <taskdef name="xjc" classname="com.sun.tools.xjc.XJCTask"/>
+
 
   <target name="Compile meta-meta-schema">
     <xjc schema="src/org/podval/imageio/meta-meta-data.xsd" target="src"/>
