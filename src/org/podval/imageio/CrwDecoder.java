@@ -19,7 +19,7 @@ public abstract class CrwDecoder {
   /**
    *
    */
-  private static class Branch extends CrwDecoder {
+  private static final class Branch extends CrwDecoder {
 
     public Branch(CrwDecoder zero, CrwDecoder one) {
       this.zero = zero;
@@ -38,8 +38,7 @@ public abstract class CrwDecoder {
 
 
     public int getValue() {
-      /** @todo should not happen... */
-      return 0;
+      throw new UnsupportedOperationException("No values on the branches.");
     }
 
 
@@ -54,7 +53,7 @@ public abstract class CrwDecoder {
   /**
    *
    */
-  private static class Leaf extends CrwDecoder {
+  private static final class Leaf extends CrwDecoder {
 
     public Leaf(int value) {
       this.value = value;
@@ -67,8 +66,7 @@ public abstract class CrwDecoder {
 
 
     public CrwDecoder getNext(boolean isZero) {
-      /** @todo should not happen... */
-      return null;
+      throw new UnsupportedOperationException("No branches on the leaves.");
     }
 
 
@@ -85,7 +83,7 @@ public abstract class CrwDecoder {
   /**
    *
    */
-  private static class CodeIterator {
+  private static final class CodeIterator {
 
     public CodeIterator(int[][] source) {
       this.source = source;
@@ -144,55 +142,11 @@ public abstract class CrwDecoder {
     if (tableNumber > 2)
       tableNumber = 2;
 
-    /** @todo check that table >= 0 */
-
-    /** @todo something about this ugliness! */
-    switch (tableNumber) {
-    case 0:
-      if (first) {
-        if (FIRST_0_DECODER == null)
-          FIRST_0_DECODER = makeDecoder(FIRST_0);
-        result = FIRST_0_DECODER;
-      } else {
-        if (SECOND_0_DECODER == null)
-          SECOND_0_DECODER = makeDecoder(SECOND_0);
-        result = SECOND_0_DECODER;
-      }
-      break;
-    case 1:
-      if (first) {
-        if (FIRST_1_DECODER == null)
-          FIRST_1_DECODER = makeDecoder(FIRST_1);
-        result = FIRST_1_DECODER;
-      } else {
-        if (SECOND_1_DECODER == null)
-          SECOND_1_DECODER = makeDecoder(SECOND_1);
-        result = SECOND_1_DECODER;
-      }
-      break;
-    case 2:
-      if (first) {
-        if (FIRST_2_DECODER == null)
-          FIRST_2_DECODER = makeDecoder(FIRST_2);
-        result = FIRST_2_DECODER;
-      } else {
-        if (SECOND_2_DECODER == null)
-          SECOND_2_DECODER = makeDecoder(SECOND_2);
-        result = SECOND_2_DECODER;
-      }
-      break;
-    }
+    if (tableNumber >= 0)
+      result = decoders[tableNumber][(first) ? 0 : 1];
 
     return result;
   }
-
-
-  private static CrwDecoder FIRST_0_DECODER;
-  private static CrwDecoder SECOND_0_DECODER;
-  private static CrwDecoder FIRST_1_DECODER;
-  private static CrwDecoder SECOND_1_DECODER;
-  private static CrwDecoder FIRST_2_DECODER;
-  private static CrwDecoder SECOND_2_DECODER;
 
 
   private static final int[][] FIRST_0 = {
@@ -318,5 +272,12 @@ public abstract class CrwDecoder {
      0xc5, 0xb2, 0xa4, 0x84, 0xba, 0x64, 0xa5, 0xb3, 0xd2, 0x81, 0xe5, 0xd3,
      0xaa, 0xc4, 0xca, 0xf2, 0xb1, 0xe4, 0xd1, 0x83, 0x63, 0xea, 0xc3, 0xe2,
      0x82, 0xf1, 0xa3, 0xc2, 0xa1, 0xc1, 0xe3, 0xa2, 0xe1}
+  };
+
+
+  private static CrwDecoder[][] decoders = {
+    {makeDecoder(FIRST_0), makeDecoder(SECOND_0)},
+    {makeDecoder(FIRST_1), makeDecoder(SECOND_1)},
+    {makeDecoder(FIRST_2), makeDecoder(SECOND_2)}
   };
 }

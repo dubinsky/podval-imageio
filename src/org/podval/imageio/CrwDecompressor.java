@@ -2,31 +2,16 @@ package org.podval.imageio;
 
 import java.io.IOException;
 
-import java.nio.ByteOrder;
-
 import javax.imageio.stream.ImageInputStream;
 import javax.imageio.stream.ImageOutputStream;
 
 import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
-import java.awt.image.ComponentColorModel;
-import java.awt.image.WritableRaster;
-import java.awt.image.SampleModel;
-import java.awt.image.BandedSampleModel;
-import java.awt.image.Raster;
-import java.awt.image.DataBuffer;
-
-import java.awt.Transparency;
-import java.awt.Point;
 
 import java.awt.color.ColorSpace;
-
-import java.util.Hashtable;
 
 
 /**
  */
-
 public class CrwDecompressor {
 
   public static void decompress(
@@ -68,19 +53,19 @@ public class CrwDecompressor {
     this.width = width;
     this.height = height;
     this.numLowBits = 0;
-    this.shift = 4 - 2*numLowBits; //???
-    in.seek(540 + numLowBits*height*width/4); // And not where the image starts!
+    this.shift = 4 - 2*numLowBits; /** @todo ? */
+    in.seek(540 + numLowBits*height*width/4); /** @todo and not where the image starts? */
   }
 
 
   private void decompress(ImageOutputStream out) throws IOException {
-    out.setByteOrder(ByteOrder.LITTLE_ENDIAN);
+    out.setByteOrder(java.nio.ByteOrder.LITTLE_ENDIAN);
 
     int numPixels = width*height;
     do {
       decompressBlock();
       writeBlock(out);
-    } while (pixel < numPixels);
+    } while (numPixelsDone < numPixels);
   }
 
 
@@ -91,7 +76,7 @@ public class CrwDecompressor {
     do {
       decompressBlock();
       writeBlock(result);
-    } while (pixel < numPixels);
+    } while (numPixelsDone < numPixels);
 
     return result;
   }
@@ -141,7 +126,7 @@ public class CrwDecompressor {
 
   private void inflateBlock() {
     for (int i=0; i < BLOCK_LENGTH; i++) {
-      if (pixel % width == 0) {
+      if (numPixelsDone % width == 0) {
         base[0] = 512;
         base[1] = 512;
       }
@@ -150,7 +135,7 @@ public class CrwDecompressor {
       base[baseIndex] += block[i];
       block[i] = base[baseIndex];
 
-      pixel++;
+      numPixelsDone++;
     }
   }
 
@@ -163,7 +148,7 @@ public class CrwDecompressor {
 
   private void writeBlock(BufferedImage result) {
     for (int i=0; i<BLOCK_LENGTH; i++) {
-      int pixelNumber = pixel-BLOCK_LENGTH+i;
+      int pixelNumber = numPixelsDone-BLOCK_LENGTH+i;
       int y = pixelNumber / width;
       int x = pixelNumber % width;
       int band;
@@ -212,7 +197,7 @@ public class CrwDecompressor {
       if (numBits > numFreshBits)
         readMoreFreshBits();
       assert (numBits <= numFreshBits) : "Oops!"; /** @todo */
-      /** @todo  */
+      /** @todo revisit */
       // First shift rolls old bits off the edge;
       // since int in Java is signed, I have to use long and a mask -
       // or redo this code, which I'd like to - one day...
@@ -247,9 +232,9 @@ public class CrwDecompressor {
 
     boolean hasAlpha = false;
     boolean isAlphaPremultiplied = true;
-    int transparency = Transparency.OPAQUE;
-    int dataType = DataBuffer.TYPE_USHORT;
-    ColorModel cm = new ComponentColorModel(
+    int transparency = java.awt.Transparency.OPAQUE;
+    int dataType = java.awt.image.DataBuffer.TYPE_USHORT;
+    java.awt.image.ColorModel cm = new java.awt.image.ComponentColorModel(
       cs,
       hasAlpha,
       isAlphaPremultiplied,
@@ -258,15 +243,16 @@ public class CrwDecompressor {
     );
 
     int numBands = 3;
-    SampleModel sm = new BandedSampleModel(
+    java.awt.image.SampleModel sm = new java.awt.image.BandedSampleModel(
       dataType,
       width,
       height,
       numBands
     );
 
-    Point location = null;
-    WritableRaster raster = Raster.createWritableRaster(sm, location);
+    java.awt.Point location = null;
+    java.awt.image.WritableRaster raster =
+      java.awt.image.Raster.createWritableRaster(sm, location);
 
     java.util.Hashtable properties = null;
     BufferedImage result = new BufferedImage(
@@ -313,7 +299,7 @@ public class CrwDecompressor {
   private final int[] base = new int[2];
 
 
-  private int pixel = 0;
+  private int numPixelsDone = 0;
 
 
 /*
@@ -379,170 +365,4 @@ public class CrwDecompressor {
 //      in.reset();
 //    }
 //  }
-
-
-///*
-//   This algorithm is officially called:
-//
-//   "Interpolation using a Threshold-based variable number of gradients"
-//
-//   described in http://www-ise.stanford.edu/~tingchen/algodep/vargra.html
-//
-//   I've extended the basic idea to work with non-Bayer filter arrays.
-//   Gradients are numbered clockwise from NW=0 to W=7.
-// */
-//void vng_interpolate()
-//{
-//  static const signed char *cp, terms[] = {
-//    -2,-2,+0,-1,0,0x01, -2,-2,+0,+0,1,0x01, -2,-1,-1,+0,0,0x01,
-//    -2,-1,+0,-1,0,0x02, -2,-1,+0,+0,0,0x03, -2,-1,+0,+1,0,0x01,
-//    -2,+0,+0,-1,0,0x06, -2,+0,+0,+0,1,0x02, -2,+0,+0,+1,0,0x03,
-//    -2,+1,-1,+0,0,0x04, -2,+1,+0,-1,0,0x04, -2,+1,+0,+0,0,0x06,
-//    -2,+1,+0,+1,0,0x02, -2,+2,+0,+0,1,0x04, -2,+2,+0,+1,0,0x04,
-//    -1,-2,-1,+0,0,0x80, -1,-2,+0,-1,0,0x01, -1,-2,+1,-1,0,0x01,
-//    -1,-2,+1,+0,0,0x01, -1,-1,-1,+1,0,0x88, -1,-1,+1,-2,0,0x40,
-//    -1,-1,+1,-1,0,0x22, -1,-1,+1,+0,0,0x33, -1,-1,+1,+1,1,0x11,
-//    -1,+0,-1,+2,0,0x08, -1,+0,+0,-1,0,0x44, -1,+0,+0,+1,0,0x11,
-//    -1,+0,+1,-2,0,0x40, -1,+0,+1,-1,0,0x66, -1,+0,+1,+0,1,0x22,
-//    -1,+0,+1,+1,0,0x33, -1,+0,+1,+2,0,0x10, -1,+1,+1,-1,1,0x44,
-//    -1,+1,+1,+0,0,0x66, -1,+1,+1,+1,0,0x22, -1,+1,+1,+2,0,0x10,
-//    -1,+2,+0,+1,0,0x04, -1,+2,+1,+0,0,0x04, -1,+2,+1,+1,0,0x04,
-//    +0,-2,+0,+0,1,0x80, +0,-1,+0,+1,1,0x88, +0,-1,+1,-2,0,0x40,
-//    +0,-1,+1,+0,0,0x11, +0,-1,+2,-2,0,0x40, +0,-1,+2,-1,0,0x20,
-//    +0,-1,+2,+0,0,0x30, +0,-1,+2,+1,0,0x10, +0,+0,+0,+2,1,0x08,
-//    +0,+0,+2,-2,1,0x40, +0,+0,+2,-1,0,0x60, +0,+0,+2,+0,1,0x20,
-//    +0,+0,+2,+1,0,0x30, +0,+0,+2,+2,1,0x10, +0,+1,+1,+0,0,0x44,
-//    +0,+1,+1,+2,0,0x10, +0,+1,+2,-1,0,0x40, +0,+1,+2,+0,0,0x60,
-//    +0,+1,+2,+1,0,0x20, +0,+1,+2,+2,0,0x10, +1,-2,+1,+0,0,0x80,
-//    +1,-1,+1,+1,0,0x88, +1,+0,+1,+2,0,0x08, +1,+0,+2,-1,0,0x40,
-//    +1,+0,+2,+1,0,0x10
-//  }, chood[] = { -1,-1, -1,0, -1,+1, 0,+1, +1,+1, +1,0, +1,-1, 0,-1 };
-//  ushort (*brow[5])[4], *pix;
-//  int code[8][640], *ip, gval[8], gmin, gmax, sum[4];
-//  int row, col, shift, x, y, x1, x2, y1, y2, t, weight, grads, color, diag;
-//  int g, diff, thold, num, c;
-//
-//  for (row=0; row < 8; row++) {		/* Precalculate for bilinear */
-//    ip = code[row];
-//    for (col=1; col < 3; col++) {
-//      memset (sum, 0, sizeof sum);
-//      for (y=-1; y <= 1; y++)
-//  for (x=-1; x <= 1; x++) {
-//    shift = (y==0) + (x==0);
-//    if (shift == 2) continue;
-//    color = FC(row+y,col+x);
-//    *ip++ = (width*y + x)*4 + color;
-//    *ip++ = shift;
-//    *ip++ = color;
-//    sum[color] += 1 << shift;
-//  }
-//      for (c=0; c < colors; c++)
-//  if (c != FC(row,col)) {
-//    *ip++ = c;
-//    *ip++ = sum[c];
-//  }
-//    }
-//  }
-//  for (row=1; row < height-1; row++) {	/* Do bilinear interpolation */
-//    pix = image[row*width+1];
-//    for (col=1; col < width-1; col++) {
-//      if (col & 1)
-//  ip = code[row & 7];
-//      memset (sum, 0, sizeof sum);
-//      for (g=8; g--; ) {
-//  diff = pix[*ip++];
-//  diff <<= *ip++;
-//  sum[*ip++] += diff;
-//      }
-//      for (g=colors; --g; ) {
-//  c = *ip++;
-//  pix[c] = sum[c] / *ip++;
-//      }
-//      pix += 4;
-//    }
-//  }
-//  if (quick_interpolate)
-//    return;
-//  for (row=0; row < 8; row++) {		/* Precalculate for VNG */
-//    ip = code[row];
-//    for (col=0; col < 2; col++) {
-//      for (cp=terms, t=0; t < 64; t++) {
-//  y1 = *cp++;  x1 = *cp++;
-//  y2 = *cp++;  x2 = *cp++;
-//  weight = *cp++;
-//  grads = *cp++;
-//  color = FC(row+y1,col+x1);
-//  if (FC(row+y2,col+x2) != color) continue;
-//  diag = (FC(row,col+1) == color && FC(row+1,col) == color) ? 2:1;
-//  if (abs(y1-y2) == diag && abs(x1-x2) == diag) continue;
-//  *ip++ = (y1*width + x1)*4 + color;
-//  *ip++ = (y2*width + x2)*4 + color;
-//  *ip++ = weight;
-//  for (g=0; g < 8; g++)
-//    if (grads & 1<<g) *ip++ = g;
-//  *ip++ = -1;
-//      }
-//      *ip++ = INT_MAX;
-//      for (cp=chood, g=0; g < 8; g++) {
-//  y = *cp++;  x = *cp++;
-//  *ip++ = (y*width + x) * 4;
-//  color = FC(row,col);
-//  if ((g & 1) == 0 &&
-//      FC(row+y,col+x) != color && FC(row+y*2,col+x*2) == color)
-//    *ip++ = (y*width + x) * 8 + color;
-//  else
-//    *ip++ = 0;
-//      }
-//    }
-//  }
-//  brow[4] = calloc (width*3, sizeof **brow);
-//  merror (brow[4], "vng_interpolate()");
-//  for (row=0; row < 3; row++)
-//    brow[row] = brow[4] + row*width;
-//  for (row=2; row < height-2; row++) {		/* Do VNG interpolation */
-//    pix = image[row*width+2];
-//    for (col=2; col < width-2; col++) {
-//      if ((col & 1) == 0)
-//  ip = code[row & 7];
-//      memset (gval, 0, sizeof gval);
-//      while ((g = *ip++) != INT_MAX) {		/* Calculate gradients */
-//  diff = abs(pix[g] - pix[*ip++]);
-//  diff <<= *ip++;
-//  while ((g = *ip++) != -1)
-//    gval[g] += diff;
-//      }
-//      gmin = INT_MAX;				/* Choose a threshold */
-//      gmax = 0;
-//      for (g=0; g < 8; g++) {
-//  if (gmin > gval[g]) gmin = gval[g];
-//  if (gmax < gval[g]) gmax = gval[g];
-//      }
-//      thold = gmin + (gmax >> 1);
-//      memset (sum, 0, sizeof sum);
-//      color = FC(row,col);
-//      for (num=g=0; g < 8; g++,ip+=2) {		/* Average the neighbors */
-//  if (gval[g] <= thold) {
-//    for (c=0; c < colors; c++)
-//      if (c == color && ip[1])
-//        sum[c] += (pix[c] + pix[ip[1]]) >> 1;
-//      else
-//        sum[c] += pix[ip[0] + c];
-//    num++;
-//  }
-//      }
-//      for (c=0; c < colors; c++) {		/* Save to buffer */
-//  t = pix[color] + (sum[c] - sum[color])/num;
-//  brow[2][col][c] = t > 0 ? t:0;
-//      }
-//      pix += 4;
-//    }
-//    if (row > 3)				/* Write buffer to image */
-//      memcpy (image[(row-2)*width+2], brow[0]+2, (width-4)*sizeof *image);
-//    for (g=0; g < 4; g++)
-//      brow[(g-1) & 3] = brow[g];
-//  }
-//  memcpy (image[(row-2)*width+2], brow[0]+2, (width-4)*sizeof *image);
-//  memcpy (image[(row-1)*width+2], brow[1]+2, (width-4)*sizeof *image);
-//  free(brow[4]);
-//}
 }

@@ -16,6 +16,8 @@ import java.io.IOException;
 
 import java.awt.image.BufferedImage;
 
+import java.util.Iterator;
+
 
 public class Main {
 
@@ -176,8 +178,8 @@ public class Main {
 
 //    String suffix = "png";
     String suffix = "tiff";
-    javax.imageio.ImageWriter writer =
-      (javax.imageio.ImageWriter) ImageIO.getImageWritersBySuffix(suffix).next();
+    Iterator writers = ImageIO.getImageWritersBySuffix(suffix);
+    javax.imageio.ImageWriter writer = (javax.imageio.ImageWriter) writers.next();
 
     File newFile = new File(file.getParentFile(), name + "." + suffix);
     ImageOutputStream out = new FileImageOutputStream(newFile);
