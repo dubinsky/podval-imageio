@@ -14,6 +14,8 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 
+import java.awt.image.BufferedImage;
+
 
 public class Main {
 
@@ -163,10 +165,28 @@ public class Main {
     int height = metadata.getIntValue("height"); // imageProperties/canonRawProperties/sensor/height
     int decodeTableNumber = metadata.getIntValue("decodeTable-1"); // imageProperties/canonRawProperties/decodeTable/decodeTable-1 (table number: 0..2)
     ImageInputStream in = new FileImageInputStream(file);
-    File newFile = new File(file.getParentFile(), name + ".dmp");
-    ImageOutputStream out = new FileImageOutputStream(newFile);
+
+//    File newFile = new File(file.getParentFile(), name + ".dmp");
+//    ImageOutputStream out = new FileImageOutputStream(newFile);
     System.err.print("decompressing...");
-    CrwDecompressor.decompress(in, decodeTableNumber, width, height, out);
+//    CrwDecompressor.decompress(in, decodeTableNumber, width, height, out);
+    BufferedImage result = CrwDecompressor.decompress(in, decodeTableNumber, width, height);
+
+    System.err.print("writing...");
+
+//    String suffix = "png";
+    String suffix = "tiff";
+    javax.imageio.ImageWriter writer =
+      (javax.imageio.ImageWriter) ImageIO.getImageWritersBySuffix(suffix).next();
+
+    File newFile = new File(file.getParentFile(), name + "." + suffix);
+    ImageOutputStream out = new FileImageOutputStream(newFile);
+
+    writer.setOutput(out);
+    writer.write(result);
+    out.close();
+    writer.dispose();
+
     System.err.println("done!");
   }
 }
