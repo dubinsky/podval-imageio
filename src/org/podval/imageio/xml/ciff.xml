@@ -104,7 +104,7 @@
 
   <record tag="6" type="U32" name="selfTimerTime">
     <field type="U32" name="selfTimerTimeInMilliseconds"/>
-    <field type="U32" name="reserved"/>
+    <field type="U32" name="reserved" skip="true"/>
   </record>
 
   <record tag="7" type="U32" name="targetDistanceSetting">
@@ -180,7 +180,9 @@
   </record>
 
   <record tag="11" type="string" name="firmwareVersion"/>
+
   <record tag="12" type="string" name="componentVersion"/>
+
   <record tag="13" type="string" name="romOperationMode"/>
 
   <record tag="28" type="U16" name="bodySensitivity">

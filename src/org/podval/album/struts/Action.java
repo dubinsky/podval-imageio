@@ -1,4 +1,4 @@
-package org.podval.album;
+package org.podval.album.struts;
 
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionForm;
@@ -6,6 +6,7 @@ import org.apache.struts.action.ActionForward;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.podval.album.*;
 
 
 public abstract class Action extends org.apache.struts.action.Action {

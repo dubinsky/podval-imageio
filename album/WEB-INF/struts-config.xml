@@ -5,13 +5,13 @@
     <forward name="welcome" path="/do/index"/>
   </global-forwards>
   <action-mappings>
-    <action type="org.podval.album.IndexAction" parameter="path" path="/index">
+    <action type="org.podval.album.struts.IndexAction" parameter="path" path="/index">
       <forward name="jsp" path="/WEB-INF/jsps/index.jsp" />
     </action>
-    <action type="org.podval.album.PictureAction" parameter="path" path="/picture">
+    <action type="org.podval.album.struts.PictureAction" parameter="path" path="/picture">
       <forward name="jsp" path="/WEB-INF/jsps/picture.jsp" />
     </action>
-    <action type="org.podval.album.ViewThumbnailAction" parameter="path" path="/view-thumbnail"/>
-    <action type="org.podval.album.ViewScreensizedAction" parameter="path" path="/view-screensized"/>
+    <action type="org.podval.album.struts.ViewThumbnailAction" parameter="path" path="/view-thumbnail"/>
+    <action type="org.podval.album.struts.ViewScreensizedAction" parameter="path" path="/view-screensized"/>
   </action-mappings>
 </struts-config>

@@ -5,6 +5,7 @@
 <directory name="exif">
 
   <record tag="33434" name="exposureTime" type="rational"/>
+
   <record tag="33437" name="fNumber" type="rational"/>
 
   <record tag="34850" name="exposureProgram"> <!-- G2 does not put this into .THM file. -->
@@ -22,7 +23,7 @@
   </record>
 
   <!-- Described by a standard developed by the ASTM Technical committee. -->
-  <record tag="34852" name="spectralSensitivity" type="string"/>
+  <record tag="34852" name="spectralSensitivity" type="string" skip="true"/>
 
   <!-- Indicates the ISO Speed and ISO Latitude of the camera or input device as specified in ISO 12232. -->
   <record tag="34855" name="isoSpeedRatings"/> <!-- G2 does not put this into .THM file. -->
@@ -36,7 +37,7 @@
          columnNames: string[numColumns]
          oecf: signedRational[numColumns][numRows]
   -->
-  <record tag="34856" name="oecf" type="X8"/>
+  <record tag="34856" name="oecf" type="X8" skip="true"/>
 
   <record tag="36864" name="exifVersion" type="X8" count="4"
     conversion="org.podval.imageio.Conversions.extractStringFromBinary"/>
@@ -203,7 +204,9 @@
   <record tag="37510" name="userComment" type="X8" count="any"/>
 
   <record tag="37520" name="subsecTime" type="string"/>
+
   <record tag="37521" name="subsecTimeOriginal" type="string"/>
+
   <record tag="37522" name="subsecTimeDigitized" type="string"/>
 
   <record tag="40960" name="flashpixVersion" type="X8" count="4"
@@ -217,6 +220,7 @@
   </record>
 
   <record tag="40962" name="pixelXDimension" type="U16orU32"/>
+
   <record tag="40963" name="pixelYDimension" type="U16orU32"/>
 
   <record tag="40964" name="relatedSoundFile" type="string" count="13"/>
@@ -232,7 +236,7 @@
          columnNames: string[numColumns]
          sfr: signedRational[numColumns][numRows]
   -->
-  <record tag="41484" name="spacialFrequencyResponse" type="X8"/>
+  <record tag="41484" name="spacialFrequencyResponse" type="X8" skip="true"/>
 
   <!-- Focal plane resolution tags record the actual focal plane resolutions of
        the main image which is written as a file after processing instead of the
@@ -243,6 +247,7 @@
   -->
 
   <record tag="41486" name="focalPlaneXResolution" type="rational"/> <!-- Pixels per unit -->
+
   <record tag="41487" name="focalPlaneYResolution" type="rational"/> <!-- Pixels per unit -->
 
   <record tag="41488" name="focalPlaneResolutionUnit"> <!-- same value as resolutionUnit -->

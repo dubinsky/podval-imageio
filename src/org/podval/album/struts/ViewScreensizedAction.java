@@ -1,7 +1,8 @@
-package org.podval.album;
+package org.podval.album.struts;
 
 import java.io.File;
 import java.io.IOException;
+import org.podval.album.*;
 
 
 public class ViewScreensizedAction extends ViewAction {

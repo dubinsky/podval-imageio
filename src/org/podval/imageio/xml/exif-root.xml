@@ -5,6 +5,7 @@
 <directory name="org_podval_imageio_exif_1.0">
 
   <record tag="256" name="imageWidth" type="U16orU32"/>
+
   <record tag="257" name="imageHeight" type="U16orU32"/>
 
   <record tag="258" name="bitsPerSample" skip="true"> <!-- value 8 8 8 -->
@@ -13,14 +14,14 @@
     <field name="bitsPerSampleChannel3"/>
   </record>
 
-  <record tag="259" name="compression">
+  <record tag="259" name="compression" skip="true">
     <enumeration>
       <item tag="1" value="Uncompressed"/>
       <item tag="6" value="JPEG compression"/>
     </enumeration>
   </record>
 
-  <record tag="262" name="photometricInterpretation">
+  <record tag="262" name="photometricInterpretation" skip="true">
     <enumeration>
       <!-- XXXX: <item tag="1" value="Monochrome"/>-->
       <item tag="2" value="RGB"/>
@@ -31,6 +32,7 @@
   <record tag="270" name="imageDescription" type="string"/>
 
   <record tag="271" name="make" type="string"/>
+
   <record tag="272" name="model" type="string"/>
 
   <!-- XXX -->
@@ -39,10 +41,11 @@
   <!-- EXIF specification expresses this in terms of "what row of the image is
        in the top (0th) row - and what column in the left (0th) column" (default
        being 'Top left').
-       I use Orientation objects that signify what transform to apply to the
+       I use objects that signify what transposition to apply to the
        image to bring it into normal position.
-       Names specification uses are given in the comments. -->
-  <record tag="274" name="orientation">
+       Names specification uses are given in the comments.
+  -->
+  <record tag="274" name="orientation"> <!-- orientation -->
     <enumeration enumClass="org.podval.imageio.Orientation">
       <item tag="1" value="NORMAL"/> <!-- Top left -->
       <item tag="2" value="FLIP_AND_OVER"/> <!-- Top right -->
@@ -63,6 +66,7 @@
   <record tag="279" name="stripByteCounts" type="U16orU32" count="any" skip="true"/>
 
   <record tag="282" name="xResolution" type="rational"/> <!-- default 72 dpi -->
+
   <record tag="283" name="yResolution" type="rational"/> <!-- default 72 dpi -->
 
   <record tag="284" name="planarConfiguration" skip="true"> <!-- default 1 -->
@@ -93,7 +97,7 @@
   <record tag="315" name="artist" type="string"/>
 
   <!-- Not used; colorspace is used instead. -->
-  <!-- named 'whitePoint' in EXIF 2.2 specification -->
+  <!-- Named 'whitePoint' in EXIF 2.2 specification -->
   <record tag="318" name="whitePointChromaticity" type="rational" skip="true">
     <field name="whitePointChromaticity1"/>
     <field name="whitePointChromaticity2"/>
@@ -109,12 +113,14 @@
     <field name="primaryChromaticity2Channel3"/>
   </record>
 
-  <!-- Tags 513 and 514 are not used for primary image. -->
-  <record tag="513" name="jpegInterchangeFormat" type="U32" skip="true"/> <!-- Offset to JPEG SOI -->
-  <record tag="514" name="jpegInterchangeFormatLength" type="U32" skip="true"/> <!-- Bytes of JPEG data -->
+	<!-- Offset to JPEG SOI; not used for primary image. -->
+  <record tag="513" name="jpegInterchangeFormat" type="U32" skip="true"/>
+
+	<!-- Bytes of JPEG data; not used for primary image. -->
+  <record tag="514" name="jpegInterchangeFormatLength" type="U32" skip="true"/>
 
   <!-- Color space transformation matrix coefficients RGB -> YCbCr. -->
-  <record tag="529" name="YCbCrCoefficients" type="rational" count="3"/>
+  <record tag="529" name="YCbCrCoefficients" type="rational" count="3" skip="true"/>
 
   <record tag="530" name="YCbCrSubSampling" skip="true">
     <field name="YCbCrSubsampling1"/> <!-- value 2 -->
@@ -133,7 +139,7 @@
     </enumeration>
   </record>
 
-  <record tag="532" name="referenceBlackWhite" type="rational">
+  <record tag="532" name="referenceBlackWhite" type="rational" skip="true">
     <!-- Default:
       [0, 255, 0, 255, 0, 255] when photometricInterpretation is RGB
       [0, 255, 0, 128, 0, 128] when photometricInterpretation is YCbCr

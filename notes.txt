@@ -7,6 +7,10 @@ IFDs are U32?
 Do IFD0/IFD1 through emulation of Handler events?
 Mapping handlers.
 
+Somehow JAI can not load its library (mlib_jai). WTF?
+
+During mass-generation of the images (first index view) sometimes (!) a few (!)
+are generated of zero length!!! OutOfMemory?
 
 
 File /home/dub/Photo/g2/2/2297.crw:

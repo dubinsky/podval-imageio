@@ -18,30 +18,71 @@ public class Main {
 
     Album.setRoot("/mnt/extra/Photo", "/tmp/metadataDirectory", "/tmp/generatedDirectory");
 
-    Album album = Album.getByPath(path);
+    Album album = null;
+    Picture picture = null;
 
-    System.out.println("Path " + album.getPath() + " (" + path + ")");
+    boolean isAlbum = (path.indexOf(':') == -1);
 
-    if ("view".equals(command)) viewAlbum(album); else
-    if ("title".equals(command)) setAlbumTitle(album, args, argNum); else
-    if ("add".equals(command)) addToAlbum(album, args, argNum); else
-    if ("remove".equals(command)) removeFromAlbum(album, args, argNum); else
-//  if ("rotate".equals(command)) ?????; else
-      { System.out.println("Command not recognized: " + command); usage(); return; }
+    if (isAlbum)
+      album = Album.getByPath(path);
+    else
+      picture = Picture.getByPath(path);
 
-    album.save();
+    System.out.println(((isAlbum) ? "Album " : "Pciture ") +  path);
+
+    if (isAlbum) {
+      if ("view".equals(command))
+        viewAlbum(album);
+      else
+      if ("title".equals(command))
+        setAlbumTitle(album, args, argNum);
+      else
+      if ("add".equals(command))
+        addToAlbum(album, args, argNum);
+      else
+      if ("remove".equals(command))
+        removeFromAlbum(album, args, argNum);
+      else {
+        System.out.println("Command not recognized: "+command);
+        usage();
+      }
+
+    } else {
+      if ("view".equals(command))
+        viewPicture(picture);
+      else
+//      if ("title".equals(command))
+//        setPictureTitle(picture, args, argNum);
+      if ("left".equals(command))
+        picture.rotateLeft();
+      else
+      if ("right".equals(command))
+        picture.rotateRight();
+///      if ("over".equals(command))
+
+      else {
+        System.out.println("Command not recognized: "+command);
+        usage();
+      }
+    }
+
+    Album.saveChanged();
   }
 
 
   private static void usage() {
     System.out.println("Usage: <album path> <command> <command-specific arguments>");
     System.out.println();
-    System.out.println("Recognized commands:");
-    System.out.println("  view - displays album information");
-    System.out.println("  title <title> - sets album title");
+    System.out.println("Recognized album commands:");
+    System.out.println("  view - display album information");
+    System.out.println("  title <title> - set album title");
     System.out.println("  add <from-album path> <name>+ - adds pictures from another album");
     System.out.println("  remove <name>+ - removes reference-pictures from the album");
-////    System.err.println("  rotate - ?????");
+    System.out.println("Recognized picture commands:");
+    System.out.println("  view - display album information");
+    System.out.println("  title <title> - set picture title");
+    System.out.println("  left - rotate picture 270 degrees");
+    System.out.println("  right - rotate picture 90 degrees");
   }
 
 
@@ -84,5 +125,14 @@ public class Main {
     String fromPath = args[argNum++];
     for (; argNum < args.length;)
       album.removePictureReference(fromPath + ":" + args[argNum++]);
+  }
+
+
+  private static void viewPicture(Picture picture) throws IOException {
+    System.out.println("Title: " + picture.getTitle());
+    System.out.println("Orientation: " + picture.getOrientation());
+    System.out.println("Timestamp: " + picture.getDateTimeString());
+    picture.getThumbnailFile();
+    picture.getScreensizedFile();
   }
 }

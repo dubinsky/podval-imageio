@@ -1,10 +1,11 @@
-package org.podval.album;
+package org.podval.album.struts;
 
 import javax.servlet.ServletContextListener;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContext;
 
 import java.io.File;
+import org.podval.album.*;
 
 
 public class Context implements ServletContextListener {

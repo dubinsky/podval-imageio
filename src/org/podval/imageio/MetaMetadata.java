@@ -61,14 +61,14 @@ public class MetaMetadata {
     if (in == null)
       return;
 
-      JAXBContext jc = JAXBContext.newInstance("org.podval.imageio.jaxb");
-      Unmarshaller u = jc.createUnmarshaller();
-      u.setValidating(true);
+    JAXBContext jc = JAXBContext.newInstance("org.podval.imageio.jaxb");
+    Unmarshaller u = jc.createUnmarshaller();
+    u.setValidating(true);
 
-      org.podval.imageio.jaxb.MetaMetadata xml =
-        (org.podval.imageio.jaxb.MetaMetadata) u.unmarshal(in);
+    org.podval.imageio.jaxb.MetaMetadata xml =
+      (org.podval.imageio.jaxb.MetaMetadata) u.unmarshal(in);
 
-      load(xml);
+    load(xml);
   }
 
 

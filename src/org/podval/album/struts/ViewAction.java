@@ -1,4 +1,4 @@
-package org.podval.album;
+package org.podval.album.struts;
 
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionForm;
@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.OutputStream;
 import java.io.IOException;
+import org.podval.album.*;
 
 
 public abstract class ViewAction extends Action {

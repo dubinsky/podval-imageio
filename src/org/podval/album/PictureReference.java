@@ -5,27 +5,51 @@ import java.io.IOException;
 
 import java.util.Date;
 
+import org.podval.imageio.Orientation;
+
 
 public class PictureReference extends Picture {
 
   public PictureReference(Album album, String name) {
     super(album, name);
-    this.referent = Picture.getByPath(name);
   }
 
 
   public void setTitle(String value) {
-    getReferent().setTitle(value);
+    if (title != value) {
+      title = value;
+      getAlbum().pictureReferencesChanged();
+    }
+  }
+
+
+  public String getRawTitle() {
+    return title;
   }
 
 
   public String getTitle() {
-    return getReferent().getTitle();
+    return (title != null) ? title : getReferent().getTitle();
   }
 
 
   public Date getDateTime() {
     return getReferent().getDateTime();
+  }
+
+
+  public Orientation getOrientation() {
+    return getReferent().getOrientation();
+  }
+
+
+  public void rotateLeft() {
+    getReferent().rotateLeft();
+  }
+
+
+  public void rotateRight() {
+    getReferent().rotateRight();
   }
 
 
@@ -45,17 +69,26 @@ public class PictureReference extends Picture {
 
 
   public void save() {
-    getReferent().save(); /** @todo or nothing? */
+    // Whatever needs saving about the reference will be saved by the album.
+    // Whatever was changed through the reference will be saved by the referent.
   }
 
 
   private Picture getReferent() {
-    if (referent == null)
-      throw new NullPointerException("Referent is null in " + getPath());
+    if (referent == null) {
+      referent = Picture.getByPath(getName());
+
+      /** @todo ? */
+//      if (referent == null)
+//        throw new NullPointerException("Referent not found: " + getPath());
+    }
 
     return referent;
   }
 
 
-  private final Picture referent;
+  private String title;
+
+
+  private Picture referent;
 }

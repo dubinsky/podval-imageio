@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.HashSet;
 
 import java.util.StringTokenizer;
 
@@ -116,6 +117,7 @@ public class Album {
     ensureAlbumMetadataLoaded();
     title = value;
     albumMetadataChanged = true;
+    albumChanged();
   }
 
 
@@ -258,7 +260,7 @@ public class Album {
 
   private void loadAlbumMetadata(File file) {
     try {
-      loadAlbumMetadata(Metadata.unmarshallAlbum(file));
+      loadAlbumMetadata(JAXB.unmarshallAlbum(file));
     } catch (JAXBException e) {
     /** @todo  */
     }
@@ -266,21 +268,27 @@ public class Album {
 
 
   private void loadAlbumMetadata(org.podval.album.jaxb.Album xml) {
-    setTitle(xml.getTitle());
+    title = xml.getTitle();
   }
 
 
-  private void saveAlbumMetadata()
-    throws FileNotFoundException, IOException, JAXBException
-  {
-    File file = getAlbumMetadataWriteFile();
-    if (file != null) {
-      org.podval.album.jaxb.Album result = Metadata.createAlbum();
+  private void saveAlbumMetadata() {
+    try {
+      File file = getAlbumMetadataWriteFile();
+      if (file != null) {
+        org.podval.album.jaxb.Album result = JAXB.createAlbum();
 
-      if (title != null)
-        result.setTitle(title);
+        if (title!=null)
+          result.setTitle(title);
 
-      Metadata.marshallAlbum(result, file);
+        JAXB.marshallAlbum(result, file);
+      }
+    } catch (FileNotFoundException e) {
+      /** @todo  */
+    } catch (IOException e) {
+      /** @todo  */
+    } catch (JAXBException e) {
+      /** @todo  */
     }
   }
 
@@ -352,7 +360,7 @@ public class Album {
 
   private void loadPictureReferences(File file) {
     try {
-      loadPictureReferences(Metadata.unmarshallPictureReferences(file));
+      loadPictureReferences(JAXB.unmarshallPictureReferences(file));
     } catch (JAXBException e) {
       /** @todo  */
     }
@@ -363,7 +371,7 @@ public class Album {
     for (Iterator references = xml.getReferences().iterator(); references.hasNext();) {
       org.podval.album.jaxb.PictureReferences.Picture reference =
         (org.podval.album.jaxb.PictureReferences.Picture) references.next();
-      addPictureReference(reference.getPath());
+      doAddPictureReference(reference.getPath()).setTitle(reference.getTitle());
     }
   }
 
@@ -414,13 +422,24 @@ public class Album {
   }
 
 
+  public void pictureChanged() {
+    picturesChanged = true;
+    albumChanged();
+  }
+
+
   public void addPictureReference(String path) {
     ensurePicturesLoaded();
+    doAddPictureReference(path);
+    pictureReferencesChanged();
+  }
+
+  private Picture doAddPictureReference(String path) {
     /** @todo fail fast if referrent is null? Why didn't it throw in the process??? */
-    PictureReference picture = new PictureReference(this, path);
+    Picture picture = new PictureReference(this, path);
     pictures.put(picture.getName(), picture);
     sortedPictures.add(picture);
-    pictureReferencesChanged = true;
+    return picture;
   }
 
 
@@ -434,13 +453,16 @@ public class Album {
 
       pictures.remove(name);
       sortedPictures.remove(result);
-      pictureReferencesChanged = true;
+      pictureReferencesChanged();
     }
   }
 
 
-  public void save() throws FileNotFoundException, IOException, JAXBException {
-    savePictures();
+  public void save() {
+    if (picturesChanged) {
+      savePictures();
+      picturesChanged = false;
+    }
 
     if (albumMetadataChanged) {
       saveAlbumMetadata();
@@ -454,26 +476,36 @@ public class Album {
   }
 
 
-  private void savePictureReferences()
-    throws FileNotFoundException, IOException, JAXBException
-  {
-    File file = getPictureReferencesWriteFile();
-    if (file != null) {
-      org.podval.album.jaxb.PictureReferences result = Metadata.
-        createPictureReferences();
+  private void savePictureReferences() {
+    try {
+      File file = getPictureReferencesWriteFile();
+      if (file != null) {
+        org.podval.album.jaxb.PictureReferences result =
+          JAXB.createPictureReferences();
 
-      for (Iterator i = getPictures().iterator(); i.hasNext(); ) {
-        Picture picture = (Picture) i.next();
-        if (picture instanceof PictureReference) {
-          org.podval.album.jaxb.PictureReferences.PictureType xml =
-            Metadata.createPictureReference();
-          xml.setPath(picture.getName());
+        for (Iterator i = getPictures().iterator(); i.hasNext();) {
+          Picture picture = (Picture) i.next();
+          if (picture instanceof PictureReference) {
+            PictureReference reference = (PictureReference) picture;
 
-          result.getReferences().add(xml);
+            org.podval.album.jaxb.PictureReferences.PictureType xml =
+              JAXB.createPictureReference();
+
+            xml.setPath(reference.getName());
+            xml.setTitle(reference.getRawTitle());
+
+            result.getReferences().add(xml);
+          }
         }
-      }
 
-      Metadata.marshallPictureReferences(result, file);
+        JAXB.marshallPictureReferences(result, file);
+      }
+    } catch (FileNotFoundException e) {
+      /** @todo  */
+    } catch (IOException e) {
+      /** @todo  */
+    } catch (JAXBException e) {
+      /** @todo  */
     }
   }
 
@@ -508,7 +540,7 @@ public class Album {
   }
 
 
-  private File getMetadataReadFile(String name) {
+  public File getMetadataReadFile(String name) {
     File result = null;
 
     if (result == null)
@@ -520,7 +552,7 @@ public class Album {
   }
 
 
-  private File getMetadataWriteFile(String name) {
+  public File getMetadataWriteFile(String name) {
     File result = null;
 
     if (result == null)
@@ -549,6 +581,33 @@ public class Album {
 
     return result;
   }
+
+
+  public void pictureReferencesChanged() {
+    pictureReferencesChanged = true;
+    albumChanged();
+  }
+
+
+  private void albumChanged() {
+    synchronized (changedAlbums) {
+      changedAlbums.add(this);
+    }
+  }
+
+
+  public static void saveChanged() {
+    synchronized (changedAlbums) {
+      for (Iterator albums = changedAlbums.iterator(); albums.hasNext();) {
+        Album album = (Album) albums.next();
+        album.save();
+      }
+      changedAlbums.clear();
+    }
+  }
+
+
+  private static final Set changedAlbums = new HashSet();
 
 
   private final Album parent;
@@ -585,6 +644,9 @@ public class Album {
 
 
   private long picturesLoaded = 0;
+
+
+  private boolean picturesChanged;
 
 
   private boolean pictureReferencesChanged;

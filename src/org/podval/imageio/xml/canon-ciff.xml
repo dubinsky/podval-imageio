@@ -3,9 +3,9 @@
 <meta-metadata>
 
 <directory name="org_podval_imageio_ciff_1.0">
-  <record tag="5" type="X8" name="crwImage"/> <!-- 120x160 -->
+  <record tag="5" type="X8" name="crwImage"/>
   <record tag="7" type="X8" name="bigJpegThumbnail"/> <!-- 480x640 -->
-  <record tag="8" type="X8" name="jpegThumbnail"/>
+  <record tag="8" type="X8" name="jpegThumbnail"/> <!-- 120x160 -->
 </directory>
 
 

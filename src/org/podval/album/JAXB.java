@@ -12,7 +12,7 @@ import javax.xml.bind.Validator;
 import javax.xml.bind.JAXBException;
 
 
-public class Metadata {
+public class JAXB {
 
   public static org.podval.album.jaxb.Album createAlbum()
     throws JAXBException
@@ -62,6 +62,28 @@ public class Metadata {
     unmarshallPictureReferences(File file) throws JAXBException
   {
     return (org.podval.album.jaxb.PictureReferences) unmarshall(file);
+  }
+
+
+  public static org.podval.album.jaxb.Picture createPicture()
+    throws JAXBException
+  {
+    return getObjectFactory().createPicture();
+  }
+
+
+  public static void marshallPicture(
+    org.podval.album.jaxb.Picture xml, File file)
+    throws FileNotFoundException, IOException, JAXBException
+  {
+    marshall(xml, file);
+  }
+
+
+  public static org.podval.album.jaxb.Picture
+    unmarshallPicture(File file) throws JAXBException
+  {
+    return (org.podval.album.jaxb.Picture) unmarshall(file);
   }
 
 

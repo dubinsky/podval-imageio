@@ -1,5 +1,10 @@
 package org.podval.imageio;
 
+import java.util.Map;
+import java.util.HashMap;
+
+/** @todo XXXXX: back to "TOP LEFT"...!!! */
+
 public class Orientation {
 
   public static class Rotation {
@@ -71,14 +76,52 @@ public class Orientation {
 
 
 
-  private Orientation(boolean flipAroundHorizontal, Rotation rotation) {
+  public static Orientation get(boolean flipAroundHorizontal, Rotation rotation) {
+    Orientation result = null;
+
+    if (!flipAroundHorizontal) {
+      if (rotation == Rotation.NOTHING) result = NORMAL; else
+      if (rotation == Rotation.LEFT   ) result = LEFT  ; else
+      if (rotation == Rotation.OVER   ) result = OVER  ; else
+      if (rotation == Rotation.RIGHT  ) result = RIGHT ;
+
+    } else {
+      if (rotation == Rotation.NOTHING) result = FLIP           ; else
+      if (rotation == Rotation.LEFT   ) result = FLIP_AND_LEFT  ; else
+      if (rotation == Rotation.OVER   ) result = FLIP_AND_OVER  ; else
+      if (rotation == Rotation.RIGHT  ) result = FLIP_AND_RIGHT ;
+    }
+
+    return result;
+  }
+
+
+  public static Orientation get(String name) {
+    return (Orientation) values.get(name);
+  }
+
+
+  private Orientation(boolean flipAroundHorizontal, Rotation rotation, String name) {
     this.flipAroundHorizontal = flipAroundHorizontal;
     this.rotation = rotation;
+    this.name = name;
+
+    values.put(name, this);
+  }
+
+
+  public boolean isFlipAroundHorizontal() {
+    return flipAroundHorizontal;
+  }
+
+
+  public Rotation getRotation() {
+    return rotation;
   }
 
 
   public String toString() {
-    return (((flipAroundHorizontal) ? "flip and " : "") + rotation);
+    return name;
   }
 
 
@@ -112,29 +155,44 @@ public class Orientation {
   }
 
 
-  public static final Orientation NORMAL = new Orientation(false, Rotation.NOTHING);
+  /**
+   * Map<String, Orientation>
+   * This must be initialized before the Orientation constants, since they
+   * register themselves in the 'values' Map!
+   */
+  private static Map values = new HashMap();
 
 
-  public static final Orientation LEFT = new Orientation(false, Rotation.LEFT);
+  public static final Orientation NORMAL =
+    new Orientation(false, Rotation.NOTHING, "normal");
 
 
-  public static final Orientation RIGHT = new Orientation(false, Rotation.RIGHT);
+  public static final Orientation LEFT =
+    new Orientation(false, Rotation.LEFT, "left");
 
 
-  public static final Orientation OVER = new Orientation(false, Rotation.OVER);
+  public static final Orientation RIGHT =
+    new Orientation(false, Rotation.RIGHT, "right");
 
 
-  public static final Orientation FLIP = new Orientation(true, Rotation.NOTHING);
+  public static final Orientation OVER =
+    new Orientation(false, Rotation.OVER, "over");
 
 
-  public static final Orientation FLIP_AND_LEFT = new Orientation(true, Rotation.LEFT);
+  public static final Orientation FLIP =
+    new Orientation(true, Rotation.NOTHING, "flip");
 
 
-  public static final Orientation FLIP_AND_RIGHT = new Orientation(true, Rotation.RIGHT);
+  public static final Orientation FLIP_AND_LEFT =
+    new Orientation(true, Rotation.LEFT, "flip and left");
 
 
-  public static final Orientation FLIP_AND_OVER = new Orientation(true, Rotation.OVER);
+  public static final Orientation FLIP_AND_RIGHT =
+    new Orientation(true, Rotation.RIGHT, "flip and right");
 
+
+  public static final Orientation FLIP_AND_OVER =
+    new Orientation(true, Rotation.OVER, "flip and over");
 
 
   private final boolean flipAroundHorizontal;
@@ -143,22 +201,5 @@ public class Orientation {
   private final Rotation rotation;
 
 
-  public Orientation get(boolean flipAroundHorizontal, Rotation rotation) {
-    Orientation result = null;
-
-    if (!flipAroundHorizontal) {
-      if (rotation == Rotation.NOTHING) result = NORMAL; else
-      if (rotation == Rotation.LEFT   ) result = LEFT  ; else
-      if (rotation == Rotation.OVER   ) result = OVER  ; else
-      if (rotation == Rotation.RIGHT  ) result = RIGHT ;
-
-    } else {
-      if (rotation == Rotation.NOTHING) result = FLIP           ; else
-      if (rotation == Rotation.LEFT   ) result = FLIP_AND_LEFT  ; else
-      if (rotation == Rotation.OVER   ) result = FLIP_AND_OVER  ; else
-      if (rotation == Rotation.RIGHT  ) result = FLIP_AND_RIGHT ;
-    }
-
-    return result;
-  }
+  private final String name;
 }

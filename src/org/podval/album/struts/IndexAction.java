@@ -1,4 +1,4 @@
-package org.podval.album;
+package org.podval.album.struts;
 
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionForm;
@@ -6,9 +6,10 @@ import org.apache.struts.action.ActionForward;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.podval.album.*;
 
 
-public class PictureAction extends Action {
+public class IndexAction extends Action {
 
   public ActionForward execute(
     ActionMapping mapping,
@@ -16,7 +17,12 @@ public class PictureAction extends Action {
     HttpServletRequest request,
     HttpServletResponse response)
   {
-    setupPicture(request);
+    /** @todo THIS IS NOT SUPPOSED TO BE HERE AT ALL!!!!! */
+    Album.saveChanged();
+
+
+
+    setupAlbum(request);
     return mapping.findForward("jsp");
   }
 }

@@ -2,10 +2,15 @@ package org.podval.album;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.FileNotFoundException;
 
 import java.util.Date;
 
 import java.text.SimpleDateFormat;
+
+import javax.xml.bind.JAXBException;
+
+import org.podval.imageio.Orientation;
 
 
 public abstract class Picture implements Comparable {
@@ -87,6 +92,15 @@ public abstract class Picture implements Comparable {
 
 
   public abstract Date getDateTime();
+
+
+  public abstract Orientation getOrientation();
+
+
+  public abstract void rotateLeft();
+
+
+  public abstract void rotateRight();
 
 
   public abstract void save();

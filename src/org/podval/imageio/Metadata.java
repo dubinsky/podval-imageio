@@ -89,7 +89,7 @@ public class Metadata extends IIOMetadata {
 
 
 
-  public static IIOMetadata read(File file) throws IOException {
+  public static Metadata read(File file) throws IOException {
     IIOMetadata result = null;
 
     ImageInputStream in = ImageIO.createImageInputStream(file);

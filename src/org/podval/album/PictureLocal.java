@@ -4,12 +4,16 @@ import java.util.Date;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.FileNotFoundException;
 
 import java.awt.image.RenderedImage;
 
 import java.lang.ref.SoftReference;
 
+import javax.xml.bind.JAXBException;
+
 import org.podval.imageio.Metadata;
+import org.podval.imageio.Orientation;
 
 
 /**
@@ -27,24 +31,27 @@ public class PictureLocal extends Picture {
       throw new IOException("Duplicate case-sensitive file name " + name);
 
     if (extension.equalsIgnoreCase("jpg")) {
-      if (jpgFile != null)
-        throw new IOException("Duplicate case-sensitive extension " + extension);
+      checkExtension(jpgFile, extension);
       jpgFile = file;
     } else
 
     if (extension.equalsIgnoreCase("crw")) {
-      if (crwFile != null)
-        throw new IOException("Duplicate case-sensitive extension " + extension);
+      checkExtension(crwFile, extension);
       crwFile = file;
     } else
 
     if (extension.equalsIgnoreCase("thm")) {
-      if (thmFile != null)
-        throw new IOException("Duplicate case-sensitive extension " + extension);
+      checkExtension(thmFile, extension);
       thmFile = file;
     } else
 
     ;
+  }
+
+
+  private void checkExtension(File file, String extension) throws IOException {
+    if (file != null)
+        throw new IOException("Duplicatr case-sensitive extension " + extension);
   }
 
 
@@ -55,8 +62,10 @@ public class PictureLocal extends Picture {
 
   public void setTitle(String value) {
     ensureMetadataLoaded();
-    title = value;
-    metadataChanged = true;
+    if (title != value) {
+      title = value;
+      metadataChanged();
+    }
   }
 
 
@@ -67,14 +76,12 @@ public class PictureLocal extends Picture {
 
 
   public File getThumbnailFile() throws IOException {
-    if (thumbnailFile == null) thumbnailFile = getGeneratedFile("120x160");
-
-    File result = thumbnailFile;
+    File result = getThumbnailGnereatedFile();
     if (!result.exists()) {
       RenderedImage image = null;
 
-      if (thmFile != null) image = Util.readImage(thmFile); else
-      if (crwFile != null) image = Util.readThumbnail(crwFile, 0);
+      if (thmFile != null) image = Util.rotate(Util.readImage(thmFile), getOrientation()); else
+      if (crwFile != null) image = Util.rotate(Util.readThumbnail(crwFile, 0), getOrientation());
 
       if (image == null) image = scale(120, 160);
 
@@ -85,14 +92,20 @@ public class PictureLocal extends Picture {
   }
 
 
-  public File getScreensizedFile() throws IOException {
-    if (screensizedFile == null) screensizedFile = getGeneratedFile("480x640");
+  private File getThumbnailGnereatedFile() {
+    if (thumbnailFile == null)
+      thumbnailFile = getGeneratedFile("120x160");
 
-    File result = screensizedFile;
+    return thumbnailFile;
+  }
+
+
+  public File getScreensizedFile() throws IOException {
+    File result = getScreensizedGeneratedFile();
     if (!result.exists()) {
       RenderedImage image = null;
 
-      if (crwFile != null) image = Util.readThumbnail(crwFile, 1);
+      if (crwFile != null) image = Util.rotate(Util.readThumbnail(crwFile, 1), getOrientation());
 
       if (image == null) image = scale(480, 640);
 
@@ -103,17 +116,38 @@ public class PictureLocal extends Picture {
   }
 
 
+  private File getScreensizedGeneratedFile() {
+    if (screensizedFile == null)
+      screensizedFile = getGeneratedFile("480x640");
+
+    return screensizedFile;
+  }
+
+
   public File getFullsizedFile() throws IOException {
-    File result = jpgFile;
-    if (result == null) {
-      if (convertedFile == null) convertedFile = getGeneratedFile("converted");
-      result = convertedFile;
+    File result = null;
+
+    if ((jpgFile != null) && (getOrientation() == Orientation.NORMAL)) {
+      result = jpgFile;
+
+    } else {
+      result = getFullsizedGeneratedFile();
+
       if (!result.exists()) {
-        Util.writeImage(Util.convert(crwFile), result);
+        RenderedImage image = ((jpgFile != null) ? Util.readImage(jpgFile) : Util.convert(crwFile));
+        Util.writeImage(Util.rotate(image, getOrientation()), result);
       }
     }
 
     return result;
+  }
+
+
+  private File getFullsizedGeneratedFile() {
+    if (originalFile == null)
+      originalFile = getGeneratedFile("original");
+
+    return originalFile;
   }
 
 
@@ -142,30 +176,137 @@ public class PictureLocal extends Picture {
       return new Date(getOriginalFile().lastModified());
     } catch (Exception e) {
     }
-/////    return (Date) getCameraMetadata().find("dateTime");
+/////    return (Date) getCameraMetadata("dateTime");
+    /** @todo ??? */
     return null;
   }
 
 
-  private void ensureMetadataLoaded() {
-    /** @todo XXXXX */
+  public void rotateLeft() {
+    orientation = orientation.rotateLeft();
+    removeGeneratedFiles();
+    metadataChanged();
   }
 
 
-  private Metadata getCameraMetadata() throws IOException {
-    if ((cameraMetadata == null) || (cameraMetadata.get() == null)) {
-      cameraMetadata = new SoftReference(Metadata.read(getOriginalFile()));
+  public void rotateRight() {
+    orientation = orientation.rotateRight();
+    removeGeneratedFiles();
+    metadataChanged();
+  }
+
+
+  public Orientation getOrientation() {
+    ensureMetadataLoaded();
+    if (orientation == null) {
+      orientation = (Orientation) getCameraMetadata("orientation");
+      removeGeneratedFiles();
+      metadataChanged();
     }
-    return (Metadata) cameraMetadata.get();
+    return orientation;
   }
+
+
+  private void removeGeneratedFiles() {
+    getThumbnailGnereatedFile().delete();
+    getScreensizedGeneratedFile().delete();
+    getFullsizedGeneratedFile().delete();
+    /** @todo check return? */
+  }
+
+
+  private void ensureMetadataLoaded() {
+    if (!metadataChanged) {
+      File file = getMetadataReadFile();
+      if (file != null) {
+        long lastModified = file.lastModified();
+        if (metadataLoaded<lastModified) {
+          metadataLoaded = lastModified;
+          loadMetadata(file);
+          metadataChanged = false;
+        }
+      }
+    }
+  }
+
+
+  private void metadataChanged() {
+    metadataChanged = true;
+    getAlbum().pictureChanged();
+  }
+
+
+  private void loadMetadata(File file) {
+    try {
+      loadMetadata(JAXB.unmarshallPicture(file));
+    } catch (JAXBException e) {
+    /** @todo  */
+    }
+  }
+
+
+  private void loadMetadata(org.podval.album.jaxb.Picture xml) {
+    title = xml.getTitle();
+    orientation = Orientation.get(xml.getOrientation());
+  }
+
 
 
   public void save() {
-    /** @todo  */
+    if (metadataChanged) {
+      File file = getMetadataWriteFile();
+      if (file != null) {
+        try {
+          org.podval.album.jaxb.Picture result = JAXB.createPicture();
+
+          if (title != null)
+            result.setTitle(title);
+
+          result.setOrientation(getOrientation().toString());
+
+          JAXB.marshallPicture(result, file);
+
+        } catch (FileNotFoundException e) {
+          /** @todo  */
+        } catch (JAXBException e) {
+          /** @todo  */
+        } catch (Exception e) {
+          /** @todo  */
+        }
+      }
+    }
+  }
+
+
+  private File getMetadataReadFile() {
+    /** @todo cache? */
+    return getAlbum().getMetadataReadFile(getName()+".xml");
+  }
+
+
+  private File getMetadataWriteFile() {
+    return getAlbum().getMetadataWriteFile(getName()+".xml");
+  }
+
+
+  private Object getCameraMetadata(String name) {
+    if ((cameraMetadata == null) || (cameraMetadata.get() == null)) {
+      Metadata result = null;
+      try {
+        result = Metadata.read(getOriginalFile());
+      } catch (IOException e) {
+        /** @todo ? */
+      }
+      cameraMetadata = new SoftReference(result);
+    }
+    return ((Metadata) cameraMetadata.get()).find(name);
   }
 
 
   private String title;
+
+
+  private Orientation orientation;
 
 
   private File jpgFile;
@@ -183,7 +324,11 @@ public class PictureLocal extends Picture {
   private File screensizedFile;
 
 
-  private File convertedFile;
+  /**
+   * For CRW - converted and rotated;
+   * For JPG - rotated if neccessary - or null.
+   */
+  private File originalFile;
 
 
   private long metadataLoaded = 0;
