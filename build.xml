@@ -28,15 +28,15 @@
 
 
   <target name="Compile metadata description schema">
-    <xjc schema="metadata.xsd" target="src"/>
+    <xjc schema="xsds/metadata.xsd" target="src"/>
   </target>
 
   <target name="Compile album schema">
-    <xjc schema="album.xsd" target="src"/>
+    <xjc schema="xsds/album.xsd" target="src"/>
   </target>
 
   <target name="Compile picture schema">
-    <xjc schema="picture.xsd" target="src"/>
+    <xjc schema="xsds/picture.xsd" target="src"/>
   </target>
 
   <target name="Deploy documentation">

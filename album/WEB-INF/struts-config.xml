@@ -2,14 +2,14 @@
 <!DOCTYPE struts-config PUBLIC "-//Apache Software Foundation//DTD Struts Configuration 1.1//EN" "http://jakarta.apache.org/struts/dtds/struts-config_1_1.dtd">
 <struts-config>
   <global-forwards>
-    <forward name="welcome" path="/do/index" />
+    <forward name="welcome" path="/do/index"/>
   </global-forwards>
   <action-mappings>
     <action type="org.podval.album.IndexAction" parameter="path" path="/index">
-      <forward name="jsp" path="/index-internal.jsp" />
+      <forward name="jsp" path="/WEB-INF/jsps/index.jsp" />
     </action>
     <action type="org.podval.album.PictureAction" parameter="path" path="/picture">
-      <forward name="jsp" path="/picture-internal.jsp" />
+      <forward name="jsp" path="/WEB-INF/jsps/picture.jsp" />
     </action>
     <action type="org.podval.album.ViewThumbnailAction" parameter="path" path="/view-thumbnail"/>
     <action type="org.podval.album.ViewScreensizedAction" parameter="path" path="/view-screensized"/>
