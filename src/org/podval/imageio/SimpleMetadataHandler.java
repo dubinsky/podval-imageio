@@ -24,7 +24,32 @@ public class SimpleMetadataHandler implements MetadataHandler {
   }
 
 
-  public void addField(Field field, Entry value) {
+  public void integerValue(Field field, long value) {
+    value(new IntegerValue(field.getName(), value));
+  }
+
+
+  public void stringValue(Field field, String value) {
+    value(new StringValue(field.getName(), value));
+  }
+
+
+  public void floatValue(Field field, float value) {
+    value(new FloatValue(field.getName(), value));
+  }
+
+
+  public void binaryValue(Field field, byte[] value) {
+    value(new HexValue(field.getName(), value));
+  }
+
+
+  public void pointerValue(Field field, long offset, long length) {
+    value(new PointerValue(field.getName(), offset, length));
+  }
+
+
+  private void value(Entry value) {
     tip.addEntry(value);
   }
 

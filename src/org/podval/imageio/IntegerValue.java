@@ -1,7 +1,5 @@
 package org.podval.imageio;
 
-import javax.imageio.metadata.IIOMetadataNode;
-
 
 public class IntegerValue extends SimpleValue {
 

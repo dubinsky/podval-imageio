@@ -1,31 +1,7 @@
 package org.podval.imageio;
 
-import javax.imageio.stream.ImageInputStream;
-
-import java.io.IOException;
-
 
 public class HexValue extends SimpleValue {
-
-  private static final int MAX_RECORD_LENGTH = 40;
-
-
-  public static Entry read(String name, ImageInputStream in, long length)
-    throws IOException
-  {
-    Entry result;
-
-    if (length < MAX_RECORD_LENGTH) {
-      byte[] value = new byte[(int) length];
-      in.read(value);
-      result = new HexValue(name, value);
-    } else {
-      result = new PointerValue(name, in.getStreamPosition(), length);
-    }
-
-    return result;
-  }
-
 
   public HexValue(String name, byte[] value) {
     super(name);
