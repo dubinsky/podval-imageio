@@ -9,6 +9,10 @@ public enum Rotation {
 
 
   private static Rotation valueOf(int degrees) {
+    while (degrees < 0) {
+      degrees += 360;
+    }
+
     degrees = degrees % 360;
 
     Rotation result;
