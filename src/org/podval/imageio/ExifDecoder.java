@@ -66,7 +66,7 @@ public class ExifDecoder {
   private static void readIfdInPlace(Directory ifd, ImageInputStream in, long offsetBase,
     MetadataBuilder builder) throws IOException
   {
-    builder.beginDirectory(ifd);
+    builder.startDirectory(ifd);
 
     long offset = in.getStreamPosition()-offsetBase;
 

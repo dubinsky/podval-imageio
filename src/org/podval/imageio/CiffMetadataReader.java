@@ -66,7 +66,7 @@ public class CiffMetadataReader {
   private static void readHeap(Directory heap, ImageInputStream in, long length,
     MetadataBuilder builder) throws IOException
   {
-    builder.beginDirectory(heap);
+    builder.startDirectory(heap);
 
     long offset = in.getStreamPosition();
     in.seek(offset + length - 4);

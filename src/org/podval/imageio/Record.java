@@ -224,7 +224,7 @@ public class Record extends Typed {
       cnt = count;
     }
 
-    builder.beginRecord(this);
+    builder.startRecord(this);
 
     for (int index=1; index<=nmb; index++) {
       readField(in, index, type, cnt, builder);

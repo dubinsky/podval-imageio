@@ -143,7 +143,7 @@ public class Field extends Typed {
   public void readComplex(ImageInputStream in, Type type, MetadataBuilder builder)
     throws IOException
   {
-    builder.beginComplexField(this);
+    builder.startComplexField(this);
 
     long complexValue = in.readUnsignedInt(); /** @todo Only U32 fields may have subfields!!! */
 

@@ -2,15 +2,15 @@ package org.podval.imageio;
 
 public interface MetadataBuilder {
 
-  public void beginDirectory(Directory directory);
+  public void startDirectory(Directory directory);
 
   public void endDirectory();
 
-  public void beginRecord(Record record);
+  public void startRecord(Record record);
 
   public void endRecord();
 
-  public void beginComplexField(Field field);
+  public void startComplexField(Field field);
 
   public void endComplexField();
 
