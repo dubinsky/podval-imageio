@@ -25,7 +25,7 @@
   <record tag="34852" name="spectralSensitivity" type="string"/>
 
   <!-- Indicates the ISO Speed and ISO Latitude of the camera or input device as specified in ISO 12232. -->
-  <record tag="34855" name="isoSpeedRatings" type="U16"/> <!-- G2 does not put this into .THM file. -->
+  <record tag="34855" name="isoSpeedRatings"/> <!-- G2 does not put this into .THM file. -->
   <!-- if (result<50) result *= 200 -->
 
   <!-- Indicates the Opto-Electric Conversion Function (OECF) specified in ISO 14524.
@@ -93,7 +93,7 @@
       <item value="2" description="Center-weighted average"/>
       <item value="3" description="Spot"/>
       <item value="4" description="Multispot"/>
-      <item value="5" description="Evaluative"/> <!-- In EXIF specification: 'Pattern'. -->
+      <item value="5" description="Evaluative"/> <!-- In EXIF specification: 'Pattern'. In reality (and Canon maker note): 'Matrix'?-->
       <item value="6" description="Partial"/>
       <item value="255" description="Other"/>
     </enumeration>
@@ -126,7 +126,7 @@
   </record>
 
   <record tag="37385" name="flash">
-    <!-- Format: eummrrf
+    <!-- XXXX: Format: eummrrf
       f: flsh fired: 0/1
       r: strobe return light: 00 - no detection function; 01 - reserved; 10 - detected; 11 - not detected.
       m: flash mode: 00 - unknown; 01 - on; 10 - off; 11 - auto.
@@ -143,7 +143,7 @@
 
   <record tag="37386" name="focalLength" type="rational"/> <!-- millimeters -->
 
-  <!--
+  <!-- XXXX:
   <record tag="37396" name="subjectArea" count="2 or 3 or 4"/>
     The subject location and area are defined by Count values as follows.
      Count = 2 Indicates the location of the main subject as coordinates.
@@ -188,7 +188,7 @@
 
   <record tag="41483" name="flashEnergy" type="rational"/> <!-- In Beam Candle Power Seconds (BCPS). -->
 
-  <!-- Records the camera or input device spatial frequency table and SFR values
+  <!-- XXXX: Records the camera or input device spatial frequency table and SFR values
        in the direction of image width, image height, and diagonal direction, as
        specified in ISO 12233.
        Not used; format:
@@ -221,7 +221,7 @@
     </enumeration>
   </record>
 
-  <record tag="41492" name="subjectLocation" type="U16">
+  <record tag="41492" name="subjectLocation">
     <field name="subjectCenterX"/>
     <field name="subjectCenterY"/>
   </record>
@@ -252,7 +252,7 @@
     </enumeration>
   </record>
 
-  <!-- When filter array is repeated in numPixelX*numPixelY pixel units.
+  <!-- XXXX: When filter array is repeated in numPixelX*numPixelY pixel units.
        Format:
        numPixelsX: U16
        numPixelsY: U16
@@ -292,7 +292,7 @@
 
   <record tag="41988" name="digitalZoomRatio" type="rational"/>
 
-  <record tag="41989" name="focalLengthIn35mmFilm" type="U16"/>
+  <record tag="41989" name="focalLengthIn35mmFilm"/>
 
   <record tag="41990" name="sceneCapturedType">
     <enumeration>
@@ -338,7 +338,7 @@
   </record>
 
   <record tag="41995" name="deviceSettingConditions" type="X8">
-    <!-- Complex format. -->
+    <!-- XXXX: Complex format. -->
   </record>
 
   <record tag="41996" name="subjectDistanceRange">
@@ -351,7 +351,7 @@
   </record>
 
   <record tag="42016" name="imageUniqueId" type="string" count="33">
-    <!-- String HEX representation. 128 bits. -->
+    <!-- XXXX: String HEX representation. 128 bits. -->
   </record>
 
 </directory>

@@ -1,3 +1,13 @@
+Defaulting of types: more intelligent?
+IFDs are U32?
+
+X8-string - through conversion?
+
+
+Enumerations with non-1 count: exif/37121
+
+
+
 File /home/dub/Photo/g2/2/2297.crw:
 <?xml version="1.0" encoding="UTF-8"?>
 <org_podval_imageio_ciff_1.0>

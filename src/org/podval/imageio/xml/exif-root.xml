@@ -33,6 +33,7 @@
   <record tag="271" name="make" type="string"/>
   <record tag="272" name="model" type="string"/>
 
+  <!-- XXX: weird format; not used? -->
   <record tag="273" name="stripOffsets" type="U16orU32" count="any"/>
 
   <record tag="274" name="orientation">  <!-- 0th row 0th column; default 1 -->
@@ -48,13 +49,15 @@
     </enumeration>
   </record>
 
-  <record tag="277" name="samplesPerPixel" type="U16"/> <!-- value 3 -->
+  <record tag="277" name="samplesPerPixel"/> <!-- value 3 -->
 
   <record tag="278" name="rowsPerStrip" type="U16orU32"/>
+
+  <!-- XXX: weird format; not used? -->
   <record tag="279" name="stripByteCounts" type="U16orU32" count="any"/>
 
-  <record tag="282" name="resolutionXPerUnit" type="rational"/> <!-- default 72 dpi -->
-  <record tag="283" name="resolutionYPerUnit" type="rational"/> <!-- default 72 dpi -->
+  <record tag="282" name="xResolution" type="rational"/> <!-- default 72 dpi -->
+  <record tag="283" name="yResolution" type="rational"/> <!-- default 72 dpi -->
 
   <record tag="284" name="planarConfiguration"> <!-- default 1 -->
     <enumeration>
@@ -73,7 +76,7 @@
   </record>
 
 
-  <!-- Not used; colorspace is used instead.
+  <!-- XXXX: Not used; colorspace is used instead.
   <record tag="301" name="transferFunction" count=3*256/>
   -->
 
@@ -84,7 +87,7 @@
 
   <record tag="315" name="artist" type="string"/>
 
-  <!-- Not used; colorspace is used instead.
+  <!-- XXXX: Not used; colorspace is used instead.
        Tag 318 is named 'whitePoint' in EXIF 2.2 specification.
   <record tag="318" name="whitePointChromaticity" type="rational" count="2"/>
   <record tag="319" name="primaryChromaticities" type="rational" count="6"/>
@@ -97,7 +100,7 @@
   <!-- Color space transformation matrix coefficients RGB -> YCbCr. -->
   <record tag="529" name="YCbCrCoefficients" type="rational" count="3"/>
 
-  <record tag="530" name="YCbCrSubsampling" type="U16" count="2">
+  <record tag="530" name="YCbCrSubSampling">
     <field name="YCbCrSubsampling1"/> <!-- value 2 --> <!-- XXXX: skip? -->
     <field name="YCbCrSubsampling">
       <enumeration>
@@ -144,7 +147,7 @@
     <directory tag="40965" name="interoperability" type="U32"/>
   </directory>
 
-  <!-- XXXX: I do not did GPS IFD stuff yet. -->
+  <!-- XXXX: I did not do GPS IFD stuff yet. -->
   <directory tag="34853" name="gps" type="U32"/>
 </directory>
 
