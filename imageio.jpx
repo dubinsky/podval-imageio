@@ -38,7 +38,7 @@
   <property category="sys" name="DocPath" value="doc"/>
   <property category="sys" name="JDK" value="java version 1.4.2-beta-b19"/>
   <property category="sys" name="JvmVersion" value="1.2"/>
-  <property category="sys" name="Libraries" value="JAXB;JAI ImageIO"/>
+  <property category="sys" name="Libraries" value="JAXB;JAI ImageIO;JAI"/>
   <property category="sys" name="OutPath" value="../../../../../../home/dub/Projects/imageio/classes"/>
   <property category="sys" name="SourcePath" value="src;test"/>
   <property category="sys" name="WorkingDirectory" value="../../../../../../home/dub/Projects/imageio"/>
@@ -47,11 +47,21 @@
   <property category="team" name="ignorePath.2" value="src/org/podval/imageio/jaxb"/>
   <property category="team" name="ignorePath.3" value="test.jar"/>
   <property category="team" name="ignorePath.4" value="imageio.oif"/>
+  <property category="team" name="ignorePath.5" value="ant.xml"/>
+  <node name="Additional Settings" type="Folder">
+    <property category="sys" name="SettingsFolder" value="1"/>
+    <file path="ant.xml">
+      <property category="ant" name="isantfile" value="1"/>
+    </file>
+    <file path="ant.xml">
+  </node>
   <node name="Test" type="Archive">
     <property category="archiving" name="archiverClass" value="com.borland.jbuilder.wizard.archive.ApplicationArchiver"/>
+    <property category="archiving" name="buildWithProject" value="0"/>
     <property category="archiving" name="contentRules.1" value="I:**/*.*"/>
     <property category="archiving" name="includeDeps" value="1"/>
     <property category="archiving" name="libraryStates.1" value="3:JAXB"/>
+    <property category="archiving" name="libraryStates.2" value="3:JAI ImageIO"/>
     <property category="archiving" name="targetPath" value="test.jar"/>
     <property category="archiving" name="usingRules" value="1"/>
   </node>
