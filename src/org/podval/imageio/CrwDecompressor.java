@@ -5,7 +5,10 @@ import java.io.IOException;
 import javax.imageio.stream.ImageInputStream;
 import javax.imageio.stream.ImageOutputStream;
 
+import java.awt.Rectangle;
+
 import java.awt.image.BufferedImage;
+import java.awt.image.WritableRaster;
 
 import java.awt.color.ColorSpace;
 
@@ -17,13 +20,13 @@ public class CrwDecompressor {
   public static void decompress(
     ImageInputStream in,
     int decodeTableNumber,
-    int width,
-    int height,
+    int rawWidth,
+    int rawHeight,
     ImageOutputStream out
   ) throws IOException
   {
     CrwDecompressor decompressor =
-      new CrwDecompressor(in, decodeTableNumber, width, height);
+      new CrwDecompressor(in, decodeTableNumber, rawWidth, rawHeight);
     decompressor.decompress(out);
   }
 
@@ -31,12 +34,12 @@ public class CrwDecompressor {
   public static BufferedImage decompress(
     ImageInputStream in,
     int decodeTableNumber,
-    int width,
-    int height
+    int rawWidth,
+    int rawHeight
   ) throws IOException
   {
     CrwDecompressor decompressor =
-      new CrwDecompressor(in, decodeTableNumber, width, height);
+      new CrwDecompressor(in, decodeTableNumber, rawWidth, rawHeight);
     return decompressor.decompress();
   }
 
@@ -44,24 +47,29 @@ public class CrwDecompressor {
   private CrwDecompressor(
     ImageInputStream in,
     int decodeTableNumber,
-    int width,
-    int height
+    int rawWidth,
+    int rawHeight
   ) throws IOException {
     this.in = in;
     this.firstDecoder = CrwDecoder.getInstance(decodeTableNumber, true);
     this.secondDecoder = CrwDecoder.getInstance(decodeTableNumber, false);
-    this.width = width;
-    this.height = height;
+    this.rawWidth = rawWidth;
+    this.rawHeight = rawHeight;
     this.numLowBits = 0;
     this.shift = 4 - 2*numLowBits; /** @todo ? */
-    in.seek(540 + numLowBits*height*width/4); /** @todo and not where the image starts? */
+    in.seek(540 + numLowBits*rawHeight*rawWidth/4); /** @todo and not where the image starts? */
   }
+
+
+  /** @todo G2 sensor size is 2376x1728; image size is 2310x1718.
+   *  There are black pixels: top - 7; bottom - 2; left - 12; right - 52.
+   *  */
 
 
   private void decompress(ImageOutputStream out) throws IOException {
     out.setByteOrder(java.nio.ByteOrder.LITTLE_ENDIAN);
 
-    int numPixels = width*height;
+    int numPixels = rawWidth*rawHeight;
     do {
       decompressBlock();
       writeBlock(out);
@@ -71,12 +79,17 @@ public class CrwDecompressor {
 
   private BufferedImage decompress() throws IOException {
     BufferedImage result = createImage(width, height);
+    WritableRaster raster = result.getRaster();
 
-    int numPixels = width*height;
+    int numPixels = rawWidth*rawHeight;
     do {
       decompressBlock();
-      writeBlock(result);
+      writeBlock(raster);
     } while (numPixelsDone < numPixels);
+
+    black = (int) ((long) black << shift) / numBlack;
+
+    scaleColors(raster);
 
     return result;
   }
@@ -126,7 +139,7 @@ public class CrwDecompressor {
 
   private void inflateBlock() {
     for (int i=0; i < BLOCK_LENGTH; i++) {
-      if (numPixelsDone % width == 0) {
+      if (numPixelsDone % rawWidth == 0) {
         base[0] = 512;
         base[1] = 512;
       }
@@ -146,20 +159,45 @@ public class CrwDecompressor {
   }
 
 
-  private void writeBlock(BufferedImage result) {
+  /** @todo hardcoding be gone! */
+  private static final int top = 6;
+  private static final int left = 12;
+  private static final int height = 1720;
+  private static final int width = 2312;
+
+
+  /* Bayer array:
+     R G R G
+     G B G B
+     R G R G
+   */
+  private void writeBlock(WritableRaster raster) {
     for (int i=0; i<BLOCK_LENGTH; i++) {
       int pixelNumber = numPixelsDone-BLOCK_LENGTH+i;
-      int y = pixelNumber / width;
-      int x = pixelNumber % width;
-      int band;
-      if (y % 2 == 0) {
-        band = (x % 2 == 0) ? 0 /* R */ : 1 /* G */;
-      } else {
-        band = (x % 2 == 0) ? 1 /* G */ : 2 /* B */;
-      }
-      int sample = block[i] << shift;
-      result.getRaster().setSample(x, y, band, sample);
+      int y = pixelNumber / rawWidth;
+      int x = pixelNumber % rawWidth;
+      int value = block[i];
+      x -= left;
+      y -= top;
+      if ((y >= 0) && (y < height) && (x >= 0) && (x < width))
+          raster.setSample(x, y, getBayerBand(y, x), value << shift);
+        else {
+          black += value;
+          numBlack++;
+        }
     }
+  }
+
+
+
+  private int getBayerBand(int y, int x) {
+    int result;
+    if (y % 2 == 0) {
+      result = (x % 2 == 0) ? 0 /* R */ : 1 /* G */;
+    } else {
+      result = (x % 2 == 0) ? 1 /* G */ : 2 /* B */;
+    }
+    return result;
   }
 
 
@@ -226,6 +264,35 @@ public class CrwDecompressor {
   }
 
 
+  private static final float[] preMul = new float[]{1.965f, 1, 1.208f};
+  private static final int rgbMax = 0x4000;
+
+
+  public void scaleColors(WritableRaster raster) {
+    Rectangle bounds = raster.getBounds();
+    int height = bounds.height;
+    int width = bounds.width;
+
+    int max = rgbMax - black;
+    for (int y=0; y < height; y++) {
+      for (int x = 0; x<width; x++) {
+        for (int band = 0; band<3; band++) {
+          int sample = raster.getSample(x, y, band);
+          if (sample != 0) {
+            sample -= black;
+            sample *= preMul[band];
+            if (sample < 0)
+              sample = 0;
+            if (sample > max)
+              sample = max;
+            raster.setSample(x, y, band, sample);
+          }
+        }
+      }
+    }
+  }
+
+
   private static BufferedImage createImage(int width, int height) {
     int colorSpace = ColorSpace.CS_sRGB;
     ColorSpace cs = ColorSpace.getInstance(colorSpace); /** @todo ??? */
@@ -275,10 +342,10 @@ public class CrwDecompressor {
   private final CrwDecoder secondDecoder;
 
 
-  private final int width;
+  private final int rawWidth;
 
 
-  private final int height;
+  private final int rawHeight;
 
 
   private final int numLowBits;
@@ -300,6 +367,12 @@ public class CrwDecompressor {
 
 
   private int numPixelsDone = 0;
+
+
+  private int black = 0;
+
+
+  private int numBlack = 0;
 
 
 /*
