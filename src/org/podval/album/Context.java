@@ -15,6 +15,14 @@ public class Context implements ServletContextListener {
     String generatedDirectory = servletContext.getInitParameter("generatedDirectory");
     /** @todo check that directories exist (and have proper permissions) - or else what? */
     root = new PictureDirectory("", new File(originalsDirectory), new File(generatedDirectory));
+
+
+    /** @todo should register using jar manifest! */
+    javax.imageio.spi.IIORegistry.getDefaultInstance().registerServiceProvider(new
+      org.podval.imageio.CiffImageReaderSpi());
+
+    /** @todo where is the right place for this? */
+    org.podval.imageio.MetaMetadata.load();
   }
 
 
@@ -23,12 +31,11 @@ public class Context implements ServletContextListener {
 
 
   public static void log(String what) {
-    servletContext.log(what);
+    System.out.println(what);
   }
 
 
   public static PictureDirectory getRoot() {
-    assert (root != null);
     return root;
   }
 

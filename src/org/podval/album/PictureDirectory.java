@@ -1,6 +1,7 @@
 package org.podval.album;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
@@ -18,6 +19,46 @@ public class PictureDirectory {
     this.name = name;
     this.originalsDirectory = originalsDirectory;
     this.generatedDirectory = generatedDirectory;
+
+    if (name == null)
+      throw new NullPointerException("Directory name is null.");
+
+    if (originalsDirectory == null)
+      throw new NullPointerException("Originals directory is null.");
+
+    if (generatedDirectory == null)
+      throw new NullPointerException("Generated directory is null.");
+
+    if (!originalsDirectory.exists())
+      throw new IllegalArgumentException("Directory does not exist: " + originalsDirectory);
+
+    if (!originalsDirectory.isDirectory())
+      throw new IllegalArgumentException("Not a directory: " + originalsDirectory);
+
+//    if (!generatedDirectory.canRead())
+//      throw new IllegalArgumentException("Can not read: " + originalsDirectory);
+
+    if (generatedDirectory.exists()) {
+      if (!generatedDirectory.isDirectory())
+        throw new IllegalArgumentException("Not a directory: " + generatedDirectory);
+
+//      if (!generatedDirectory.canWrite())
+//        throw new IllegalArgumentException("Can not write to: " + generatedDirectory);
+    } else {
+      if (!generatedDirectory.mkdirs())
+        throw new IllegalArgumentException("Can not create: " + generatedDirectory);
+    }
+  }
+
+
+  public String getName() {
+    return name;
+  }
+
+
+  public int getNumSubdirectories() {
+    ensureLoaded();
+    return subdirectories.size();
   }
 
 
@@ -27,9 +68,27 @@ public class PictureDirectory {
   }
 
 
+  public Collection getSubdirectories() {
+    ensureLoaded();
+    return Collections.unmodifiableCollection(subdirectories.values());
+  }
+
+
+  public int getNumPictures() {
+    ensureLoaded();
+    return pictures.size();
+  }
+
+
   public Picture getPicture(String name) {
     ensureLoaded();
     return (Picture) pictures.get(name);
+  }
+
+
+  public Collection getPictures() {
+    ensureLoaded();
+    return Collections.unmodifiableCollection(pictures.values());
   }
 
 
@@ -56,7 +115,13 @@ public class PictureDirectory {
       }
     }
 
-    /** @todo get rid of the non-picture pictures. */
+    for (Iterator i=pictures.entrySet().iterator(); i.hasNext();) {
+      Map.Entry entry = (Map.Entry) i.next();
+      Picture picture = (Picture) entry.getValue();
+      if (!picture.isPicture())
+        i.remove();
+    }
+
     /** @todo sort pictures by date. */
   }
 
@@ -119,12 +184,6 @@ public class PictureDirectory {
     }
 
     picture.addFile(file, name, modifier, extension);
-  }
-
-
-  private Collection getPictures() {
-    ensureLoaded();
-    return pictures.values();
   }
 
 

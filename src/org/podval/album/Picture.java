@@ -45,6 +45,11 @@ public class Picture {
   }
 
 
+  public String getTimeString() {
+    return "Timestamp reading not yet implemented.";
+  }
+
+
   public void addFile(File file, String name, String modifier,
     String extension) throws IOException {
     if (!modifier.equals(""))
@@ -65,6 +70,11 @@ public class Picture {
       throw new IOException("Duplicate case-sensitive extension " + extension);
 
     files.put(extension, file);
+  }
+
+
+  public boolean isPicture() {
+    return (getFile("crw") != null) || (getFile("jpg") != null);
   }
 
 
@@ -104,21 +114,33 @@ public class Picture {
     }
 
     if (result == null) {
-      if ((width == 160) && (height == 120)) result = getCameraThumbnail(); else
-      if ((width == 640) && (height == 480)) result = getCameraScreensized();
-
-      if (result == null) {
-        String modifier = height+"x"+width;
-        File file = new File(generatedDirectory, name+"-"+modifier+".jpg");
-        if (file.exists())
-          result = readImage(file);
-        else {
-          result = scale(getFullsized(), width, height);
-          writeImage(result, file);
-        }
+      String modifier = height+"x"+width;
+      File file = new File(generatedDirectory, name+"-"+modifier+".jpg");
+      if (file.exists())
+        result = readImage(file);
+      else {
+        if ((width == 160) && (height == 120)) result = getCameraThumbnail(); else
+        if ((width == 640) && (height == 480)) result = getCameraScreensized();
+        if (result == null) result = scale(getFullsized(), width, height);
+        writeImage(result, file);
       }
 
       scalings.put(scaling, new SoftReference(result));
+    }
+
+    return result;
+  }
+
+
+  public File getScaledFile(int width, int height) throws IOException {
+    String modifier = height+"x"+width;
+    File result = new File(generatedDirectory, name+"-"+modifier+".jpg");
+    if (!result.exists()) {
+      RenderedImage image = null;
+      if ((width == 160) && (height == 120)) image = getCameraThumbnail(); else
+      if ((width == 640) && (height == 480)) image = getCameraScreensized();
+      if (image == null) image = scale(getFullsized(), width, height);
+      writeImage(image, result);
     }
 
     return result;
