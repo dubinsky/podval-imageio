@@ -6,10 +6,13 @@ import java.io.IOException;
 
 public class PictureRef implements Picture {
 
-  public PictureRef(Album album, Picture referent) {
-    /** @todo null checking for album and referent... */
+  public PictureRef(Album album, String path, String referentName, String localName) {
     this.album = album;
-    this.referent = referent;
+    /** @todo null checking for album and referent... */
+    this.path = path;
+    this.referentName = referentName;
+    this.localName = localName;
+    this.referent = Album.getByPath(path).getPicture(referentName);
   }
 
 
@@ -18,8 +21,18 @@ public class PictureRef implements Picture {
   }
 
 
+  public String getPath() {
+   return path;
+  }
+
+
+  public String getReferentName() {
+    return referentName;
+  }
+
+
   public String getName() {
-    return referent.getName();
+    return localName;
   }
 
 
@@ -29,6 +42,9 @@ public class PictureRef implements Picture {
 
 
   public File getThumbnailFile() throws IOException {
+    if (referent == null) {
+      System.out.println("Referent is null: " + path + " " + referentName + " " + localName);
+    }
     return referent.getThumbnailFile();
   }
 
@@ -44,6 +60,15 @@ public class PictureRef implements Picture {
 
 
   private final Album album;
+
+
+  private final String path;
+
+
+  private final String referentName;
+
+
+  private final String localName;
 
 
   private final Picture referent;

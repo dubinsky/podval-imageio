@@ -10,10 +10,15 @@ import java.util.StringTokenizer;
 import java.io.File;
 import java.io.InputStream;
 import java.io.FileInputStream;
+import java.io.OutputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.FileNotFoundException;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Validator;
 import javax.xml.bind.JAXBException;
 
 import org.podval.imageio.MetaMetadata;
@@ -85,6 +90,12 @@ public class Album {
 
   public String getName() {
     return name;
+  }
+
+
+  public void setTitle(String value) {
+    title = value;
+    metadataChanged = true;
   }
 
 
@@ -283,9 +294,14 @@ public class Album {
   }
 
 
+  private File getMetadataFile() {
+    return new File(getMetadataDirectory(), "album.xml");
+  }
+
+
   private void loadMetadata() {
     try {
-      File file = new File(getMetadataDirectory(), "album.xml");
+      File file = getMetadataFile();
       if (file.exists()) {
         InputStream in = new FileInputStream(file);
         JAXBContext jc = JAXBContext.newInstance("org.podval.album.jaxb");
@@ -314,20 +330,92 @@ public class Album {
 
   private void loadPictureRef(org.podval.album.jaxb.PictureRef xml) {
     String path = xml.getAlbum();
-    String name = xml.getName();
-    Picture referent = Album.getByPath(path).getPicture(name);
-    Picture picture = new PictureRef(this, referent);
+    String referentName = xml.getName();
+    String name = xml.getLocalName();
+    addPicture(path, referentName, name);
+  }
+
+
+  public void save() throws FileNotFoundException, IOException, JAXBException {
+    if (metadataChanged) {
+      JAXBContext jc = JAXBContext.newInstance("org.podval.album.jaxb");
+      org.podval.album.jaxb.Album metadata = buildMetadata();
+
+      OutputStream out = new FileOutputStream(getMetadataFile());
+      Validator v = jc.createValidator();
+      boolean valid = v.validateRoot(metadata);
+      Marshaller m = jc.createMarshaller();
+      m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE );
+      m.marshal(metadata, out);
+      out.close();
+    }
+  }
+
+
+  private org.podval.album.jaxb.Album buildMetadata() throws JAXBException {
+    org.podval.album.jaxb.ObjectFactory of = new org.podval.album.jaxb.ObjectFactory();
+    org.podval.album.jaxb.Album result = of.createAlbum();
+
+    if (title != null)
+      result.setTitle(title);
+
+    for (Iterator i = getPictures().iterator(); i.hasNext();) {
+      Picture picture = (Picture) i.next();
+      if (picture instanceof PictureRef) {
+        PictureRef pictureRef = (PictureRef) picture;
+        org.podval.album.jaxb.PictureRef xml = of.createAlbumTypePicture();
+        xml.setAlbum(pictureRef.getPath());
+        String referentName = pictureRef.getReferentName();
+        xml.setName(referentName);
+        String name = pictureRef.getName();
+        if (!name.equals(referentName))
+          xml.setLocalName(name);
+
+        result.getPictures().add(xml);
+      }
+    }
+    return result;
+  }
+
+
+  public void addPicture(String path, String referentName) {
+    addPicture(path, referentName, null);
+  }
+
+
+  public void addPicture(String path, String referentName, String name) {
+    ensurePicturesLoaded();
+
+    if (name == null)
+      name = referentName;
+
     /** @todo I do not have to put references into the Map,
      * since there is no need to be able to reference them,
      * and their names may conflict with the others, but FOR NOW....
+     * Besides, maybe I do have to - I need to be able to remove them!
      *  */
-    while (true) {
-      Object old = pictures.get(name);
-      if (old == null) break;
-      name += "_";
-    }
+    while (pictures.get(name) != null) name += "_";
+
+    Picture picture = new PictureRef(this, path, referentName, name);
 
     pictures.put(name, picture);
+
+    metadataChanged = true;
+  }
+
+
+  public void removePicture(String name) {
+    ensurePicturesLoaded();
+
+    Picture result = (Picture) pictures.get(name);
+    if (result != null) {
+      if (!(result instanceof PictureRef))
+        throw new IllegalArgumentException(
+          "Only REFERENCES to pictures can be removed!");
+      pictures.remove(name);
+
+      metadataChanged = true;
+    }
   }
 
 
@@ -365,4 +453,7 @@ public class Album {
    * map<String name, Picture>
    */
   private final Map pictures = new TreeMap(String.CASE_INSENSITIVE_ORDER);
+
+
+  private boolean metadataChanged = false;
 }

@@ -1,3 +1,7 @@
+Album title - put it into parent's metadata?
+Intelligent loading of directory/metadata.
+Reloading of the directory/metadata file based on timestamp.
+
 Defaulting of types: more intelligent?
 IFDs are U32?
 Do IFD0/IFD1 through emulation of Handler events?

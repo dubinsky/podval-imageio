@@ -8,9 +8,9 @@
 
 <xsd:element name="album">
   <xsd:complexType>
-    <xsd:sequence minOccurs="0" maxOccurs="unbounded">
+    <xsd:sequence>
       <xsd:annotation><xsd:appinfo><jxb:property name="pictures"/></xsd:appinfo></xsd:annotation>
-      <xsd:element name="picture" type="PictureRef"/>
+      <xsd:element name="picture" type="PictureRef" minOccurs="0" maxOccurs="unbounded"/>
     </xsd:sequence>
 
     <xsd:attribute name="title" type="xsd:string"/>
@@ -21,6 +21,7 @@
 <xsd:complexType name="PictureRef">
   <xsd:attribute name="album" type="xsd:string" use="required"/>
   <xsd:attribute name="name" type="xsd:string" use="required"/>
+  <xsd:attribute name="localName" type="xsd:string"/>
 </xsd:complexType>
 
 </xsd:schema>
