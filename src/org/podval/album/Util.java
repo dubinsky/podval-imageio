@@ -29,6 +29,7 @@ import javax.media.jai.operator.ScaleDescriptor;
 import javax.media.jai.operator.TransposeDescriptor;
 import javax.media.jai.operator.TransposeType;
 
+import org.podval.imageio.Rotation;
 import org.podval.imageio.Orientation;
 
 
@@ -149,17 +150,15 @@ public class Util {
       result = TransposeDescriptor.create(result, TransposeDescriptor.FLIP_VERTICAL, null);
 
     TransposeType rotation = null;
-    if (orientation.getRotation() == Orientation.Rotation.LEFT)
-      rotation = TransposeDescriptor.ROTATE_270;
-    else
-    if (orientation.getRotation() == Orientation.Rotation.OVER)
-      rotation = TransposeDescriptor.ROTATE_180;
-    else
-    if (orientation.getRotation() == Orientation.Rotation.RIGHT)
-      rotation = TransposeDescriptor.ROTATE_90;
+    switch (orientation.getRotation()) {
+    case LEFT   : rotation = TransposeDescriptor.ROTATE_270; break;
+    case RIGHT  : rotation = TransposeDescriptor.ROTATE_90; break;
+    case OVER   : rotation = TransposeDescriptor.ROTATE_180; break;
+    }
 
-    if (rotation != null)
+    if (rotation != null) {
       result = TransposeDescriptor.create(result, rotation, null);
+    }
 
     return result;
   }
