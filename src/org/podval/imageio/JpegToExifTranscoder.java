@@ -34,7 +34,7 @@ public class JpegToExifTranscoder {
       metadata.getAsTree(metadata.getNativeMetadataFormatName()));
 
     return (exifSegment == null) ? null :
-      ExifDecoder.read(ImageIO.createImageInputStream(
+      ExifReader.read(ImageIO.createImageInputStream(
         new ByteArrayInputStream((byte[]) exifSegment.getUserObject())));
   }
 

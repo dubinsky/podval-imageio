@@ -7,20 +7,13 @@ import java.io.IOException;
 
 public class CiffMetadataReader {
 
-  public static final String NATIVE_FORMAT_NAME = "org_podval_imageio_ciff_1.0";
-
-
-  public static Metadata read(ImageInputStream in) throws IOException {
+  public static void read(ImageInputStream in, MetadataBuilder builder)
+    throws IOException
+  {
     MetaMetadata.load();
 
     long heapLength = readPrologue(in);
-
-    Metadata result = new Metadata(NATIVE_FORMAT_NAME);
-
-    readHeap(Directory.get("ciff-root"), in, heapLength,
-      new SimpleMetadataBuilder(result));
-
-    return result;
+    readHeap(Directory.get("ciff-root"), in, heapLength, builder);
   }
 
 

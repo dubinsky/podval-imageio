@@ -3,9 +3,9 @@ package org.podval.imageio;
 
 public class SimpleMetadataBuilder implements MetadataBuilder {
 
-  public SimpleMetadataBuilder(Metadata result) {
-    this.result = result;
-    this.tip = result.getRoot();
+  public SimpleMetadataBuilder(String name) {
+    result = new Metadata(name);
+    tip = result.getRoot();
   }
 
 
@@ -67,7 +67,12 @@ public class SimpleMetadataBuilder implements MetadataBuilder {
   }
 
 
-  private Metadata result;
+  public Metadata getResult() {
+    return result;
+  }
+
+
+  private final Metadata result;
 
 
   private Group tip;

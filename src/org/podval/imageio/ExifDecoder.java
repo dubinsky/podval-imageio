@@ -10,14 +10,13 @@ public class ExifDecoder {
   public static final String NATIVE_FORMAT_NAME = "org_podval_imageio_exif_1.0";
 
 
-  public static Metadata read(ImageInputStream in) throws IOException {
+  public static void read(ImageInputStream in, MetadataBuilder builder)
+    throws IOException
+  {
     /** @todo move this to SPI? */
     MetaMetadata.load();
 
     long offsetBase = readPrologue(in);
-
-    Metadata result = new Metadata(NATIVE_FORMAT_NAME);
-    MetadataBuilder builder = new SimpleMetadataBuilder(result);
 
     /*
      Since virtually all the tags (except 513 and 514) seem to be allowed
@@ -26,8 +25,6 @@ public class ExifDecoder {
     */
     readIfd(Directory.get("exif-root"), in, offsetBase, builder);
     readIfd(Directory.get("exif-root"), in, offsetBase, builder);
-
-    return result;
   }
 
 

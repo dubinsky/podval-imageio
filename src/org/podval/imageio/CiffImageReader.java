@@ -15,6 +15,9 @@ import java.util.Iterator;
 
 public class CiffImageReader extends ImageReader {
 
+  public static final String NATIVE_FORMAT_NAME = "org_podval_imageio_ciff_1.0";
+
+
   public CiffImageReader(ImageReaderSpi originatingProvider) {
     super(originatingProvider);
   }
@@ -73,7 +76,9 @@ public class CiffImageReader extends ImageReader {
       if (input == null)
         throw new IllegalStateException("Input not set.");
 
-      metadata = CiffMetadataReader.read(input);
+      SimpleMetadataBuilder builder =  new SimpleMetadataBuilder(NATIVE_FORMAT_NAME);
+      CiffMetadataReader.read(input, builder);
+      metadata = builder.getResult();
     }
   }
 

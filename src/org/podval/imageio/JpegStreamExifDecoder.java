@@ -17,7 +17,7 @@ public class JpegStreamExifDecoder {
     if ((byte1 != 0xFF) || (byte2 != 0xD8))
       throw new IOException("Bad JPEG signature.");
 
-    return (findExifMarker(in)) ? ExifDecoder.read(in) : null;
+    return (findExifMarker(in)) ? ExifReader.read(in) : null;
   }
 
 
