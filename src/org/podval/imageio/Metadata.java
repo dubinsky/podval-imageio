@@ -98,25 +98,5 @@ public class Metadata extends IIOMetadata {
   }
 
 
-  public static Metadata read(File file) throws IOException {
-    ImageInputStream in =
-      ImageIO.createImageInputStream(file);
-
-    javax.imageio.ImageReader reader =
-      (javax.imageio.ImageReader) ImageIO.getImageReaders(in).next();
-
-    reader.setInput(in);
-    IIOMetadata result = reader.getImageMetadata(0);
-    reader.dispose();
-    in.close();
-
-    /** @todo this should be done through a transcoder? */
-    if (result instanceof JPEGMetadata)
-      result = ExifReader.transcodeJpegMetadata(result);
-
-    return (Metadata) result;
-  }
-
-
   private final Group root;
 }
