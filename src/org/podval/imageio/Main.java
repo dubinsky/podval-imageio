@@ -2,6 +2,8 @@ package org.podval.imageio;
 
 import javax.imageio.spi.IIORegistry;
 import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageInputStream;
 import javax.imageio.stream.ImageOutputStream;
 import javax.imageio.stream.FileImageInputStream;
@@ -14,6 +16,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 
+import java.awt.image.RenderedImage;
 import java.awt.image.BufferedImage;
 
 import java.util.Iterator;
@@ -28,11 +31,6 @@ public class Main {
     IllegalArgumentException,
     javax.xml.transform.TransformerException
   {
-    if (args.length<2) {
-      usage();
-      return;
-    }
-
     /** @todo should register using jar manifest (also). */
     IIORegistry.getDefaultInstance().registerServiceProvider(new
       CiffImageReaderSpi());
@@ -40,10 +38,17 @@ public class Main {
     /** @todo where is the right place for this? */
     MetaMetadata.load();
 
-    String command = args[0];
 
-    for (int i=1; i<args.length; i++)
-      doCommand(command, new File(args[i]));
+    String command = "number";
+
+    for (int i=0; i<args.length; i++) {
+      String arg = args[i];
+      if (arg.startsWith("-")) {
+        arg = arg.substring(1, arg.length());
+        command = arg;
+      } else
+        doCommand(command, new File(arg));
+    }
   }
 
 
@@ -51,9 +56,10 @@ public class Main {
     System.err.println("Usage: <command> <file>+");
     System.err.println();
     System.err.println("Recognized commands:");
-    System.err.println("  dump - print native metadata");
-    System.err.println("  number - print identification");
+    System.err.println("  number     - print identification");
     System.err.println("  decompress - extract raw image out of a .crw");
+    System.err.println("  metadata   - print native metadata");
+    System.err.println("  thumbnail  - extract thumbnail out of the file");
   }
 
 
@@ -66,37 +72,68 @@ public class Main {
     System.err.print("File " + file + ": ");
 
     if (!file.exists() || !file.isFile()) {
-      System.err.println(" must exist and be a file.");
-      return;
-    }
-
-    String fullName = file.getName();
-    int dot = fullName.lastIndexOf('.');
-    String name;
-    String extension;
-
-    if (dot != -1) {
-      name = fullName.substring(0, dot);
-      extension = fullName.substring(dot+1, fullName.length());
+      System.err.print(" does not exist or is not a file.");
     } else {
-      name = fullName;
-      extension = null;
+
+      String fullName = file.getName();
+      int dot = fullName.lastIndexOf('.');
+      String name;
+      String extension;
+
+      if (dot!=-1) {
+        name = fullName.substring(0, dot);
+        extension = fullName.substring(dot+1, fullName.length());
+      } else {
+        name = fullName;
+        extension = null;
+      }
+
+      ImageInputStream in = ImageIO.createImageInputStream(file);
+      Iterator readers = ImageIO.getImageReaders(in);
+      ImageReader reader = (readers.hasNext()) ? (ImageReader) readers.next() : null;
+
+      if (reader == null) {
+        System.err.print(" no reader found.");
+      } else {
+        if (readers.hasNext())
+          System.err.print(" more readers!");
+
+        reader.setInput(in);
+
+        if ("number"    .equals(command)) number    (reader, file, name); else
+        if ("decompress".equals(command)) decompress(reader, file, name); else
+        if ("metadata"  .equals(command)) metadata  (reader); else
+        if ("thumbnail" .equals(command)) thumbnail (reader, file, name); else
+          usage();
+
+        reader.dispose();
+      }
+
+      in.close();
     }
 
-    if ("number".equals(command))
-      printNumber(file, name);
-    else if ("decompress".equals(command))
-      decompress(file, name);
-    else if ("dump".equals(command)) {
-      System.err.println();
-      Metadata.read(file).print();
-    } else
-      usage();
+    System.err.println();
   }
 
 
-  private static void printNumber(File file, String name) throws IOException {
-    Metadata metadata = Metadata.read(file);
+
+  public static Metadata readMetadata(ImageReader reader) throws IOException {
+    IIOMetadata result = reader.getImageMetadata(0);
+
+    /** @todo this should be done through a transcoder? */
+    if (result instanceof JPEGMetadata)
+      result = ExifReader.transcodeJpegMetadata(result);
+
+    return (Metadata) result;
+  }
+
+
+
+
+  private static void number(ImageReader reader, File file, String name)
+    throws IOException
+  {
+    Metadata metadata = readMetadata(reader);
     if (metadata != null) {
       int number = metadata.getIntValue("serialNumber");
       Date imageDateTime = (Date) metadata.find("dateTime");
@@ -120,14 +157,14 @@ public class Main {
         file.setLastModified(imageMillis);
         System.out.print(" -corrected");
       }
-
-      System.out.println();
     }
   }
 
 
-  private static void decompress(File file, String name) throws IOException {
-    Metadata metadata = Metadata.read(file);
+  private static void decompress(ImageReader reader, File file, String name)
+    throws IOException
+  {
+    Metadata metadata = readMetadata(reader);
     String model = metadata.getStringValue("model"); // cameraObject/modelName/model
     int width = metadata.getIntValue("width"); // imageProperties/canonRawProperties/sensor/width
     int height = metadata.getIntValue("height"); // imageProperties/canonRawProperties/sensor/height
@@ -140,12 +177,49 @@ public class Main {
 //    CrwDecompressor.decompress(in, decodeTableNumber, width, height, out);
     BufferedImage result = CrwDecompressor.decompress(in, decodeTableNumber, width, height);
 
+    System.err.print("bilinearily interpolating...");
+    Demosaicker.bilinear(result.getRaster());
+
     System.err.print("writing...");
 
-//    String suffix = "png";
-    String suffix = "tiff";
+    write(result, file, name, "tiff");
+
+    System.err.print("done!");
+  }
+
+
+
+  private static void metadata(ImageReader reader) throws
+    IOException,
+    javax.xml.transform.TransformerException
+  {
+    System.err.println();
+    readMetadata(reader).print();
+  };
+
+
+  private static void thumbnail(ImageReader reader, File file, String name)
+    throws IOException
+  {
+    RenderedImage result = null;
+
+    int numImages = reader.getNumImages(true);
+    int numThumbnails = reader.getNumThumbnails(0);
+    System.err.print(" has " + numImages + " images, 0th with " + numThumbnails + " thumbnails");
+    if (reader.getNumThumbnails(0) == 0)
+      result = reader.read(0);
+    else
+      result = reader.readThumbnail(0, 0);
+
+    write(result, file, name, "jpeg");
+  }
+
+
+  private static void write(RenderedImage result, File file, String name, String suffix)
+    throws IOException
+  {
     Iterator writers = ImageIO.getImageWritersBySuffix(suffix);
-    javax.imageio.ImageWriter writer = (javax.imageio.ImageWriter) writers.next();
+    ImageWriter writer = (javax.imageio.ImageWriter) writers.next();
 
     File newFile = new File(file.getParentFile(), name + "." + suffix);
     ImageOutputStream out = new FileImageOutputStream(newFile);
@@ -154,7 +228,5 @@ public class Main {
     writer.write(result);
     out.close();
     writer.dispose();
-
-    System.err.println("done!");
   }
 }
