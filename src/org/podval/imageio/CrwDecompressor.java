@@ -17,20 +17,6 @@ import java.awt.color.ColorSpace;
  */
 public class CrwDecompressor {
 
-  public static void decompress(
-    ImageInputStream in,
-    int decodeTableNumber,
-    int rawWidth,
-    int rawHeight,
-    ImageOutputStream out
-  ) throws IOException
-  {
-    CrwDecompressor decompressor =
-      new CrwDecompressor(in, decodeTableNumber, rawWidth, rawHeight);
-    decompressor.decompress(out);
-  }
-
-
   public static BufferedImage decompress(
     ImageInputStream in,
     int decodeTableNumber,
@@ -64,17 +50,6 @@ public class CrwDecompressor {
   /** @todo G2 sensor size is 2376x1728; image size is 2310x1718.
    *  There are black pixels: top - 7; bottom - 2; left - 12; right - 52.
    *  */
-
-
-  private void decompress(ImageOutputStream out) throws IOException {
-    out.setByteOrder(java.nio.ByteOrder.LITTLE_ENDIAN);
-
-    int numPixels = rawWidth*rawHeight;
-    do {
-      decompressBlock();
-      writeBlock(out);
-    } while (numPixelsDone < numPixels);
-  }
 
 
   private BufferedImage decompress() throws IOException {
