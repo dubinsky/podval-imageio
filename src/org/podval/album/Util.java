@@ -110,8 +110,7 @@ public class Util {
   }
 
 
-  public static synchronized RenderedImage scale(File file, int height, int width) throws IOException {
-    RenderedImage image = readImage(file);
+  public static synchronized RenderedImage scale(RenderedImage image, int height, int width) throws IOException {
     float longScale  = ((float) Math.max(width, height)) / Math.max(image.getWidth(), image.getHeight());
     float shortScale = ((float) Math.min(width, height)) / Math.min(image.getWidth(), image.getHeight());
     float scale = Math.min(longScale, shortScale);

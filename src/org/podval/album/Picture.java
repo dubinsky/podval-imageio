@@ -17,9 +17,6 @@ import java.text.SimpleDateFormat;
 
 /**
  * Represents a photograph, its attributes, and its scalings.
- *
- * @author  $Author$
- * @version $Revision$, $Date$
  */
 public abstract class Picture implements Comparable {
 
@@ -34,10 +31,6 @@ public abstract class Picture implements Comparable {
    * @return picture
    *   the picture at the specified path or <code>null</code>
    *   if there is no such picture
-   *
-   * @throws NullPointerException
-   *   if there is no album specified in the path - but this can go away
-   *
    */
   public static Picture getByPath(String path) {
     if (path == null)
@@ -51,7 +44,8 @@ public abstract class Picture implements Comparable {
     String albumPath = path.substring(0, colon);
     String pictureName = path.substring(colon+1, path.length());
 
-    return Album.getByPath(albumPath).getPicture(pictureName);
+    Album album = Album.getByPath(albumPath);
+    return (album != null) ? album.getPicture(pictureName) : null;
   }
 
 

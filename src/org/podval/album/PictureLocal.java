@@ -7,6 +7,9 @@ package org.podval.album;
 
 import java.util.Date;
 
+import java.util.logging.Logger;
+import java.util.logging.Level;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.FileNotFoundException;
@@ -20,20 +23,21 @@ import javax.xml.bind.JAXBException;
 import org.podval.imageio.Metadata;
 import org.podval.imageio.Orientation;
 
-import org.apache.commons.logging.LogFactory;
-import org.apache.commons.logging.Log;
-
 
 /**
  * Picture whose files are in its album's directory.
  *
- * @author $Author$
- * @version $Revision$, $Date$
  */
 public class PictureLocal extends Picture {
 
 
-  private static final Log LOG = LogFactory.getLog(Picture.class);
+  private static final Logger LOG = Logger.getLogger("org.podval.album.Picture");
+
+
+  private void log(String when, Exception e) {
+    LOG.log(Level.WARNING, "Exception when " + when, e);
+  }
+
 
 
   public PictureLocal(String name) {
@@ -43,17 +47,15 @@ public class PictureLocal extends Picture {
 
   /**
    * Absorbs a file into this picture - if it is of recognized type.
+   * When file name is duplicate if considered ignoring case, the file is ignored.
    *
    * @param file
    *   file to be absorbed
    *
    * @param extension
    *   string containing the file's extension
-   *
-   * @throws IOException
-   *   when file name is duplicate if considered ignoring case
    */
-  public void addFile(File file, String extension) throws IOException {
+  public void addFile(File file, String extension) {
     if (extension.equalsIgnoreCase("jpg")) {
       checkIsNull(jpgFile);
       jpgFile = file;
@@ -73,9 +75,9 @@ public class PictureLocal extends Picture {
   }
 
 
-  private void checkIsNull(File file) throws IOException {
+  private void checkIsNull(File file) {
     if (file != null)
-      throw new IOException("Duplicate case-sensitive file name " + file);
+      LOG.warning("Duplicate case-sensitive file name " + file);
   }
 
 
@@ -97,63 +99,50 @@ public class PictureLocal extends Picture {
 
 
   public File getThumbnailFile() {
-    File result = null;
-    File file = getThumbnailGnereatedFile();
-    if (!file.exists()) {
-      try {
-        scale(readCameraThumbnail(), 120, 160, result);
-        result = file;
-      } catch (IOException e) {
-        LOG.warn("Exception getting thumbnail file for " + this, e);
-      }
-    }
-    return result;
+    File result = getThumbnailGnereatedFile();
+    if (!result.exists())
+      scale(readCameraThumbnail(), 120, 160, result);
+    return ifExists(result);
   }
 
 
   public File getScreensizedFile() {
-    File result = null;
-    File file = getScreensizedGeneratedFile();
-    if (!file.exists()) {
-      try {
-        scale(readCameraScreensized(), 480, 640, result);
-        result = file;
-      } catch (IOException e) {
-        LOG.warn("Exception getting screen-sized image for " + this, e);
-      }
-    }
-    return result;
+    File result = getScreensizedGeneratedFile();
+    if (!result.exists())
+      scale(readCameraScreensized(), 480, 640, result);
+    return ifExists(result);
+  }
+
+
+  private static File ifExists(File file) {
+    return (file.exists()) ? file : null;
   }
 
 
   public File getFullsizedFile() {
-    /** @todo logging */
-    File result = null;
+    File result;
 
     if ((jpgFile != null) && (getOrientation() == Orientation.TOP_LEFT)) {
       result = jpgFile;
 
     } else {
-      File file = getFullsizedGeneratedFile();
+      result = getFullsizedGeneratedFile();
 
       if (!result.exists()) {
-        try {
-          RenderedImage image = readCameraFullsized();
+        RenderedImage image = readCameraFullsized();
+        if (image != null) {
           /* Theoretically it is possible to losslesly rotate JPEG,
              but if this will become a problem, I'll just switch to using
              some other format for generated files - format that supports
              lossless compression.
            */
-          Util.writeImage(Util.rotate(image, getOrientation()), result);
-        } catch (IOException e) {
-          LOG.warn("Exception getting full-sized image for " + this, e);
+          image = Util.rotate(image, getOrientation());
+          writeImage(image, result);
         }
       }
-
-      result = file;
     }
 
-    return result;
+    return ifExists(result);
   }
 
 
@@ -167,68 +156,86 @@ public class PictureLocal extends Picture {
   }
 
 
-  private RenderedImage readCameraThumbnail() throws IOException {
+  private RenderedImage readCameraThumbnail() {
     RenderedImage result = null;
 
-    if (LOG.isDebugEnabled())
-      LOG.debug(getName() + ".readCameraThumbnail()");
-
-    if (thmFile != null) result = Util.readImage    (thmFile   ); else
-    if (crwFile != null) result = Util.readThumbnail(crwFile, 0);
-
-    if (LOG.isDebugEnabled())
-      LOG.debug(getName() + ".readCameraThumbnail() returning " + result);
+    try {
+      if (thmFile != null) result = Util.readImage    (thmFile   ); else
+      if (crwFile != null) result = Util.readThumbnail(crwFile, 0);
+    } catch (IOException e) {
+      log("reading camera thumbnail", e);
+    }
 
     return result;
   }
 
 
-  private RenderedImage readCameraScreensized() throws IOException {
+  private RenderedImage readCameraScreensized() {
     RenderedImage result = null;
 
-    if (LOG.isDebugEnabled())
-      LOG.debug(getName() + ".readCameraScreensized()");
-
-    if (crwFile != null) result = Util.readThumbnail(crwFile, 1);
-
-    if (LOG.isDebugEnabled())
-      LOG.debug(getName() + ".readCameraScreensized() returning " + result);
+    try {
+      if (crwFile != null) result = Util.readThumbnail(crwFile, 1);
+    } catch (IOException e) {
+      log("reading camera screensized", e);
+    }
 
     return result;
   }
 
 
-  private RenderedImage readCameraFullsized() throws IOException {
+  private RenderedImage readCameraFullsized() {
     RenderedImage result = null;
 
-    if (LOG.isDebugEnabled())
-      LOG.debug(getName() + ".readCameraFullsized()");
-
-    if (jpgFile != null) result = Util.readImage(jpgFile); else
-    if (crwFile != null) result = Util.convert  (crwFile);
-
-    if (LOG.isDebugEnabled())
-      LOG.debug(getName() + ".readCameraFullsized() returning " + result);
+    try {
+      if (jpgFile != null) result = Util.readImage(jpgFile); else
+      if (crwFile != null) result = Util.convert  (crwFile);
+    } catch (IOException e) {
+      log("reading camera fullsized", e);
+    }
 
     return result;
   }
 
 
-  private void scale(RenderedImage image, int height, int width, File result)
-    throws IOException
-  {
-    if (LOG.isDebugEnabled())
-      LOG.debug(getName() + ".scale()");
-
+  private void scale(RenderedImage image, int height, int width, File result) {
     if (image != null)
       image = Util.rotate(image, getOrientation());
     else
-      image = Util.scale(getFullsizedFile(), height, width);
+      image = scale(height, width);
 
-    Util.writeImage(image, result);
+    writeImage(image, result);
+  }
 
-    if (LOG.isDebugEnabled())
-      LOG.debug(getName() + ".scale() wrote file of length " + result.length());
+
+  private RenderedImage scale(int height, int width) {
+    RenderedImage result = null;
+
+    try {
+      File file = getFullsizedFile();
+      if (file != null) {
+        RenderedImage image = Util.readImage(file);
+        if (image != null)
+          result = Util.scale(image, height, width);
+      }
+    } catch (IOException e) {
+      log("scaling image", e);
+    }
+
+    return result;
+  }
+
+
+  private void writeImage(RenderedImage image, File file) {
+    if (image != null) {
+      try {
+        Util.writeImage(image, file);
+        if (file.length() == 0) {
+          LOG.warning("Wrote file of length 0!");
+        }
+      } catch (IOException e) {
+        log("writing image", e);
+      }
+    }
   }
 
 
@@ -284,7 +291,7 @@ public class PictureLocal extends Picture {
   private void setOrientation(Orientation value) {
     if (orientation != value) {
       orientation = value;
-      removeGeneratedFiles();
+      deleteGeneratedFiles();
       changed();
     }
   }
@@ -300,7 +307,7 @@ public class PictureLocal extends Picture {
   }
 
 
-  private void removeGeneratedFiles() {
+  private void deleteGeneratedFiles() {
     deleteFile(getThumbnailGnereatedFile());
     deleteFile(getScreensizedGeneratedFile());
     deleteFile(getFullsizedGeneratedFile());
@@ -309,7 +316,7 @@ public class PictureLocal extends Picture {
 
   private void deleteFile(File file) {
     if(file.exists() && !file.delete())
-      LOG.warn("Can not delete file " + file);
+      LOG.warning("Can not delete file " + file);
   }
 
 
@@ -350,7 +357,7 @@ public class PictureLocal extends Picture {
     try {
       load(JAXB.unmarshallPicture(file));
     } catch (JAXBException e) {
-      LOG.warn("Exception when unmarshalling picture metadata from file " + file, e);
+      log("unmarshalling picture metadata from file " + file, e);
     }
   }
 
@@ -361,7 +368,7 @@ public class PictureLocal extends Picture {
       save(result);
       JAXB.marshall(result, file);
     } catch (Exception e) {
-      LOG.warn("Exception when marshalling picture metadata to file " + file, e);
+      log("marshalling picture metadata to file " + file, e);
     }
   }
 
@@ -390,7 +397,7 @@ public class PictureLocal extends Picture {
       try {
         result = Metadata.read(file);
       } catch (IOException e) {
-        LOG.warn("Exception when reading camera metadata from file " + file, e);
+        log("reading camera metadata from file " + file, e);
       }
       cameraMetadata = new SoftReference(result);
     }

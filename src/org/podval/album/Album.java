@@ -24,25 +24,27 @@ public abstract class Album {
 
 
   public static Album getByPath(String path) {
-    if (root == null)
-      throw new NullPointerException("Root is not set!");
-
     if (path == null)
       throw new NullPointerException("Path is null!");
 
     if (!path.startsWith("/"))
       throw new IllegalArgumentException("Path does not start with '/': " + path);
 
-    Album result = root;
+    Album result = getRoot();
 
     StringTokenizer tokenizer = new StringTokenizer(path, "/");
     while (tokenizer.hasMoreTokens() && (result != null))
       result = ((Album) result).getSubalbum(tokenizer.nextToken());
 
-    if (result == null)
-      throw new NullPointerException("No album at " + path);
-
     return result;
+  }
+
+
+  private static Album getRoot() {
+    if (root == null)
+      throw new NullPointerException("Root is not set!");
+
+    return root;
   }
 
 
