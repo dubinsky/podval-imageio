@@ -60,11 +60,13 @@ public class PictureReference extends Picture {
   private Picture getReferent() {
     if (referent == null) {
       synchronized (this) {
-      referent = Picture.getByPath(getName());
+        if (referent == null) {
+          referent = Picture.getByPath(getName());
 
-      /** @todo ? */
-//      if (referent == null)
-//        throw new NullPointerException("Referent not found: " + getPath());
+          /** @todo ? */
+//        if (referent == null)
+//          throw new NullPointerException("Referent not found: " + getPath());
+        }
       }
     }
 

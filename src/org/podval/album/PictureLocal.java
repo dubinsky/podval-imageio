@@ -108,7 +108,8 @@ public class PictureLocal extends Picture {
     File result = getThumbnailGeneratedFile();
     if (!result.exists()) {
       synchronized (PictureLocal.class) {
-        scale(readCameraThumbnail(), 120, 160, result);
+        if (!result.exists())
+          scale(readCameraThumbnail(), 120, 160, result);
       }
     }
     return ifExists(result);
@@ -119,7 +120,8 @@ public class PictureLocal extends Picture {
     File result = getScreensizedGeneratedFile();
     if (!result.exists()) {
       synchronized (PictureLocal.class) {
-        scale(readCameraScreensized(), 480, 640, result);
+        if (!result.exists())
+          scale(readCameraScreensized(), 480, 640, result);
       }
     }
     return ifExists(result);
@@ -143,17 +145,19 @@ public class PictureLocal extends Picture {
 
       if (!result.exists()) {
         synchronized (PictureLocal.class) {
-          RenderedImage image = readCameraFullsized();
-          /** @todo this can not really be null, and resulting file must exist -
-           * once I do crw conversion... */
-          /* Theoretically it is possible to losslesly rotate JPEG,
-             but if this will become a problem, I'll just switch to using
-             some other format for generated files - format that supports
-             lossless compression.
-           */
-          if (image != null) {
-            image = Util.rotate(image, getOrientation());
-            writeImage(image, result);
+          if (!result.exists()) {
+            RenderedImage image = readCameraFullsized();
+            /** @todo this can not really be null, and resulting file must exist -
+             * once I do crw conversion... */
+            /* Theoretically it is possible to losslesly rotate JPEG,
+               but if this will become a problem, I'll just switch to using
+               some other format for generated files - format that supports
+               lossless compression.
+             */
+            if (image != null) {
+              image = Util.rotate(image, getOrientation());
+              writeImage(image, result);
+            }
           }
         }
         result = ifExists(result);
@@ -328,12 +332,12 @@ public class PictureLocal extends Picture {
   }
 
 
-  public void rotateLeft() {
+  public synchronized void rotateLeft() {
     setOrientation(getOrientation().rotateLeft());
   }
 
 
-  public void rotateRight() {
+  public synchronized void rotateRight() {
     setOrientation(getOrientation().rotateRight());
   }
 
@@ -345,7 +349,7 @@ public class PictureLocal extends Picture {
   }
 
 
-  private void deleteFile(File file) {
+  private synchronized void deleteFile(File file) {
     if(file.exists() && !file.delete())
       log("Can not delete file " + file);
   }

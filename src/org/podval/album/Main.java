@@ -49,6 +49,7 @@ public class Main {
       else
       if ("remove".equals(command))
         removeFromAlbum((AlbumLocal) album, args, argNum);
+      else
       if ("left".equals(command))
         rotate(album, false, args, argNum);
       else
