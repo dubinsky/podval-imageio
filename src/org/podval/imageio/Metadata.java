@@ -34,7 +34,7 @@ public class Metadata extends IIOMetadata {
     if (formatName.equals(getNativeMetadataFormatName()))
       return getNativeTree();
     else
-      throw new IllegalArgumentException("Not a recognized format!");
+      throw new IllegalArgumentException("Not a recognized format " + formatName);
   }
 
 

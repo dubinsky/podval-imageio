@@ -5,13 +5,7 @@ import javax.imageio.metadata.IIOMetadataNode;
 
 public abstract class Value extends Entry {
 
-
-  public Entry flatten() {
-    return this;
-  }
-
-
-  public Entry getEntry(String name) {
+  public final Entry getEntry(String name) {
     return (getName().equals(name)) ? this : null;
   }
 
@@ -20,8 +14,7 @@ public abstract class Value extends Entry {
   /**
    *
    */
-  public static class PointerValue extends Value {
-
+  public static final class PointerValue extends Value {
     public PointerValue(long offset, long length) {
       this.offset = offset;
       this.length = length;
@@ -43,7 +36,7 @@ public abstract class Value extends Entry {
    *
    */
   private static abstract class SimpleValue extends Value {
-    protected void buildNativeTree(IIOMetadataNode result) {
+    protected final void buildNativeTree(IIOMetadataNode result) {
       result.setAttribute("value", getValueAsString());
     }
 
@@ -54,7 +47,7 @@ public abstract class Value extends Entry {
   /**
    *
    */
-  public static class StringValue extends SimpleValue {
+  public static final class StringValue extends SimpleValue {
     public StringValue(String value) { this.value = value; }
     protected String getValueAsString() { return value; }
     public String getValue() { return value; }
@@ -65,7 +58,7 @@ public abstract class Value extends Entry {
   /**
    *
    */
-  public static class IntegerValue extends SimpleValue {
+  public static final class IntegerValue extends SimpleValue {
     public IntegerValue(long value) { this.value = value; }
     public long getValue() { return value; }
     protected String getValueAsString() { return Long.toString(value); }
@@ -76,7 +69,7 @@ public abstract class Value extends Entry {
   /**
    *
    */
-  public static class FloatValue extends SimpleValue {
+  public static final class FloatValue extends SimpleValue {
     public FloatValue(float value) { this.value = value; }
     protected String getValueAsString() { return Float.toString(value); }
     private final float value;
@@ -86,7 +79,7 @@ public abstract class Value extends Entry {
   /**
    *
    */
-  public static class HexValue extends SimpleValue {
+  public static final class HexValue extends SimpleValue {
     public HexValue(byte[] value) { this.value = value; }
 
 

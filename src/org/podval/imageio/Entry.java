@@ -17,9 +17,6 @@ public abstract class Entry {
   }
 
 
-  public abstract Entry flatten();
-
-
   public abstract Entry getEntry(String name);
 
 

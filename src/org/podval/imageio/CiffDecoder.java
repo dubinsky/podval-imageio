@@ -5,7 +5,7 @@ import javax.imageio.stream.ImageInputStream;
 import java.io.IOException;
 
 
-public class CiffMetadataReader {
+public class CiffDecoder {
 
   public static void read(ImageInputStream in, MetadataHandler handler)
     throws IOException

@@ -50,7 +50,7 @@ public class CiffImageReaderSpi extends ImageReaderSpi {
     in.read();
     in.readUnsignedInt();
 
-    boolean result = CiffMetadataReader.readSignature(in);
+    boolean result = CiffDecoder.readSignature(in);
     in.reset();
 
     return result;

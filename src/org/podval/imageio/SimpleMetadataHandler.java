@@ -18,10 +18,10 @@ public class SimpleMetadataHandler implements MetadataHandler {
 
 
   public void endFolder() {
-    /** @todo check that we do not overpop, and that the we pop what we pushed... */
     Group parent = tip.getParent();
     parent.addEntry(tip.flatten());
     tip = parent;
+    assert (tip != null) : "Invalid folder nesting";
   }
 
 
@@ -57,11 +57,7 @@ public class SimpleMetadataHandler implements MetadataHandler {
 
 
   public MakerNote getMakerNote() {
-//  String make = metadata.getStringValue("make");
-//  MakerNote makerNote = MakerNote.get(make);
-//...
-//  result.addEntry(new Group("UnknownMakerNote-" + make));
-    return null; /** @todo XXXXX */
+    return MakerNote.get(getResult().getStringValue("make"));
   }
 
 

@@ -30,7 +30,7 @@ public class Main {
 
       /** @todo this should be done through a transcoder? */
       if (metadata instanceof JPEGMetadata) {
-        metadata = JpegToExifTranscoder.read(metadata);
+        metadata = ExifReader.transcodeJpegMetadata(metadata);
       }
 
       if (metadata instanceof Metadata) {

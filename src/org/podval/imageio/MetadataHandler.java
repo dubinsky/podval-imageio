@@ -1,5 +1,6 @@
 package org.podval.imageio;
 
+
 public interface MetadataHandler {
 
   public void startFolder(Typed folder);

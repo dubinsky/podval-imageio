@@ -19,7 +19,12 @@ public class MakerNote {
 
 
   public static MakerNote get(String make) {
-    return (MakerNote) makerNotes.get(make);
+    MakerNote result = (MakerNote) makerNotes.get(make);
+    if (result == null) {
+      result = new MakerNote(null, Directory.get("unknownMakerNote-" + make));
+      makerNotes.put(make, result);
+    }
+    return result;
   }
 
 
