@@ -15,11 +15,14 @@ public enum Rotation {
 
     degrees = degrees % 360;
 
-    Rotation result;
-    if (degrees ==   0) { result = NOTHING; } else
-    if (degrees == -90) { result = LEFT   ; } else
-    if (degrees ==  90) { result = RIGHT  ; } else
-    if (degrees == 180) { result = OVER   ; } else {
+    Rotation result = null;
+
+    switch (degrees) {
+    case   0: result = NOTHING; break;
+    case 270: result = LEFT   ; break;
+    case  90: result = RIGHT  ; break;
+    case 180: result = OVER   ; break;
+    default:
       throw new IllegalArgumentException();
     }
 
