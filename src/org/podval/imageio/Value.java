@@ -1,5 +1,7 @@
 package org.podval.imageio;
 
+import org.w3c.dom.Node;
+
 import javax.imageio.metadata.IIOMetadataNode;
 
 
@@ -8,6 +10,16 @@ public abstract class Value extends Entry {
   public final Entry getEntry(String name) {
     return (getName().equals(name)) ? this : null;
   }
+
+
+  public final Node getNativeTree() {
+    IIOMetadataNode result = new IIOMetadataNode(getName());
+    buildNativeTree(result);
+    return result;
+  }
+
+
+  protected abstract void buildNativeTree(IIOMetadataNode result);
 
 
 

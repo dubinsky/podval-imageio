@@ -124,7 +124,7 @@ public class ExifReader {
 
 
   private static Metadata readExifStream(ImageInputStream in) throws IOException {
-    SimpleMetadataHandler handler = new SimpleMetadataHandler(NATIVE_FORMAT_NAME);
+    DefaultMetadataHandler handler = new DefaultMetadataHandler(NATIVE_FORMAT_NAME);
     ExifDecoder.read(in, handler);
     return handler.getResult();
   }

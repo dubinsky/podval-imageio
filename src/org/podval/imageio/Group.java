@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import org.w3c.dom.Node;
+
 import javax.imageio.metadata.IIOMetadataNode;
 
 
@@ -14,30 +16,6 @@ public class Group extends Entry {
       throw new NullPointerException("Entry is null!");
 
     entries.add(entry);
-  }
-
-
-  public void setParent(Group parent) {
-    this.parent = parent;
-  }
-
-
-  public Group getParent() {
-    return parent;
-  }
-
-
-  public void flatten(Group child) {
-    int index = entries.indexOf(child);
-    assert (index != -1) : "Alleged child is not!";
-    Entry flat = child.flatten();
-    if (flat != child)
-      entries.set(index, flat);
-  }
-
-
-  public Entry flatten() {
-    return (entries.size() == 1) ? (Entry) entries.get(0) : this;
   }
 
 
@@ -52,15 +30,21 @@ public class Group extends Entry {
   }
 
 
-  protected void buildNativeTree(IIOMetadataNode result) {
-    for (Iterator i = entries.iterator(); i.hasNext();) {
-      result.appendChild(((Entry) i.next()).getNativeTree());
+  public final Node getNativeTree() {
+    Node result;
+    if (entries.size() == 1) {
+      result = ((Entry) entries.get(0)).getNativeTree();
+    } else {
+      IIOMetadataNode node = new IIOMetadataNode(getName());
+      for (Iterator i = entries.iterator(); i.hasNext();) {
+        node.appendChild(((Entry) i.next()).getNativeTree());
+      }
+      result = node;
     }
+
+    return result;
   }
 
 
   private final List entries = new ArrayList();
-
-
-  private Group parent;
 }

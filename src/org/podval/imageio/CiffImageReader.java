@@ -72,7 +72,7 @@ public class CiffImageReader extends ImageReader {
 
   private void readMetadata() throws IOException {
     if (metadata == null) {
-      SimpleMetadataHandler handler =  new SimpleMetadataHandler(NATIVE_FORMAT_NAME);
+      DefaultMetadataHandler handler =  new DefaultMetadataHandler(NATIVE_FORMAT_NAME);
       CiffDecoder.read(getInputStream(), handler);
       metadata = handler.getResult();
     }

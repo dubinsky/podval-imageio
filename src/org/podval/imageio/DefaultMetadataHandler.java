@@ -1,28 +1,26 @@
 package org.podval.imageio;
 
+import java.util.Stack;
 
-public class SimpleMetadataHandler implements MetadataHandler {
 
-  public SimpleMetadataHandler(String name) {
+public class DefaultMetadataHandler implements MetadataHandler {
+
+  public DefaultMetadataHandler(String name) {
     result = new Metadata(name);
-    tip = result.getRoot();
+    tip.push(result.getRoot());
   }
 
 
   public void startFolder(Typed folder) {
     Group group = new Group();
     group.setName(folder.getName());
-    tip.addEntry(group);
-    group.setParent(tip);
-    tip = group;
+    ((Group) tip.peek()).addEntry(group);
+    tip.push(group);
   }
 
 
   public void endFolder() {
-    Group parent = tip.getParent();
-    parent.flatten(tip);
-    tip = parent;
-    assert (tip != null) : "Invalid folder nesting";
+    tip.pop();
   }
 
 
@@ -53,7 +51,7 @@ public class SimpleMetadataHandler implements MetadataHandler {
 
   private void value(Field field, Value value) {
     value.setName(field.getName());
-    tip.addEntry(value);
+    ((Group) tip.peek()).addEntry(value);
   }
 
 
@@ -70,5 +68,5 @@ public class SimpleMetadataHandler implements MetadataHandler {
   private final Metadata result;
 
 
-  private Group tip;
+  private Stack tip = new Stack();
 }

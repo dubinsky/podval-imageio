@@ -20,14 +20,7 @@ public abstract class Entry {
   public abstract Entry getEntry(String name);
 
 
-  public final Node getNativeTree() {
-    IIOMetadataNode result = new IIOMetadataNode(getName());
-    buildNativeTree(result);
-    return result;
-  }
-
-
-  protected abstract void buildNativeTree(IIOMetadataNode result);
+  public abstract Node getNativeTree();
 
 
   private String name;
