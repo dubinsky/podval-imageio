@@ -72,7 +72,9 @@ public class CiffDecoder {
 
       int typeCode = in.readUnsignedShort();
 
-      if ((typeCode != 0 /* Null entry. */) && (typeCode != 1 /* Free entry. */)) {
+      if ((typeCode != 0 /* Null entry. */) &&
+          (typeCode != 1 /* Free entry. */))
+      {
         long dataLength;
 
         if (inHeapSpace(typeCode)) {
@@ -100,9 +102,7 @@ public class CiffDecoder {
     switch (storageMethod) {
     case 0: result = true ; break;
     case 1: result = false; break;
-
-    case 2:
-    case 3:
+    default: // 2 or 3
       throw new IOException("Unknown storage method.");
     }
 
@@ -110,8 +110,8 @@ public class CiffDecoder {
   }
 
 
-  private static void readEntry(Directory heap, int idCode, ImageInputStream in, long length,
-    MetadataHandler handler) throws IOException
+  private static void readEntry(Directory heap, int idCode, ImageInputStream in,
+    long length, MetadataHandler handler) throws IOException
   {
     int tag = idCode & 0x07FF;
     Type type = decodeType((idCode >> 11) & 0x07);

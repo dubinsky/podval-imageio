@@ -49,12 +49,7 @@ public class MetaMetadata {
 
       JAXBContext jc = JAXBContext.newInstance("org.podval.imageio.jaxb");
       Unmarshaller u = jc.createUnmarshaller();
-      /**
-       * @todo XXX:
-       * Bug ID: 4800069 Validation fails with unexpected attribute for extension type.
-       * Marked as fixed; information is not available.
-       * */
-//      u.setValidating(true);
+      u.setValidating(true);
 
       org.podval.imageio.jaxb.MetaMetadata xml =
         (org.podval.imageio.jaxb.MetaMetadata) u.unmarshal(in);
@@ -109,11 +104,10 @@ public class MetaMetadata {
       if (o instanceof org.podval.imageio.jaxb.MakerNoteMarker) {
         org.podval.imageio.jaxb.MakerNoteMarker markerXml =
           (org.podval.imageio.jaxb.MakerNoteMarker) o;
-        int tag = markerXml.getTag();
         /** @todo make MARKER derived from Directory and eliminate
          * this flavour of 'addEntry'? */
         Type type = Type.parse(markerXml.getType());
-        result.addEntry(tag, type, MakerNote.MARKER);
+        result.addEntry(markerXml.getTag(), type, MakerNote.MARKER);
       } else
 
       if (o instanceof org.podval.imageio.jaxb.SubRecord) {
