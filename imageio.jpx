@@ -48,14 +48,29 @@
   <property category="team" name="ignorePath.11" value="album.war"/>
   <property category="team" name="ignorePath.12" value="album.war"/>
   <property category="team" name="ignorePath.13" value="Servlet.library"/>
+  <property category="team" name="ignorePath.15" value="album/WEB-INF/classes"/>
+  <property category="team" name="ignorePath.16" value="album/WEB-INF/lib"/>
+  <property category="team" name="ignorePath.17" value="album/WEB-INF/c-rt.tld"/>
+  <property category="team" name="ignorePath.18" value="album/WEB-INF/c.tld"/>
+  <property category="team" name="ignorePath.19" value="album/WEB-INF/fmt-rt.tld"/>
   <property category="team" name="ignorePath.2" value="src/org/podval/imageio/jaxb"/>
+  <property category="team" name="ignorePath.20" value="album/WEB-INF/fmt.tld"/>
+  <property category="team" name="ignorePath.21" value="album/WEB-INF/sql-rt.tld"/>
+  <property category="team" name="ignorePath.22" value="album/WEB-INF/sql.tld"/>
+  <property category="team" name="ignorePath.23" value="album/WEB-INF/struts-bean.tld"/>
+  <property category="team" name="ignorePath.24" value="album/WEB-INF/struts-html.tld"/>
+  <property category="team" name="ignorePath.25" value="album/WEB-INF/struts-logic.tld"/>
+  <property category="team" name="ignorePath.26" value="album/WEB-INF/struts-nested.tld"/>
+  <property category="team" name="ignorePath.27" value="album/WEB-INF/struts-template.tld"/>
+  <property category="team" name="ignorePath.28" value="album/WEB-INF/struts-tiles.tld"/>
+  <property category="team" name="ignorePath.29" value="album/WEB-INF/x-rt.tld"/>
   <property category="team" name="ignorePath.3" value="test.jar"/>
+  <property category="team" name="ignorePath.30" value="album/WEB-INF/x.tld"/>
   <property category="team" name="ignorePath.4" value="imageio.oif"/>
   <property category="team" name="ignorePath.5" value="ant.xml"/>
   <property category="team" name="ignorePath.6" value="doc"/>
   <property category="team" name="ignorePath.7" value="podval-imageio.jar"/>
   <property category="team" name="ignorePath.8" value="Tomcat"/>
-  <property category="team" name="ignorePath.9" value="album"/>
   <node name="Additional Settings" type="Folder">
     <property category="sys" name="SettingsFolder" value="1"/>
     <file path="ant.xml">
@@ -80,6 +95,7 @@
   </node>
   <node name="Command Line Tool" type="Archive">
     <property category="archiving" name="archiverClass" value="com.borland.jbuilder.wizard.archive.ApplicationArchiver"/>
+    <property category="archiving" name="buildWithProject" value="0"/>
     <property category="archiving" name="contentRules.1" value="I:**/*.*"/>
     <property category="archiving" name="includeDeps" value="1"/>
     <property category="archiving" name="libraryStates.1" value="3:JAXB"/>
