@@ -13,6 +13,63 @@ During mass-generation of the images (first index view) sometimes (!) a few (!)
 are generated of zero length!!! OutOfMemory?
 
 
+thumbnailFile = getGeneratedFile("120x160");
+screensizedFile = getGeneratedFile("480x640");
+
+  /*
+       Controlling this stuff at the per-Action level is a nice idea.  If you're using an Action to create dynamic output already (such as when you directly stream the binary output and then return null), it's quite easy to do today -- your Action will be able to see the "If-Modified-Since" header that the browser sends, and then can decide to return a status 304 (NOT MODIFIED) if your current database stuff is not more recent.
+
+       Something along the lines of this in your Action.execute() method should do the trick:
+
+          // When was our database data last modified?
+          long dataModifiedDate = ... timestamp when database last modified ...
+
+          // Have we sent to this user previously?
+          long modifiedSince = request.getDateHeader("If-Modified-Since");
+          if (modifiedSince > -1) { // i.e. it was actually specified
+              if (dataModifiedDate <= modifiedSince) {
+                 response.sendError(HttpServletResponse.SC_NOT_MODIFIED);
+                  return (null);
+              }
+          }
+
+          // Set the timestamp so the browser can send back If-Modified-Since
+          response.setDateHeader("Date", dataModifiedDate);
+
+          // Now write the actual content type and data
+          response.setContentType("mage/jpg");
+          ServletOutputStream stream = response.getOutputStream();
+          ... write out the bytes ...
+
+          // Return null to tell Struts the response is complete
+          return (null);
+
+       Craig
+  */
+
+
+  private static final int BUF_SIZE = 512;
+
+
+  private void stream(final InputStream is, final OutputStream os) {
+    byte[] buf = new byte[BUF_SIZE];
+    try {
+      while (is.available() > 0) {
+        int numBytes = is.read(buf);
+        if (numBytes > 0)
+          os.write(buf, 0, numBytes);
+      }
+    } catch (IOException e) {
+    } finally {
+      try {
+        os.flush();
+        is.close();
+      } catch (IOException e) {
+      }
+    }
+  }
+
+
 File /home/dub/Photo/g2/2/2297.crw:
 <?xml version="1.0" encoding="UTF-8"?>
 <org_podval_imageio_ciff_1.0>

@@ -29,7 +29,7 @@ public class Main {
     IllegalArgumentException,
     javax.xml.transform.TransformerException
   {
-    MetaMetadata.init();
+//    MetaMetadata.init();
 
     String command = "number";
 
