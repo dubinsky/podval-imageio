@@ -31,7 +31,7 @@ public abstract class Album {
       throw new NullPointerException("Path is null!");
 
     if (!path.startsWith("/"))
-      throw new IllegalArgumentException("Path does not start with '/'!");
+      throw new IllegalArgumentException("Path does not start with '/': " + path);
 
     Album result = root;
 

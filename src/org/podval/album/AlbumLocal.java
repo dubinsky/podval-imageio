@@ -52,11 +52,11 @@ public class AlbumLocal extends Album {
   public String getPath() {
     String result;
 
-    if (getParent().getParent() == null)
-      result = "/" + getName();
-    else
     if (getParent() == null)
       result = "/";
+    else
+    if (getParent().getParent() == null)
+      result = "/" + getName();
     else
       result = getParent().getPath() + "/" + getName();
 
@@ -331,7 +331,7 @@ public class AlbumLocal extends Album {
       endName = lastDot;
     }
 
-    String name      = fileName.substring(startName     , endName);
+    String name      = fileName.substring(startName     , endName).toLowerCase();
     String extension = fileName.substring(startExtension, endExtension);
 
     PictureLocal picture = (PictureLocal) pictures.get(name);
@@ -342,7 +342,7 @@ public class AlbumLocal extends Album {
       pictures.put(picture.getName(), picture);
     }
 
-    picture.addFile(file, name, extension);
+    picture.addFile(file, extension);
   }
 
 

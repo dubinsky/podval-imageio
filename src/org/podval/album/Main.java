@@ -2,6 +2,11 @@ package org.podval.album;
 
 import java.util.Iterator;
 
+import java.util.logging.Logger;
+import java.util.logging.Level;
+import java.util.logging.Handler;
+import java.util.logging.ConsoleHandler;
+
 import java.io.IOException;
 
 import javax.xml.bind.JAXBException;
@@ -10,6 +15,12 @@ import javax.xml.bind.JAXBException;
 public class Main {
 
   public static void main(String[] args) throws IOException, JAXBException {
+    Handler handler = new ConsoleHandler();
+    handler.setLevel(Level.ALL);
+    Logger logger = Logger.getLogger("");
+    logger.setLevel(Level.ALL);
+    logger.addHandler(handler);
+
     int argNum = 0;
 
     if (args.length < 2) { usage(); return; }

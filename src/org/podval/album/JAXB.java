@@ -41,7 +41,7 @@ public class JAXB {
 
 
   public static void marshall(Object xml, File file)
-    throws FileNotFoundException, IOException, JAXBException
+    throws FileNotFoundException, JAXBException, IOException
   {
     boolean valid = getValidator().validateRoot(xml);
     FileOutputStream out = new FileOutputStream(file);

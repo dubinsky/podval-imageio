@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
+import javax.imageio.IIOImage;
 import javax.imageio.ImageReader;
 import javax.imageio.ImageWriter;
 
@@ -97,13 +98,13 @@ public class Util {
     ImageWriter writer = (ImageWriter) writers.next();
     /** @todo what if there are no writers? */
 
-    /** @todo set compression quality to maximum... */
-//    ImageWriteParam param = writer.getDefaultWriteParam();
-//    param.setCompressionQuality(1.0f);
+    ImageWriteParam param = writer.getDefaultWriteParam();
+    param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+    param.setCompressionQuality(0.9824f);
 
     ImageOutputStream out = ImageIO.createImageOutputStream(file);
     writer.setOutput(out);
-    writer.write(result);
+    writer.write(null, new IIOImage(result, null, null), param);
     out.close();
     writer.dispose();
   }
