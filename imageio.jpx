@@ -48,6 +48,7 @@
   <property category="team" name="ignorePath.11" value="album.war"/>
   <property category="team" name="ignorePath.12" value="album.war"/>
   <property category="team" name="ignorePath.13" value="Servlet.library"/>
+  <property category="team" name="ignorePath.14" value="src/org/podval/album/jaxb"/>
   <property category="team" name="ignorePath.15" value="album/WEB-INF/classes"/>
   <property category="team" name="ignorePath.16" value="album/WEB-INF/lib"/>
   <property category="team" name="ignorePath.17" value="album/WEB-INF/c-rt.tld"/>
