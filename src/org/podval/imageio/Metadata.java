@@ -12,8 +12,6 @@ import java.io.IOException;
 
 import org.w3c.dom.Node;
 
-import com.sun.imageio.plugins.jpeg.JPEGMetadata;
-
 
 public class Metadata extends IIOMetadata {
 
@@ -76,25 +74,8 @@ public class Metadata extends IIOMetadata {
   }
 
 
-  private Node getNativeTree() {
+  public Node getNativeTree() {
     return root.getNativeTree(getNativeMetadataFormatName());
-  }
-
-
-  public void print() throws
-    javax.xml.transform.TransformerFactoryConfigurationError,
-    IllegalArgumentException,
-    javax.xml.transform.TransformerException
-  {
-    Node tree = getNativeTree();
-    javax.xml.transform.Transformer transformer =
-      javax.xml.transform.TransformerFactory.newInstance().newTransformer();
-    transformer.setOutputProperty("indent", "yes");
-    transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
-    transformer.transform(
-      new javax.xml.transform.dom.DOMSource(tree),
-      new javax.xml.transform.stream.StreamResult(System.out)
-    );
   }
 
 

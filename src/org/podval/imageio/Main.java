@@ -21,6 +21,8 @@ import java.awt.image.BufferedImage;
 import java.util.Iterator;
 import java.util.Date;
 
+import org.w3c.dom.Node;
+
 
 public class Main {
 
@@ -79,7 +81,7 @@ public class Main {
       String name;
       String extension;
 
-      if (dot!=-1) {
+      if (dot != -1) {
         name = fullName.substring(0, dot);
         extension = fullName.substring(dot+1, fullName.length());
       } else {
@@ -124,6 +126,23 @@ public class Main {
       result = ExifReader.transcodeJpegMetadata(result);
 
     return (Metadata) result;
+  }
+
+
+  public static void printMetadata(Metadata metadata) throws
+    javax.xml.transform.TransformerFactoryConfigurationError,
+    IllegalArgumentException,
+    javax.xml.transform.TransformerException
+  {
+    Node tree = metadata.getNativeTree();
+    javax.xml.transform.Transformer transformer =
+      javax.xml.transform.TransformerFactory.newInstance().newTransformer();
+    transformer.setOutputProperty("indent", "yes");
+    transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+    transformer.transform(
+      new javax.xml.transform.dom.DOMSource(tree),
+      new javax.xml.transform.stream.StreamResult(System.out)
+    );
   }
 
 
@@ -189,7 +208,7 @@ public class Main {
     javax.xml.transform.TransformerException
   {
     System.err.println();
-    readMetadata(reader).print();
+    printMetadata(readMetadata(reader));
   };
 
 

@@ -1,6 +1,5 @@
 Defaulting of types: more intelligent?
 IFDs are U32?
-
 Do IFD0/IFD1 through emulation of Handler events?
 Mapping handlers.
 
@@ -10,32 +9,16 @@ File /home/dub/Photo/g2/2/2297.crw:
 <?xml version="1.0" encoding="UTF-8"?>
 <org_podval_imageio_ciff_1.0>
   <crwImage offset="26" length="3024436"/>
-  <jpegThumbnail offset="3024462" length="64598"/>
-  <smallJpegThumbnail offset="3089060" length="5252"/>
   <imageProperties>
     <imageSpec>
       <imageWidth value="2272"/>
       <imageHeight value="1704"/>
-      <pixelAspectRatio value="1.0"/>
       <rotationAngle value="0"/>
-      <componentBitDepth value="8"/>
-      <colorBitDepth value="24"/>
-      <colorBW>
-        <reserved value="0"/>
-        <reserved value="0"/>
-        <pixelAaspectRatioConversionNeeded value="Yes"/>
-        <colorBW value="Color"/>
-      </colorBW>
     </imageSpec>
     <serialNumber>
       <serialNumber value="1222297"/>
       <reserved value="-722367187"/>
     </serialNumber>
-    <capturedTime>
-      <timeCount value="1056299358"/>
-      <timeZoneCode value="0"/>
-      <timeZoneInfo value="0"/>
-    </capturedTime>
     <canonRawProperties>
       <canonRawProperties-50 offset="3095358" length="2048"/>
       <canonRawProperties-54 offset="3097406" length="2048"/>
