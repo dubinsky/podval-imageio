@@ -7,12 +7,12 @@ import java.io.IOException;
 
 public class ExifDecoder {
 
-  public static void read(ImageInputStream in, MetadataHandler handler)
-    throws IOException
+  public static void read(ImageInputStream in, String initDirectory,
+    MetadataHandler handler) throws IOException
   {
     long offsetBase = readPrologue(in);
 
-    Directory ifd = handler.getInitDirectory();
+    Directory ifd = Directory.get(initDirectory);
     readIfd(ifd, in, offsetBase, handler);
     /*
      Since virtually all the tags (except 513 and 514) seem to be allowed

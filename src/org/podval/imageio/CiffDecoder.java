@@ -7,11 +7,11 @@ import java.io.IOException;
 
 public class CiffDecoder {
 
-  public static void read(ImageInputStream in, MetadataHandler handler)
-    throws IOException
+  public static void read(ImageInputStream in, String initDirectory,
+    MetadataHandler handler) throws IOException
   {
     long heapLength = readPrologue(in);
-    readHeap(handler.getInitDirectory(), in, heapLength, handler);
+    readHeap(Directory.get(initDirectory), in, heapLength, handler);
   }
 
 

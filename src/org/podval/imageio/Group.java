@@ -9,7 +9,7 @@ import org.w3c.dom.Node;
 import javax.imageio.metadata.IIOMetadataNode;
 
 
-public class Group {
+class Group {
 
   public void addBinding(Typed key, Object value) {
     if (key == null)
@@ -42,29 +42,43 @@ public class Group {
   }
 
 
-  public /** @todo should be private? */ static IIOMetadataNode getNativeTree(Binding binding) {
+  private static IIOMetadataNode getNativeTree(Binding binding) {
+    return getNativeTree(binding.key.getName(), binding.value);
+  }
+
+
+  private static IIOMetadataNode getNativeTree(String name, Object value) {
     IIOMetadataNode result;
-    String name = binding.key.getName();
-    Object value = binding.value;
     if (value instanceof Group) {
-      List entries = ((Group) value).entries;
-      if (entries.size() == 1) {
-        result = getNativeTree((Binding) entries.get(0));
-      } else {
-        result = new IIOMetadataNode(name);
-        for (Iterator i = entries.iterator(); i.hasNext();) {
-          result.appendChild(getNativeTree((Binding) i.next()));
-        }
-      }
+      result = ((Group) value).getNativeTree(name);
     } else {
       result = new IIOMetadataNode(name);
-      if (value instanceof ComplexValue) {
-        ((ComplexValue) value).buildNativeTree(result);
-      } else {
-        result.setAttribute("value", value.toString());
+      buildNativeTree(result, value);
+    }
+    return result;
+  }
+
+
+  public /** @todo package access? */ IIOMetadataNode getNativeTree(String name) {
+    IIOMetadataNode result;
+    if (entries.size() == 1) {
+      result = getNativeTree((Binding) entries.get(0));
+    } else {
+      result = new IIOMetadataNode(name);
+      for (Iterator i = entries.iterator(); i.hasNext(); ) {
+        result.appendChild(getNativeTree((Binding) i.next()));
       }
     }
     return result;
+  }
+
+
+  private static void buildNativeTree(IIOMetadataNode result, Object value) {
+    if (value instanceof ComplexValue) {
+      ((ComplexValue) value).buildNativeTree(result);
+    } else {
+      result.setAttribute("value", value.toString());
+    }
   }
 
 
@@ -84,7 +98,7 @@ public class Group {
   /**
    *
    */
-  public /** @todo should be private? */ static class Binding {
+  private static class Binding {
     public Binding(Typed key, Object value) {
       this.key = key;
       this.value = value;

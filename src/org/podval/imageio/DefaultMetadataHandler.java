@@ -13,14 +13,9 @@ public class DefaultMetadataHandler implements MetadataHandler {
   }
 
 
-  public Directory getInitDirectory() {
-    return result.getInitDirectory();
-  }
-
-
-  public void startGroup(Typed group) {
+  public void startGroup(Typed typed) {
     Group node = new Group();
-    add(group, node);
+    add(typed, node);
     tip.push(node);
   }
 
@@ -51,7 +46,7 @@ public class DefaultMetadataHandler implements MetadataHandler {
 
 
   public void binaryValue(Field field, byte[] value) {
-    add(field, new HexValue(value));
+    add(field, new BinaryValue(value));
   }
 
 
@@ -102,8 +97,8 @@ public class DefaultMetadataHandler implements MetadataHandler {
   /**
    *
    */
-  private static final class HexValue {
-    public HexValue(byte[] value) { this.value = value; }
+  private static final class BinaryValue {
+    public BinaryValue(byte[] value) { this.value = value; }
 
     private static final char[] HEX_DIGIT = new char[]
       { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};

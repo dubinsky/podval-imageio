@@ -3,8 +3,6 @@ package org.podval.imageio;
 
 public interface MetadataHandler {
 
-  public Directory getInitDirectory();
-
   public void startGroup(Typed folder);
 
   public void endGroup();

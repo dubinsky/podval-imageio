@@ -37,11 +37,6 @@ public class Metadata extends IIOMetadata {
   }
 
 
-  public Directory getInitDirectory() {
-    return Directory.get(getNativeMetadataFormatName());
-  }
-
-
   public Group getRoot() {
     return root;
   }
@@ -73,7 +68,7 @@ public class Metadata extends IIOMetadata {
 
 
   private Node getNativeTree() {
-    return Group.getNativeTree(new Group.Binding(getInitDirectory(), root));
+    return root.getNativeTree(getNativeMetadataFormatName());
   }
 
 
