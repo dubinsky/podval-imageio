@@ -15,15 +15,7 @@ import javax.xml.bind.JAXBException;
 public class Main {
 
   public static void main(String[] args) throws IOException, JAXBException {
-    Level level = Level.WARNING;
-
-    Logger logger = Logger.getLogger("org.podval.album.Picture");
-    logger.setLevel(level);
-
-    Handler handler = new ConsoleHandler();
-    handler.setLevel(level);
-    logger.addHandler(handler);
-
+    initLogging();
 
     int argNum = 0;
 
@@ -31,7 +23,7 @@ public class Main {
     String path = args[argNum++];
     String command = args[argNum++];
 
-    Album.setRoot("/mnt/extra/Photo", "/tmp/metadataDirectory", "/tmp/generatedDirectory");
+    Album.setRoot("/mnt/extra/Album");
 
     Album album = null;
     Picture picture = null;
@@ -57,6 +49,11 @@ public class Main {
       else
       if ("remove".equals(command))
         removeFromAlbum((AlbumLocal) album, args, argNum);
+      if ("left".equals(command))
+        rotate(album, false, args, argNum);
+      else
+      if ("right".equals(command))
+        rotate(album, true, args, argNum);
       else {
         System.out.println("Command not recognized: "+command);
         usage();
@@ -68,13 +65,6 @@ public class Main {
       else
       if ("title".equals(command))
         setPictureTitle(picture, args, argNum);
-      else
-      if ("left".equals(command))
-        picture.rotateLeft();
-      else
-      if ("right".equals(command))
-        picture.rotateRight();
-
       else {
         System.out.println("Command not recognized: "+command);
         usage();
@@ -82,6 +72,18 @@ public class Main {
     }
 
     AlbumLocal.saveChanged();
+  }
+
+
+  private static void initLogging() {
+    Level level = Level.FINE;
+
+    Logger logger = Logger.getLogger("org.podval.album.Picture");
+    logger.setLevel(level);
+
+    Handler handler = new ConsoleHandler();
+    handler.setLevel(level);
+    logger.addHandler(handler);
   }
 
 
@@ -93,11 +95,11 @@ public class Main {
     System.out.println("  title <title> - set album title");
     System.out.println("  add <from-album path> <name>+ - adds pictures from another album");
     System.out.println("  remove <name>+ - removes reference-pictures from the album");
+    System.out.println("  left <name>+ - rotate pictures 90 degrees counterclockwise");
+    System.out.println("  right <name>+ - rotate pictures 90 degrees clockwise");
     System.out.println("Recognized picture commands:");
     System.out.println("  view - display album information");
     System.out.println("  title <title> - set picture title");
-    System.out.println("  left - rotate picture 270 degrees");
-    System.out.println("  right - rotate picture 90 degrees");
   }
 
 
@@ -140,6 +142,19 @@ public class Main {
     String fromPath = args[argNum++];
     for (; argNum < args.length;)
       album.removePictureReference(fromPath + ":" + args[argNum++]);
+  }
+
+
+  private static void rotate(Album album, boolean right, String[] args, int argNum) {
+    for (; argNum < args.length;) {
+      Picture picture = album.getPicture(args[argNum++]);
+      if (picture != null) {
+        if (right)
+          picture.rotateRight();
+        else
+          picture.rotateLeft();
+      }
+    }
   }
 
 

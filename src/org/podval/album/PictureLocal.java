@@ -262,9 +262,7 @@ public class PictureLocal extends Picture {
       } catch (Throwable t) {
         /** @todo OutOfMemory is thrown here!
          * Introduce global exception handler?
-         * I probably want to make Picture and friends thread-safe, since
-         * there may be different clients accessing it - directly or through the Facade.
-         *  */
+         */
 
         trace("***** Writing " + file + " " + t);
       }
@@ -395,6 +393,7 @@ public class PictureLocal extends Picture {
         metadataFile = metadataWriteFile;
         /** @todo can creation of a copy of a metadataReadFile be avoided? */
         changed = true;
+        /** @todo some strange permission-related exceptions are thrown here! */
         save();
       }
     }

@@ -15,9 +15,9 @@ import org.podval.imageio.MetaMetadata;
 
 public abstract class Album {
 
-  public static void setRoot(String originalsRoot, String metadataRoot, String generatedRoot) {
+  public static void setRoot(String albumRoot) {
     /** @todo check that directories exist (and have proper permissions) - or else what? */
-    root = new AlbumLocal(originalsRoot, metadataRoot, generatedRoot);
+    root = new AlbumLocal(new File(albumRoot));
 
     MetaMetadata.init();
   }

@@ -36,11 +36,11 @@ public class AlbumLocal extends Album {
    * @param metadataRoot
    * @param generatedRoot
    */
-  public AlbumLocal(String originalsRoot, String metadataRoot, String generatedRoot) {
+  public AlbumLocal(File albumRoot) {
     /** @todo check that directories exist (and have proper permissions) - or else what? */
-    this.directory = new File(originalsRoot);
-    this.metadataDirectory = new File(metadataRoot);
-    this.generatedDirectory = new File(generatedRoot);
+    this.directory = new File(albumRoot, "Pictures");
+    this.metadataDirectory = new File(albumRoot, "Metadata");
+    this.generatedDirectory = new File(albumRoot, "Generated");
   }
 
 

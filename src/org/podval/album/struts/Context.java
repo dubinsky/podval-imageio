@@ -29,12 +29,7 @@ public class Context implements ServletContextListener {
     handler.setLevel(level);
     logger.addHandler(handler);
 
-
-    String originalsRoot = servletContext.getInitParameter("originalsRoot");
-    String metadataRoot = servletContext.getInitParameter("metadataRoot");
-    String generatedRoot = servletContext.getInitParameter("generatedRoot");
-
-    Album.setRoot(originalsRoot, metadataRoot, generatedRoot);
+    Album.setRoot(servletContext.getInitParameter("AlbumRoot"));
   }
 
 
