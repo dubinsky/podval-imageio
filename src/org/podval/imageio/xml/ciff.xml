@@ -2,7 +2,7 @@
 
 <meta-metadata>
 
-<directory name="ciff-root">
+<directory name="org_podval_imageio_ciff_1.0">
   <directory tag="10" type="two" name="imageProperties">
     <directory tag="2" type="two" name="shootingRecord"/>
     <directory tag="3" type="two" name="measuredInfo"/>

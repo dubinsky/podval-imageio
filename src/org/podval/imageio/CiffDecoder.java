@@ -11,7 +11,7 @@ public class CiffDecoder {
     throws IOException
   {
     long heapLength = readPrologue(in);
-    readHeap(Directory.get("ciff-root"), in, heapLength, handler);
+    readHeap(handler.getInitDirectory(), in, heapLength, handler);
   }
 
 
@@ -48,7 +48,7 @@ public class CiffDecoder {
   private static void readHeap(Directory heap, ImageInputStream in, long length,
     MetadataHandler handler) throws IOException
   {
-    handler.startFolder(heap);
+    handler.startGroup(heap);
 
     long offset = in.getStreamPosition();
     in.seek(offset + length - 4);
@@ -80,7 +80,7 @@ public class CiffDecoder {
       }
     }
 
-    handler.endFolder();
+    handler.endGroup();
   }
 
 

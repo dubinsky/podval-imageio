@@ -155,7 +155,7 @@ public class Field extends Typed {
   private void readComplex(ImageInputStream in, Type type, MetadataHandler handler)
     throws IOException
   {
-    handler.startFolder(this);
+    handler.startGroup(this);
 
     long complexValue = in.readUnsignedInt(); /** @todo Only U32 fields may have subfields!!! */
 
@@ -178,7 +178,7 @@ public class Field extends Typed {
       field.integerValue(value, handler);
     }
 
-    handler.endFolder();
+    handler.endGroup();
   }
 
 

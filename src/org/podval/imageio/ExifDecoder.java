@@ -12,14 +12,18 @@ public class ExifDecoder {
   {
     long offsetBase = readPrologue(in);
 
+    Directory ifd = handler.getInitDirectory();
+    readIfd(ifd, in, offsetBase, handler);
     /*
      Since virtually all the tags (except 513 and 514) seem to be allowed
-     both in IFD0 and IFD1 (including EXIF and GPS IFDs), I just use the same
-     directory descriptor twice!
+     both in IFD0 and IFD1 (including EXIF and GPS IFDs),
+     the same directory descriptor can be used for IFD1 too.
+     At this point I do not read IFD1 at all, though, since none of the images I
+     have have it, and since I need one root for the resulting metadata.
+     This can be changed if need be.
+
+         readIfd(ifd, in, offsetBase, handler);
     */
-    Directory ifd = Directory.get("exif-root");
-    readIfd(ifd, in, offsetBase, handler);
-    readIfd(ifd, in, offsetBase, handler);
   }
 
 
@@ -55,7 +59,7 @@ public class ExifDecoder {
   private static void readIfdInPlace(Directory ifd, ImageInputStream in, long offsetBase,
     MetadataHandler handler) throws IOException
   {
-    handler.startFolder(ifd);
+    handler.startGroup(ifd);
 
     int numEntries = in.readUnsignedShort();
     long entriesOffset = in.getStreamPosition();
@@ -69,7 +73,7 @@ public class ExifDecoder {
       readEntry(ifd, in, offsetBase, handler);
     }
 
-    handler.endFolder();
+    handler.endGroup();
 
     // At this point we are positioned at the offset of the linked IFD.
   }

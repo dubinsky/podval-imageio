@@ -11,7 +11,6 @@ public class Metadata extends IIOMetadata {
   public Metadata(String nativeMetadataFormatName) {
     super(false, nativeMetadataFormatName, null, null, null);
     root = new Group();
-    root.setName(getNativeMetadataFormatName());
   }
 
 
@@ -38,21 +37,21 @@ public class Metadata extends IIOMetadata {
   }
 
 
+  public Directory getInitDirectory() {
+    return Directory.get(getNativeMetadataFormatName());
+  }
+
+
   public Group getRoot() {
     return root;
   }
 
 
-  public void addEntry(Entry entry) {
-    root.addEntry(entry);
-  }
-
-
   public int getIntegerValue(String name) {
     int result = -1;
-    Entry entry = getEntry(name);
-    if ((entry != null) && (entry instanceof Value.IntegerValue)) {
-      result = (int) ((Value.IntegerValue) entry).getValue();
+    Object value = find(name);
+    if ((value != null) && (value instanceof Long)) {
+      result = (int) ((Long) value).longValue();
     }
     return result;
   }
@@ -60,21 +59,21 @@ public class Metadata extends IIOMetadata {
 
   public String getStringValue(String name) {
     String result = null;
-    Entry entry = getEntry(name);
-    if ((entry != null) && (entry instanceof Value.StringValue)) {
-      result = ((Value.StringValue) entry).getValue();
+    Object value = find(name);
+    if ((value != null) && (value instanceof String)) {
+      result = (String) value;
     }
     return result;
   }
 
 
-  public Entry getEntry(String name) {
-    return root.getEntry(name);
+  public Object find(String name) {
+    return root.find(name);
   }
 
 
   private Node getNativeTree() {
-    return root.getNativeTree();
+    return Group.getNativeTree(new Group.Binding(getInitDirectory(), root));
   }
 
 

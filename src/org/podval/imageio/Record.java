@@ -224,13 +224,13 @@ public class Record extends Typed {
       cnt = count;
     }
 
-    handler.startFolder(this);
+    handler.startGroup(this);
 
     for (int index=1; index<=nmb; index++) {
       readField(in, index, type, cnt, handler);
     }
 
-    handler.endFolder();
+    handler.endGroup();
   }
 
 

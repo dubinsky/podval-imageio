@@ -2,7 +2,7 @@
 
 <meta-metadata>
 
-<directory name="exif-root">
+<directory name="org_podval_imageio_exif_1.0">
 
   <directory tag="34665" name="exif" type="U32">
     <directory tag="40965" name="interop" type="U32"/>
