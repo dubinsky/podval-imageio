@@ -47,9 +47,6 @@ public class PictureLocal extends Picture {
    * @param file
    *   file to be absorbed
    *
-   * @param name
-   *   string containing the file's name
-   *
    * @param extension
    *   string containing the file's extension
    *
@@ -58,17 +55,17 @@ public class PictureLocal extends Picture {
    */
   public void addFile(File file, String extension) throws IOException {
     if (extension.equalsIgnoreCase("jpg")) {
-      checkExtension(jpgFile);
+      checkIsNull(jpgFile);
       jpgFile = file;
     } else
 
     if (extension.equalsIgnoreCase("crw")) {
-      checkExtension(crwFile);
+      checkIsNull(crwFile);
       crwFile = file;
     } else
 
     if (extension.equalsIgnoreCase("thm")) {
-      checkExtension(thmFile);
+      checkIsNull(thmFile);
       thmFile = file;
     } else
 
@@ -76,7 +73,7 @@ public class PictureLocal extends Picture {
   }
 
 
-  private void checkExtension(File file) throws IOException {
+  private void checkIsNull(File file) throws IOException {
     if (file != null)
       throw new IOException("Duplicate case-sensitive file name " + file);
   }
@@ -116,6 +113,7 @@ public class PictureLocal extends Picture {
 
 
   public File getFullsizedFile() throws IOException {
+    /** @todo logging */
     File result = null;
 
     if ((jpgFile != null) && (getOrientation() == Orientation.TOP_LEFT)) {
