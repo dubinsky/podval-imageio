@@ -46,22 +46,59 @@
   <record tag="36868" name="dateTimeDigitized" type="string" count="20"
     conversion="org.podval.imageio.Conversions.parseExifDate"/>
 
-  <!-- Specific (?) to compressed data.
-       Default for uncompressed RGB: 4 5 6 0; for other cases: 1 2 3 0.
-  -->
-  <!-- XXXX: enumeration with non-1 count... -->
+  <!-- Default for uncompressed RGB: 4 5 6 0; for other cases: 1 2 3 0. -->
   <record tag="37121" name="componentsConfiguration" type="X8" count="4">
-    <!--
-    <enumeration>
-      <item value="0" description="-"/>
-      <item value="1" description="Y"/>
-      <item value="2" description="Cb"/>
-      <item value="3" description="Cr"/>
-      <item value="4" description="R"/>
-      <item value="5" description="G"/>
-      <item value="6" description="B"/>
-    </enumeration>
-    -->
+  <!-- XXXX: This is the only enumeration with non-1 count.
+       I do not think it is worth it introducing such a concept into the code.
+       Instead, I'll just copy the field 4 times.
+       The value I see is "10203000", and not "01020300"!
+       What gives?!
+
+    <field name="component1" type="X8">
+      <enumeration>
+        <item value="0" description="-"/>
+        <item value="1" description="Y"/>
+        <item value="2" description="Cb"/>
+        <item value="3" description="Cr"/>
+        <item value="4" description="R"/>
+        <item value="5" description="G"/>
+        <item value="6" description="B"/>
+      </enumeration>
+    </field>
+    <field name="component2" type="X8">
+      <enumeration>
+        <item value="0" description="-"/>
+        <item value="1" description="Y"/>
+        <item value="2" description="Cb"/>
+        <item value="3" description="Cr"/>
+        <item value="4" description="R"/>
+        <item value="5" description="G"/>
+        <item value="6" description="B"/>
+      </enumeration>
+    </field>
+    <field name="component3" type="X8">
+      <enumeration>
+        <item value="0" description="-"/>
+        <item value="1" description="Y"/>
+        <item value="2" description="Cb"/>
+        <item value="3" description="Cr"/>
+        <item value="4" description="R"/>
+        <item value="5" description="G"/>
+        <item value="6" description="B"/>
+      </enumeration>
+    </field>
+    <field name="component4" type="X8">
+      <enumeration>
+        <item value="0" description="-"/>
+        <item value="1" description="Y"/>
+        <item value="2" description="Cb"/>
+        <item value="3" description="Cr"/>
+        <item value="4" description="R"/>
+        <item value="5" description="G"/>
+        <item value="6" description="B"/>
+      </enumeration>
+    </field>
+  -->
   </record>
 
   <!-- Specific to compressed data. -->
