@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.ArrayList;
 
+import java.lang.reflect.Method;
+
 
 public class Record extends Typed {
 
@@ -87,6 +89,31 @@ public class Record extends Typed {
   }
 
 
+  /** @todo enumeration should apply to all the fields in the record;
+   * if this record already has some fields - what should we do?
+   * default field should be created only if no others were added -
+   * so it must be done later, when we are already reading... */
+  public void setEnumeration(Enumeration value) {
+    if (value != null) {
+      /** @todo check the count */
+      Field field = createDefaultField();
+      field.setEnumeration(value);
+      addField(1, field);
+    }
+  }
+
+
+  /** @todo should this apply to all the fields? Or maybe this should mean that
+   * only one field is present? */
+  public void setConversion(Method value) {
+    if (value != null) {
+      Field field = createDefaultField();
+      field.setConversion(value);
+      addField(1, field);
+    }
+  }
+
+
   private Field getField(int index) {
     fields.ensureCapacity(index);
     for (int i = fields.size(); i<index; i++)
@@ -97,6 +124,9 @@ public class Record extends Typed {
 
 
   public void addField(int index, Field field) {
+    if (field.getTypeWithoutDefaulting() == null)
+      field.setType(getType());
+
     if (!getType().isFieldAllowed(field.getType()))
       throw new IllegalArgumentException(field + " is not allowed in " + this);
 

@@ -8,32 +8,48 @@
   <record tag="33437" name="fNumber" type="rational"/>
 
   <record tag="34850" name="exposureProgram"> <!-- G2 does not put this into .THM file. -->
-    <enumeration>
-      <item value="0" description="Undefined"/>
+    <enumeration> <!-- Names from EXIF 2.2 specification are given in comments: -->
+      <item value="0" description="Undefined"/> <!-- Not definied -->
       <item value="1" description="Manual"/>
-      <item value="2" description="Auto"/>
+      <item value="2" description="Auto"/> <!-- Normal program -->
       <item value="3" description="Aperture priority"/>
       <item value="4" description="Shutter priority"/>
-      <item value="5" description="Creative"/>
-      <item value="6" description="Action"/>
-      <item value="7" description="Portrait"/>
-      <item value="8" description="Landscape"/>
+      <item value="5" description="Creative"/> <!-- Creative program (biased towards depth of field) -->
+      <item value="6" description="Action"/> <!-- Action program (biased towards fast shutter speed)-->
+      <item value="7" description="Portrait"/> <!-- Portrait mode (for closeup photos with the background out of focus) -->
+      <item value="8" description="Landscape"/> <!-- Landscape mode (for landscape photos with the background in focus) -->
     </enumeration>
   </record>
 
+  <!-- Described by a standard developed by the ASTM Technical committee. -->
   <record tag="34852" name="spectralSensitivity" type="string"/>
 
+  <!-- Indicates the ISO Speed and ISO Latitude of the camera or input device as specified in ISO 12232. -->
   <record tag="34855" name="isoSpeedRatings" type="U16"/> <!-- G2 does not put this into .THM file. -->
   <!-- if (result<50) result *= 200 -->
 
-  <record tag="34856" name="oecf" type="X8">
-    <!-- Not used; complex format. -->
-  </record>
+  <!-- Indicates the Opto-Electric Conversion Function (OECF) specified in ISO 14524.
+       OECF is the relationship between the camera optical input and the image values.
+       Not used; format:
+         numColumns: U16
+         numRows: U16
+         columnNames: string[numColumns]
+         oecf: signedRational[numColumns][numRows]
+  -->
+  <record tag="34856" name="oecf" type="X8"/>
 
   <record tag="36864" name="exifVersion" type="X8-string" count="4"/>
-  <record tag="36867" name="dateTimeOriginal" type="string" count="20"/> <!-- date -->
-  <record tag="36868" name="dateTimeDigitized" type="string" count="20"/> <!-- date -->
 
+  <record tag="36867" name="dateTimeOriginal" type="string" count="20"
+    conversion="org.podval.imageio.Conversions.parseExifDate"/>
+
+  <record tag="36868" name="dateTimeDigitized" type="string" count="20"
+    conversion="org.podval.imageio.Conversions.parseExifDate"/>
+
+  <!-- Specific (?) to compressed data.
+       Default for uncompressed RGB: 4 5 6 0; for other cases: 1 2 3 0.
+  -->
+  <!-- XXXX: enumeration with non-1 count... -->
   <record tag="37121" name="componentsConfiguration" type="X8" count="4">
     <!--
     <enumeration>
@@ -48,47 +64,58 @@
     -->
   </record>
 
+  <!-- Specific to compressed data. -->
   <record tag="37122" name="compressedBitsPerPixel" type="rational"/>
 
+  <!-- XXXX: The unit is the APEX (Additive System of Photographic Exposure). -->
   <record tag="37377" name="shutterSpeedValue" type="signedRational"/>
+
+  <!-- XXXX: The unit is the APEX value. -->
   <record tag="37378" name="apertureValue" type="rational"/>
+
+  <!-- XXXX: The unit is the APEX value. -->
   <record tag="37379" name="brightnessValue" type="signedRational"/> <!-- G2 does not put this into .THM file. -->
   <!-- When numerator is 0xFFFFFFFF, treat as unknown. -->
+
+  <!-- XXXX: The unit is the APEX value. -->
   <record tag="37380" name="exposureBiasValue" type="signedRational"/>
+
+  <!-- XXXX: The unit is the APEX value. -->
   <record tag="37381" name="maxApertureValue" type="rational"/>
+
   <record tag="37382" name="subjectDistance" type="rational"/>
   <!-- When numerator is 0xFFFFFFFF, treat as infinity; when 0 - as unknown. -->
 
   <record tag="37383" name="meteringMode">
-    <enumeration>
+    <enumeration>   <!-- default 0 -->
       <item value="0" description="Unknown"/>
       <item value="1" description="Average"/>
-      <item value="2" description="Centerweighted"/>
+      <item value="2" description="Center-weighted average"/>
       <item value="3" description="Spot"/>
       <item value="4" description="Multispot"/>
-      <item value="5" description="Evaluative"/>
+      <item value="5" description="Evaluative"/> <!-- In EXIF specification: 'Pattern'. -->
       <item value="6" description="Partial"/>
       <item value="255" description="Other"/>
     </enumeration>
   </record>
 
   <record tag="37384" name="lightSource"> <!-- G2 does not put this into .THM file. -->
-    <enumeration>
+    <enumeration> <!-- default 0 -->
       <item value="0" description="Unknown"/>
       <item value="1" description="Daylight"/>
       <item value="2" description="Fluorescent"/>
-      <item value="3" description="Tungsten"/>
+      <item value="3" description="Tungsten (incandescent light)"/>
       <item value="4" description="Flash"/>
       <item value="9" description="Fine weather"/>
-      <item value="10" description="Flash (cloudy weather)"/>
+      <item value="10" description="Cloudy weather"/>
       <item value="11" description="Shade"/>
-      <item value="12" description="Daylight fluorescent"/>
-      <item value="13" description="Day white fluorescent"/>
-      <item value="14" description="Cool white fluorescent"/>
-      <item value="15" description="White fluorescent"/>
-      <item value="17" description="Standard A"/>
-      <item value="18" description="Standard B"/>
-      <item value="19" description="Standard C"/>
+      <item value="12" description="Daylight fluorescent (D 5700-7100K)"/>
+      <item value="13" description="Day white fluorescent (N 4600-5400K)"/>
+      <item value="14" description="Cool white fluorescent (W 3900-4500K)"/>
+      <item value="15" description="White fluorescent (WW 3200-3700K)"/>
+      <item value="17" description="Standard light A"/>
+      <item value="18" description="Standard light B"/>
+      <item value="19" description="Standard light C"/>
       <item value="20" description="D55"/>
       <item value="21" description="D65"/>
       <item value="22" description="D75"/>
@@ -101,9 +128,9 @@
   <record tag="37385" name="flash">
     <!-- Format: eummrrf
       f: flsh fired: 0/1
-      r: strobe return: 00 - no detection function; 01 - reserved; 10 - detected; 11 - not detected.
+      r: strobe return light: 00 - no detection function; 01 - reserved; 10 - detected; 11 - not detected.
       m: flash mode: 00 - unknown; 01 - on; 10 - off; 11 - auto.
-      u: flash function: 0/1
+      u: flash function present: 0/1
       e: red eye reduction: 0 - no or unknown; 1 - yes.
     -->
     <enumeration>
@@ -118,13 +145,27 @@
 
   <!--
   <record tag="37396" name="subjectArea" count="2 or 3 or 4"/>
+    The subject location and area are defined by Count values as follows.
+     Count = 2 Indicates the location of the main subject as coordinates.
+     The first value is the X coordinate and the second is the Y coordinate.
+     Count = 3 The area of the main subject is given as a circle.
+     The circular area is expressed as center coordinates and diameter.
+     The first value is the center X coordinate, the second is the center Y
+     coordinate, and the third is the diameter.
+     Count = 4 The area of the main subject is given as a rectangle.
+     The rectangular area is expressed as center coordinates and area dimensions.
+     The first value is the center X coordinate, the second is the center Y
+     coordinate, the third is the width of the area, and the fourth is the
+     height of the area.
+     Note that the coordinate values, width, and height are expressed in
+     relation to the upper left as origin, prior to rotation processing as per
+     the Rotation tag.
   -->
 
   <makerNoteMarker tag="37500" type="X8"/>
 
-  <record tag="37510" name="userComment" type="X8" count="any">
-    <!-- This has encoding (ASCII/JIS/UNICODE) spelled out in the first 8 bytes, padded with 0s.-->
-  </record>
+  <!-- Comment has encoding (ASCII/JIS/UNICODE) spelled out in the first 8 bytes, padded with 0s.-->
+  <record tag="37510" name="userComment" type="X8" count="any"/>
 
   <record tag="37520" name="subsecTime" type="string"/>
   <record tag="37521" name="subsecTimeOriginal" type="string"/>
@@ -135,26 +176,42 @@
   <record tag="40961" name="colorSpace">
     <enumeration>
       <item value="1" description="sRGB"/>
-      <item value="65535" description="Uncalibrated"/>
+      <item value="65535" description="Uncalibrated"/> <!-- 0xFFFF -->
     </enumeration>
   </record>
 
+  <!-- Tags 40962 and 40963 are specific to compressed data. -->
   <record tag="40962" name="pixelXDimension" type="U16orU32"/>
   <record tag="40963" name="pixelYDimension" type="U16orU32"/>
 
   <record tag="40964" name="relatedSoundFile" type="string" count="13"/>
 
-  <record tag="41483" name="flashEnergy" type="rational"/>
+  <record tag="41483" name="flashEnergy" type="rational"/> <!-- In Beam Candle Power Seconds (BCPS). -->
 
-  <!--
-  <record tag="41484" name="spacialFriquencyResponse" type="X8" count="any"/>
+  <!-- Records the camera or input device spatial frequency table and SFR values
+       in the direction of image width, image height, and diagonal direction, as
+       specified in ISO 12233.
+       Not used; format:
+         numColumns: U16
+         numRows: U16
+         columnNames: string[numColumns]
+         sfr: signedRational[numColumns][numRows]
+  -->
+  <record tag="41484" name="spacialFrequencyResponse" type="X8"/>
+
+  <!-- Focal plane resolution tags record the actual focal plane resolutions of
+       the main image which is written as a file after processing instead of the
+       pixel resolution of the image sensor in the camera. It should be noted
+       carefully that the data from the image sensor is resampled. These tags
+       are used at the same time as a FocalLength tag when the angle of field of
+       the recorded image is to be calculated precisely.
   -->
 
   <record tag="41486" name="focalPlaneXResolution" type="rational"/> <!-- Pixels per unit -->
   <record tag="41487" name="focalPlaneYResolution" type="rational"/> <!-- Pixels per unit -->
 
   <record tag="41488" name="focalPlaneResolutionUnit"> <!-- same value as resolutionUnit -->
-    <enumeration>
+    <enumeration> <!-- XXXX: Only 2 and 3 are mentioned in EXIF specification -->
       <item value="1" description="Inch"/> <!-- 25.4f -->
       <item value="2" description="Inch"/> <!-- 25.4f -->
  <!-- <item value="2" description="Meter" --> <!-- 1000.0f -->
@@ -164,13 +221,14 @@
     </enumeration>
   </record>
 
-  <!--
-  <record tag="41492" name="subjectLocation" type="U16" count="2"/>
-  -->
+  <record tag="41492" name="subjectLocation" type="U16">
+    <field name="subjectCenterX"/>
+    <field name="subjectCenterY"/>
+  </record>
 
   <record tag="41493" name="exposureIndex" type="rational"/>
 
-  <record tag="41495" name="sensingMethod" type="U16">
+  <record tag="41495" name="sensingMethod">
     <enumeration>
       <item value="1" description="Unknown"/>
       <item value="2" description="One-chip color area sensor"/>
@@ -194,14 +252,26 @@
     </enumeration>
   </record>
 
-  <record tag="41730" name="cfaPattern" type="X8">
-    <!-- Complex format!!! -->
-  </record>
+  <!-- When filter array is repeated in numPixelX*numPixelY pixel units.
+       Format:
+       numPixelsX: U16
+       numPixelsY: U16
+       cfa: colour[numPixelsX][numPixelsY]
+         where colour:
+         0 Red
+         1 Green
+         2 Blue
+         3 Cyan
+         4 Magenta
+         5 Yellow
+         6 White
+  -->
+  <record tag="41730" name="cfaPattern" type="X8"/>
 
   <record tag="41985" name="customRendered">
-    <enumeration>
-      <item value="0" description="Normal"/>
-      <item value="1" description="Custom"/>
+    <enumeration> <!-- default 0 -->
+      <item value="0" description="Normal process"/>
+      <item value="1" description="Custom process"/>
     </enumeration>
   </record>
 
@@ -244,24 +314,24 @@
   </record>
 
   <record tag="41992" name="contrast">
-    <enumeration>
-      <item value="0" description="None"/>
+    <enumeration> <!-- Default 0 -->
+      <item value="0" description="Normal"/>
       <item value="1" description="Soft"/>
       <item value="2" description="Hard"/>
     </enumeration>
   </record>
 
   <record tag="41993" name="saturation">
-    <enumeration>
-      <item value="0" description="None"/>
+    <enumeration> <!-- Default 0 -->
+      <item value="0" description="Normal"/>
       <item value="1" description="Low"/>
       <item value="2" description="High"/>
     </enumeration>
   </record>
 
   <record tag="41994" name="sharpness">
-    <enumeration>
-      <item value="0" description="None"/>
+    <enumeration> <!-- Default 0 -->
+      <item value="0" description="Normal"/>
       <item value="1" description="Soft"/>
       <item value="2" description="Hard"/>
     </enumeration>
@@ -287,39 +357,3 @@
 </directory>
 
 </meta-metadata>
-
-
-<!--
-  Date: DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
-
-  private static final DateFormat dateTimeFormat =
-    new SimpleDateFormat("yyyy:MM:dd HH:mm:ss");
-
-
-  public Date readDate() throws IOException {
-    Date result = null;
-
-    try {
-      String value = readString(20);
-      result = dateTimeFormat.parse(value);
-    } catch (ParseException e) {
-      throw new IOException("Bad date format.");
-    }
-
-    return result;
-  }
-
-
-  Exposure time APEX: (float) (1.0f / Math.pow(2.0, value))
-  Aperture APEX: (float) Math.pow(Math.sqrt(2.0), value)
-
-  public float getExposure() {
-    float result = 0;
-    if ((brightness != 0) && (iso != 0)) {
-      float sensitivity = (float) (Math.log(iso/3.125f) / Math.log(2));
-      result = brightness + sensitivity;
-    }
-    return result;
-  }
-
--->

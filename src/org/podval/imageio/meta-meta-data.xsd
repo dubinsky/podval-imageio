@@ -77,6 +77,8 @@
 
       <xsd:attribute name="count" type="Count"/>
 
+      <xsd:attribute name="conversion" type="xsd:string"/>
+
     </xsd:extension>
   </xsd:complexContent>
 </xsd:complexType>

@@ -4,6 +4,9 @@ import java.util.Stack;
 
 import javax.imageio.metadata.IIOMetadataNode;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.InvocationTargetException;
+
 
 public class DefaultMetadataHandler implements MetadataHandler {
 
@@ -36,7 +39,19 @@ public class DefaultMetadataHandler implements MetadataHandler {
 
 
   public void stringValue(Field field, String value) {
-    add(field, value);
+    /** @todo this should be in the Field! */
+    Object result = value;
+
+    Method conversion =  field.getConversion();
+    if (conversion != null) {
+      try {
+        /** @todo when the method is not static, error message is very confusing... */
+        result = conversion.invoke(null, new Object[] {value});
+      } catch (IllegalAccessException e) {
+      } catch (InvocationTargetException e) {
+      }
+    }
+    add(field, result);
   }
 
 

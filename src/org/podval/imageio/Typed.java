@@ -40,6 +40,13 @@ public abstract class Typed {
   }
 
 
+  /** @todo can we do defaulting during load somehow? Or forget about it?
+   * 'cause this sucks! */
+  public Type getTypeWithoutDefaulting() {
+    return type;
+  }
+
+
   protected abstract String getKind();
 
 

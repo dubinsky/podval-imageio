@@ -120,7 +120,7 @@ public class ExifReader {
   }
 
 
-  public static final String NATIVE_FORMAT_NAME = "org_podval_imageio_exif_1.0";
+  private static final String NATIVE_FORMAT_NAME = "org_podval_imageio_exif_1.0";
 
 
   private static Metadata readExifStream(ImageInputStream in) throws IOException {

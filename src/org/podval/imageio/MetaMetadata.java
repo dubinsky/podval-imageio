@@ -9,6 +9,8 @@ import javax.xml.bind.JAXBException;
 
 import java.util.Iterator;
 
+import java.lang.reflect.Method;
+
 
 public class MetaMetadata {
 
@@ -132,9 +134,10 @@ public class MetaMetadata {
       result = new Record(name);
 
     loadTyped(result, xml);
-    loadIsVector(result, xml);
     loadCount(result, xml);
+    loadIsVector(result, xml);
     loadEnumeration(result, xml);
+    loadConversion(result, xml);
     loadFields(result, xml);
 
     return result;
@@ -155,13 +158,12 @@ public class MetaMetadata {
 
 
   private static void loadEnumeration(Record result, org.podval.imageio.jaxb.Record xml) {
-    Enumeration enumeration = loadEnumeration(xml.getEnumeration());
-    if (enumeration != null) {
-      /** @todo check the count */
-      Field field = result.createDefaultField();
-      field.setEnumeration(enumeration);
-      result.addField(1, field);
-    }
+    result.setEnumeration(loadEnumeration(xml.getEnumeration()));
+  }
+
+
+  private static void loadConversion(Record result, org.podval.imageio.jaxb.Record xml) {
+    result.setConversion(loadConversion(xml.getConversion()));
   }
 
 
@@ -175,6 +177,7 @@ public class MetaMetadata {
 
       result.addField(index, loadField(fieldXml));
     }
+    /** @todo if count was set, check. If not, set. */
   }
 
 
@@ -218,6 +221,38 @@ public class MetaMetadata {
           (org.podval.imageio.jaxb.EnumItem) i.next();
 
         result.addDescription(item.getValue(), item.getDescription());
+      }
+    }
+
+    return result;
+  }
+
+
+  public static Method loadConversion(String name) {
+    Method result = null;
+
+    if (name != null) {
+      int dot = name.lastIndexOf('.');
+      if (dot == -1)
+        throw new IllegalArgumentException("Conversion method name "+name+
+          " does not contain a '.'");
+      String className = name.substring(0, dot);
+      String methodName = name.substring(dot+1, name.length());
+      Class cls;
+      try {
+        cls = Class.forName(className);
+      } catch (ClassNotFoundException e) {
+        throw new IllegalArgumentException("Class with conversion "+name+
+          " not found");
+      }
+      /** @todo I can - and should - figure out argument type for the conversion method and ask for it directly... */
+      Method[] methods = cls.getDeclaredMethods();
+      for (int i = 0; i<methods.length; i++) {
+        Method method = methods[i];
+        if (method.getName().equals(methodName)) {
+          result = method;
+          break;
+        }
       }
     }
 

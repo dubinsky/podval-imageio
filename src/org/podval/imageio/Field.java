@@ -8,6 +8,8 @@ import java.util.Iterator;
 
 import javax.imageio.stream.ImageInputStream;
 
+import java.lang.reflect.Method;
+
 
 public class Field extends Typed {
 
@@ -33,7 +35,7 @@ public class Field extends Typed {
 
   public void setEnumeration(Enumeration value) {
     if (value != null) {
-      if (subfields!=null)
+      if (subfields != null)
         throw new IllegalArgumentException(
           "Subfields and enumeration can not be used together!");
 
@@ -43,6 +45,22 @@ public class Field extends Typed {
     }
 
     enumeration = value;
+  }
+
+
+  public void setConversion(Method value) {
+    if (value != null) {
+      if (subfields != null)
+        throw new IllegalArgumentException(
+          "Subfields and conversion can not be used together!");
+    }
+
+    conversion = value;
+  }
+
+
+  public Method getConversion() {
+    return conversion;
   }
 
 
@@ -209,6 +227,9 @@ public class Field extends Typed {
 
 
   private Enumeration enumeration;
+
+
+  private Method conversion;
 
 
   private List subfields = null;
