@@ -48,28 +48,6 @@ screensizedFile = getGeneratedFile("480x640");
   */
 
 
-  private static final int BUF_SIZE = 512;
-
-
-  private void stream(final InputStream is, final OutputStream os) {
-    byte[] buf = new byte[BUF_SIZE];
-    try {
-      while (is.available() > 0) {
-        int numBytes = is.read(buf);
-        if (numBytes > 0)
-          os.write(buf, 0, numBytes);
-      }
-    } catch (IOException e) {
-    } finally {
-      try {
-        os.flush();
-        is.close();
-      } catch (IOException e) {
-      }
-    }
-  }
-
-
 File /home/dub/Photo/g2/2/2297.crw:
 <?xml version="1.0" encoding="UTF-8"?>
 <org_podval_imageio_ciff_1.0>
