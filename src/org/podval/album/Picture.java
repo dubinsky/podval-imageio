@@ -2,7 +2,6 @@ package org.podval.album;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.FileNotFoundException;
 
 import java.util.Date;
 

@@ -38,23 +38,22 @@
   <!-- XXX -->
   <record tag="273" name="stripOffsets" type="U16orU32" count="any" skip="true"/>
 
-  <!-- EXIF specification expresses this in terms of "what row of the image is
-       in the top (0th) row - and what column in the left (0th) column" (default
-       being 'Top left').
+  <!-- What row of the image is in the top (0th) row -
+       and what column in the left (0th) column.
+			 Default - "normal" is "Top left".
        I use objects that signify what transposition to apply to the
        image to bring it into normal position.
-       Names specification uses are given in the comments.
   -->
   <record tag="274" name="orientation"> <!-- orientation -->
     <enumeration enumClass="org.podval.imageio.Orientation">
-      <item tag="1" value="NORMAL"/> <!-- Top left -->
-      <item tag="2" value="FLIP_AND_OVER"/> <!-- Top right -->
-      <item tag="3" value="OVER"/> <!-- Bottom right -->
-      <item tag="4" value="FLIP"/> <!-- Bottom left -->
-      <item tag="5" value="FLIP_AND_RIGHT"/> <!-- Left top -->
-      <item tag="6" value="RIGHT"/> <!-- Right top -->
-      <item tag="7" value="FLIP_AND_LEFT"/> <!-- Right bottom -->
-      <item tag="8" value="LEFT"/> <!-- Left bottom -->
+      <item tag="1" value="TOP_LEFT"    />
+      <item tag="2" value="TOP_RIGHT"   />
+      <item tag="3" value="BOTTOM_RIGHT"/>
+      <item tag="4" value="BOTTOM_LEFT" />
+      <item tag="5" value="LEFT_TOP"    />
+      <item tag="6" value="RIGHT_TOP"   />
+      <item tag="7" value="RIGHT_BOTTOM"/>
+      <item tag="8" value="LEFT_BOTTOM" />
     </enumeration>
   </record>
 

@@ -76,17 +76,19 @@ public class PictureReference extends Picture {
   }
 
 
-  public static PictureReference load(org.podval.album.jaxb.PictureReferences.Picture xml) {
+  public static PictureReference load(
+    org.podval.album.jaxb.PictureReferences.Picture xml
+  ) {
     PictureReference result = new PictureReference(xml.getPath());
     result.title = xml.getTitle();
     return result;
   }
 
 
-  public org.podval.album.jaxb.PictureReferences.PictureType toXml()
+  public org.podval.album.jaxb.PictureReferences.Picture toXml()
     throws JAXBException
   {
-    org.podval.album.jaxb.PictureReferences.PictureType result =
+    org.podval.album.jaxb.PictureReferences.Picture result =
       JAXB.getObjectFactory().createPictureReferencesTypePicture();
 
     result.setPath(getName());

@@ -35,14 +35,14 @@
 
 <xsd:simpleType name="Orientation">
   <xsd:restriction base="xsd:string">
-    <xsd:enumeration value="normal"/>
-    <xsd:enumeration value="left"/>
-    <xsd:enumeration value="over"/>
-    <xsd:enumeration value="right"/>
-    <xsd:enumeration value="flip"/>
-    <xsd:enumeration value="flip and left"/>
-    <xsd:enumeration value="flip and over"/>
-    <xsd:enumeration value="flip and right"/>
+    <xsd:enumeration value="top-left"/>
+    <xsd:enumeration value="top-right"/>
+    <xsd:enumeration value="bottom-right"/>
+    <xsd:enumeration value="bottom-left"/>
+    <xsd:enumeration value="left-top"/>
+    <xsd:enumeration value="right-top"/>
+    <xsd:enumeration value="right-bottom"/>
+    <xsd:enumeration value="left-bottom"/>
   </xsd:restriction>
 </xsd:simpleType>
 

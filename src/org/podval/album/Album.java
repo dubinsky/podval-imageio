@@ -114,53 +114,53 @@ public class Album {
 
 
   public void setTitle(String value) {
-    ensureAlbumMetadataLoaded();
+    loadMetadata();
     if (((title == null) && (value != null)) || !title.equals(value)) {
       title = value;
-      albumMetadataChanged = true;
+      metadataChanged = true;
       changed();
     }
   }
 
 
   public String getTitle() {
-    ensureAlbumMetadataLoaded();
+    loadMetadata();
     return (title != null) ? title : name;
   }
 
 
   public int getNumSubalbums() {
-    ensureSubalbumsLoaded();
+    loadSubalbums();
     return subalbums.size();
   }
 
 
   public Album getSubalbum(String name) {
-    ensureSubalbumsLoaded();
+    loadSubalbums();
     return (Album) subalbums.get(name);
   }
 
 
   public Collection getSubalbums() {
-    ensureSubalbumsLoaded();
+    loadSubalbums();
     return Collections.unmodifiableCollection(subalbums.values());
   }
 
 
   public int getNumPictures() {
-    ensurePicturesLoaded();
+    loadPictures();
     return pictures.size();
   }
 
 
   public Picture getPicture(String name) {
-    ensurePicturesLoaded();
+    loadPictures();
     return (Picture) pictures.get(name);
   }
 
 
   public Collection getPictures() {
-    ensurePicturesLoaded();
+    loadPictures();
     return Collections.unmodifiableCollection(sortedPictures);
   }
 
@@ -177,7 +177,7 @@ public class Album {
 
   public File getGeneratedDirectory() {
     if (generatedDirectory == null) {
-      /** @todo now it would be nice to be able to place generated directory inside the originals one ... */
+      /** @todo ability to make generated directory a subdirectory of originals one? */
       generatedDirectory = new File(parent.getGeneratedDirectory(), name);
       ensureDirectoryExists(generatedDirectory);
     }
@@ -216,42 +216,44 @@ public class Album {
   }
 
 
-  private void ensureAlbumMetadataLoaded() {
-    if (!albumMetadataChanged) {
-      File file = getAlbumMetadataReadFile();
+  private void loadMetadata() {
+    if (!metadataChanged) {
+      File file = getMetadataReadFile();
       if (file != null) {
         long lastModified = file.lastModified();
-        if (albumMetadataLoaded<lastModified) {
-          albumMetadataLoaded = lastModified;
-          loadAlbumMetadata(file);
-          albumMetadataChanged = false;
+        if (metadataLoaded < lastModified) {
+          metadataLoaded = lastModified;
+          loadMetadata(file);
+          metadataChanged = false;
         }
       }
     }
   }
 
 
-  private void ensureSubalbumsLoaded() {
+  private void loadSubalbums() {
     File originalsDirectory = getOriginalsDirectory();
     long lastModified = originalsDirectory.lastModified();
 
-    if (subalbumsLoaded<lastModified) {
+    if (subalbumsLoaded < lastModified) {
       subalbumsLoaded = lastModified;
       loadSubalbums(originalsDirectory);
     }
   }
 
 
-  private void ensurePicturesLoaded() {
+  private void loadPictures() {
     if (!pictureReferencesChanged) {
       File originalsDirectory = getOriginalsDirectory();
-      File pictureReferencesReadFile = getPictureReferencesReadFile();
+
+      if (pictureReferencesReadFile == null)
+        pictureReferencesReadFile = getMetadataReadFile(PICTURE_REFERENCES_FILE_NAME);
 
       long lastModified = originalsDirectory.lastModified();
       if (pictureReferencesReadFile != null)
         lastModified = Math.max(lastModified, pictureReferencesReadFile.lastModified());
 
-      if (picturesLoaded<lastModified) {
+      if (picturesLoaded < lastModified) {
         picturesLoaded = lastModified;
         loadPictures(originalsDirectory, pictureReferencesReadFile);
         pictureReferencesChanged = false;
@@ -260,23 +262,23 @@ public class Album {
   }
 
 
-  private void loadAlbumMetadata(File file) {
+  private void loadMetadata(File file) {
     try {
-      loadAlbumMetadata(JAXB.unmarshallAlbum(file));
+      loadMetadata(JAXB.unmarshallAlbum(file));
     } catch (JAXBException e) {
     /** @todo  */
     }
   }
 
 
-  private void loadAlbumMetadata(org.podval.album.jaxb.Album xml) {
+  private void loadMetadata(org.podval.album.jaxb.Album xml) {
     title = xml.getTitle();
   }
 
 
-  private void saveAlbumMetadata() {
+  private void saveMetadata() {
     try {
-      File file = getAlbumMetadataWriteFile();
+      File file = getMetadataWriteFile();
       if (file != null) {
         org.podval.album.jaxb.Album result =
           JAXB.getObjectFactory().createAlbum();
@@ -339,7 +341,7 @@ public class Album {
   private void loadPictures(File directory) {
     File[] files = directory.listFiles();
 
-    for (int i=0; i<files.length; i++) {
+    for (int i=0; i < files.length; i++) {
       File file = files[i];
       try {
         if (!file.isDirectory())
@@ -464,7 +466,7 @@ public class Album {
 
 
   public void addPictureReference(String path) {
-    ensurePicturesLoaded();
+    loadPictures();
     addPicture(new PictureReference(path));
     pictureReferencesChanged();
   }
@@ -477,7 +479,7 @@ public class Album {
 
 
   public void removePictureReference(String name) {
-    ensurePicturesLoaded();
+    loadPictures();
 
     Picture result = (Picture) pictures.get(name);
     if (result != null) {
@@ -497,9 +499,9 @@ public class Album {
       picturesChanged = false;
     }
 
-    if (albumMetadataChanged) {
-      saveAlbumMetadata();
-      albumMetadataChanged = false;
+    if (metadataChanged) {
+      saveMetadata();
+      metadataChanged = false;
     }
 
     if (pictureReferencesChanged) {
@@ -509,29 +511,22 @@ public class Album {
   }
 
 
-  private static final String ALBUM_METADATA_FILE_NAME = "album.xml";
+  private static final String METADATA_FILE_NAME = "album.xml";
 
 
-  private File getAlbumMetadataReadFile() {
-    if (albumMetadataReadFile == null)
-      albumMetadataReadFile = getMetadataReadFile(ALBUM_METADATA_FILE_NAME);
-    return albumMetadataReadFile;
+  private File getMetadataReadFile() {
+    if (metadataReadFile == null)
+      metadataReadFile = getMetadataReadFile(METADATA_FILE_NAME);
+    return metadataReadFile;
   }
 
 
-  private File getAlbumMetadataWriteFile() {
-    return getMetadataWriteFile(ALBUM_METADATA_FILE_NAME);
+  private File getMetadataWriteFile() {
+    return getMetadataWriteFile(METADATA_FILE_NAME);
   }
 
 
   private static final String PICTURE_REFERENCES_FILE_NAME = "pictures.xml";
-
-
-  private File getPictureReferencesReadFile() {
-    if (pictureReferencesReadFile == null)
-      pictureReferencesReadFile = getMetadataReadFile(PICTURE_REFERENCES_FILE_NAME);
-    return pictureReferencesReadFile;
-  }
 
 
   private File getPictureReferencesWriteFile() {
@@ -627,13 +622,13 @@ public class Album {
   private File generatedDirectory;
 
 
-  private File albumMetadataReadFile;
+  private File metadataReadFile;
 
 
-  private long albumMetadataLoaded = 0;
+  private long metadataLoaded = 0;
 
 
-  private boolean albumMetadataChanged;
+  private boolean metadataChanged;
 
 
   private long subalbumsLoaded;

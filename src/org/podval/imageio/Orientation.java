@@ -4,7 +4,6 @@ import java.util.Map;
 import java.util.HashMap;
 
 
-/** @todo redo with EXIF's "Top Left" etc.? */
 public class Orientation {
 
   public static class Rotation {
@@ -67,16 +66,16 @@ public class Orientation {
     Orientation result = null;
 
     if (!flipAroundHorizontal) {
-      if (rotation == Rotation.NOTHING) result = NORMAL; else
-      if (rotation == Rotation.LEFT   ) result = LEFT  ; else
-      if (rotation == Rotation.OVER   ) result = OVER  ; else
-      if (rotation == Rotation.RIGHT  ) result = RIGHT ;
+      if (rotation == Rotation.NOTHING) result = TOP_LEFT; else
+      if (rotation == Rotation.LEFT   ) result = LEFT_BOTTOM  ; else
+      if (rotation == Rotation.OVER   ) result = BOTTOM_RIGHT  ; else
+      if (rotation == Rotation.RIGHT  ) result = RIGHT_TOP ;
 
     } else {
-      if (rotation == Rotation.NOTHING) result = FLIP           ; else
-      if (rotation == Rotation.LEFT   ) result = FLIP_AND_LEFT  ; else
-      if (rotation == Rotation.OVER   ) result = FLIP_AND_OVER  ; else
-      if (rotation == Rotation.RIGHT  ) result = FLIP_AND_RIGHT ;
+      if (rotation == Rotation.NOTHING) result = BOTTOM_LEFT           ; else
+      if (rotation == Rotation.LEFT   ) result = RIGHT_BOTTOM  ; else
+      if (rotation == Rotation.OVER   ) result = TOP_RIGHT  ; else
+      if (rotation == Rotation.RIGHT  ) result = LEFT_TOP ;
     }
 
     return result;
@@ -150,36 +149,37 @@ public class Orientation {
   private static Map values = new HashMap();
 
 
-  public static final Orientation NORMAL =
-    new Orientation(false, Rotation.NOTHING, "normal");
+  public static final Orientation TOP_LEFT =
+    new Orientation(false, Rotation.NOTHING, "top-left");
 
 
-  public static final Orientation LEFT =
-    new Orientation(false, Rotation.LEFT, "left");
+  public static final Orientation TOP_RIGHT =
+    new Orientation(true, Rotation.OVER, "top-right");
 
 
-  public static final Orientation RIGHT =
-    new Orientation(false, Rotation.RIGHT, "right");
+  public static final Orientation BOTTOM_RIGHT =
+    new Orientation(false, Rotation.OVER, "bottom-right");
 
 
-  public static final Orientation OVER =
-    new Orientation(false, Rotation.OVER, "over");
+  public static final Orientation BOTTOM_LEFT =
+    new Orientation(true, Rotation.NOTHING, "bottom-left");
 
 
-  public static final Orientation FLIP =
-    new Orientation(true, Rotation.NOTHING, "flip");
+  public static final Orientation LEFT_TOP =
+    new Orientation(true, Rotation.RIGHT, "left-top");
 
 
-  public static final Orientation FLIP_AND_LEFT =
-    new Orientation(true, Rotation.LEFT, "flip and left");
+  public static final Orientation RIGHT_TOP =
+    new Orientation(false, Rotation.RIGHT, "right-top");
 
 
-  public static final Orientation FLIP_AND_RIGHT =
-    new Orientation(true, Rotation.RIGHT, "flip and right");
+  public static final Orientation RIGHT_BOTTOM =
+    new Orientation(true, Rotation.LEFT, "right-bottom");
 
 
-  public static final Orientation FLIP_AND_OVER =
-    new Orientation(true, Rotation.OVER, "flip and over");
+  public static final Orientation LEFT_BOTTOM =
+    new Orientation(false, Rotation.LEFT, "left-bottom");
+
 
 
   private final boolean flipAroundHorizontal;

@@ -74,14 +74,16 @@ public class PictureLocal extends Picture {
 
 
   public File getThumbnailFile() throws IOException {
+    Orientation orientation = getOrientation();
+
     File result = getThumbnailGnereatedFile();
     if (!result.exists()) {
-      RenderedImage image = null;
+      RenderedImage image = readCameraThumbnail();
 
-      if (thmFile != null) image = Util.rotate(Util.readImage(thmFile), getOrientation()); else
-      if (crwFile != null) image = Util.rotate(Util.readThumbnail(crwFile, 0), getOrientation());
-
-      if (image == null) image = scale(120, 160);
+      if (image != null)
+        image = Util.rotate(image, orientation);
+      else
+        image = scale(120, 160);
 
       Util.writeImage(image, result);
     }
@@ -98,14 +100,27 @@ public class PictureLocal extends Picture {
   }
 
 
+  private RenderedImage readCameraThumbnail() throws IOException {
+    RenderedImage result = null;
+
+    if (thmFile != null) result = Util.readImage    (thmFile   ); else
+    if (crwFile != null) result = Util.readThumbnail(crwFile, 0);
+
+    return result;
+  }
+
+
   public File getScreensizedFile() throws IOException {
+    Orientation orientation = getOrientation();
+
     File result = getScreensizedGeneratedFile();
     if (!result.exists()) {
-      RenderedImage image = null;
+      RenderedImage image = readCameraScreensized();
 
-      if (crwFile != null) image = Util.rotate(Util.readThumbnail(crwFile, 1), getOrientation());
-
-      if (image == null) image = scale(480, 640);
+      if (image != null)
+        Util.rotate(image, orientation);
+      else
+        image = scale(480, 640);
 
       Util.writeImage(image, result);
     }
@@ -122,10 +137,21 @@ public class PictureLocal extends Picture {
   }
 
 
+  private RenderedImage readCameraScreensized() throws IOException {
+    RenderedImage result = null;
+
+    if (crwFile != null) result = Util.readThumbnail(crwFile, 1);
+
+    return result;
+  }
+
+
   public File getFullsizedFile() throws IOException {
+    Orientation orientation = getOrientation();
+
     File result = null;
 
-    if ((jpgFile != null) && (getOrientation() == Orientation.NORMAL)) {
+    if ((jpgFile != null) && (orientation == Orientation.TOP_LEFT)) {
       result = jpgFile;
 
     } else {
@@ -133,7 +159,7 @@ public class PictureLocal extends Picture {
 
       if (!result.exists()) {
         RenderedImage image = ((jpgFile != null) ? Util.readImage(jpgFile) : Util.convert(crwFile));
-        Util.writeImage(Util.rotate(image, getOrientation()), result);
+        Util.writeImage(Util.rotate(image, orientation), result);
       }
     }
 
@@ -204,7 +230,7 @@ public class PictureLocal extends Picture {
     if (orientation == null) {
       Orientation value = (Orientation) getCameraMetadata("orientation");
       if (value == null)
-        value = Orientation.NORMAL;
+        value = Orientation.TOP_LEFT;
       setOrientation(value);
     }
     return orientation;
