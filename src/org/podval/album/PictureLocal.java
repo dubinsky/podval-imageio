@@ -2,8 +2,6 @@ package org.podval.album;
 
 import java.util.Date;
 
-import java.text.SimpleDateFormat;
-
 import java.io.File;
 import java.io.IOException;
 
@@ -17,26 +15,15 @@ import org.podval.imageio.Metadata;
 /**
  */
 
-public class PictureLocal implements Picture {
+public class PictureLocal extends Picture {
 
   public PictureLocal(Album album, String name) {
-    this.album = album;
-    this.name = name;
-  }
-
-
-  public Album getAlbum() {
-    return album;
-  }
-
-
-  public String getName() {
-    return name;
+    super(album, name);
   }
 
 
   public void addFile(File file, String name, String extension) throws IOException {
-    if (!this.name.equals(name))
+    if (!getName().equals(name))
       throw new IOException("Duplicate case-sensitive file name " + name);
 
     if (extension.equalsIgnoreCase("jpg")) {
@@ -118,7 +105,7 @@ public class PictureLocal implements Picture {
 
 
   private File getGeneratedFile(String modifier) {
-    return new File(album.getGeneratedDirectory(), name+"-"+modifier+".jpg");
+    return new File(getAlbum().getGeneratedDirectory(), getName()+"-"+modifier+".jpg");
   }
 
 
@@ -137,18 +124,13 @@ public class PictureLocal implements Picture {
   }
 
 
-  private static final SimpleDateFormat dateFormat =
-    new SimpleDateFormat("M/d/y HH:mm:ss");
-
-
-  public String getDateTimeString() throws IOException {
-    return dateFormat.format(getDateTime());
-  }
-
-
-  private Date getDateTime() throws IOException {
-    return new Date(getOriginalFile().lastModified());
+  public Date getDateTime() {
+    try {
+      return new Date(getOriginalFile().lastModified());
+    } catch (Exception e) {
+    }
 /////    return (Date) getCameraMetadata().find("dateTime");
+    return null;
   }
 
 
@@ -158,12 +140,6 @@ public class PictureLocal implements Picture {
     }
     return (Metadata) cameraMetadata.get();
   }
-
-
-  private final Album album;
-
-
-  private final String name;
 
 
   private File jpgFile;

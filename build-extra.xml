@@ -35,10 +35,6 @@
     <xjc schema="xsds/album.xsd" target="src"/>
   </target>
 
-  <target name="Compile picture schema">
-    <xjc schema="xsds/picture.xsd" target="src"/>
-  </target>
-
   <target name="Deploy documentation">
     <delete dir="/var/www/html/imageio/"/>
     <copy todir="/var/www/html/imageio/">

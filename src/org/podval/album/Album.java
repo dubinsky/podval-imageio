@@ -5,6 +5,9 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.Set;
+import java.util.TreeSet;
+
 import java.util.StringTokenizer;
 
 import java.io.File;
@@ -15,10 +18,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.FileNotFoundException;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Validator;
 import javax.xml.bind.JAXBException;
 
 import org.podval.imageio.MetaMetadata;
@@ -38,21 +37,23 @@ public class Album {
 
 
   public static Album getByPath(String path) {
+    if (root == null)
+      throw new NullPointerException("Root is not set!");
+
+    if (path == null)
+      throw new NullPointerException("Path is null!");
+
+    if (!path.startsWith("/"))
+      throw new IllegalArgumentException("Path does not start with '/'!");
+
     Album result = root;
 
-    if (result == null)
-      throw new NullPointerException("Root is not set");
-
-//    if (!path.startsWith("/"))
-//      throw new IllegalArgumentException("Path does not start with '/'.");
-
     StringTokenizer tokenizer = new StringTokenizer(path, "/");
-    while (tokenizer.hasMoreTokens() && (result != null)) {
-      result = ((Album) result).getSubdirectory(tokenizer.nextToken());
-    }
+    while (tokenizer.hasMoreTokens() && (result != null))
+      result = ((Album) result).getSubalbum(tokenizer.nextToken());
 
     if (result == null)
-      throw new NullPointerException("No album at path: " + path);
+      throw new NullPointerException("No album at " + path);
 
     return result;
   }
@@ -72,14 +73,14 @@ public class Album {
 
 
   public Album(Album parent, String name) {
-    this.parent = parent;
-    this.name = name;
-
     if (parent == null)
       throw new NullPointerException("Directory parent is null.");
 
     if (name == null)
       throw new NullPointerException("Directory name is null.");
+
+    this.parent = parent;
+    this.name = name;
   }
 
 
@@ -93,32 +94,40 @@ public class Album {
   }
 
 
+  public String getPath() {
+    /** @todo for the root, result is incorrect ("" instead of "/"). Is this important? */
+    return (parent != null) ? parent.getPath() + "/" + name : name;
+  }
+
+
   public void setTitle(String value) {
+    ensureAlbumMetadataLoaded();
     title = value;
-    metadataChanged = true;
+    albumMetadataChanged = true;
   }
 
 
   public String getTitle() {
+    ensureAlbumMetadataLoaded();
     return (title != null) ? title : name;
   }
 
 
-  public int getNumSubdirectories() {
-    ensureSubdirectoriesLoaded();
-    return subdirectories.size();
+  public int getNumSubalbums() {
+    ensureSubalbumsLoaded();
+    return subalbums.size();
   }
 
 
-  public Album getSubdirectory(String name) {
-    ensureSubdirectoriesLoaded();
-    return (Album) subdirectories.get(name);
+  public Album getSubalbum(String name) {
+    ensureSubalbumsLoaded();
+    return (Album) subalbums.get(name);
   }
 
 
-  public Collection getSubdirectories() {
-    ensureSubdirectoriesLoaded();
-    return Collections.unmodifiableCollection(subdirectories.values());
+  public Collection getSubalbums() {
+    ensureSubalbumsLoaded();
+    return Collections.unmodifiableCollection(subalbums.values());
   }
 
 
@@ -136,19 +145,14 @@ public class Album {
 
   public Collection getPictures() {
     ensurePicturesLoaded();
-    return Collections.unmodifiableCollection(pictures.values());
+    return Collections.unmodifiableCollection(sortedPictures);
   }
 
 
   public File getOriginalsDirectory() {
     if (originalsDirectory == null) {
       originalsDirectory = new File(parent.getOriginalsDirectory(), name);
-
-      if (!originalsDirectory.exists())
-        throw new IllegalArgumentException("Directory does not exist: " + originalsDirectory);
-
-      if (!originalsDirectory.isDirectory())
-        throw new IllegalArgumentException("Not a directory: " + originalsDirectory);
+      checkDirectoryExists(originalsDirectory);
     }
 
     return originalsDirectory;
@@ -159,17 +163,8 @@ public class Album {
     if (generatedDirectory == null) {
       /** @todo now it would be nice to be able to place generated directory inside the originals one ... */
       generatedDirectory = new File(parent.getGeneratedDirectory(), name);
-
-      if (generatedDirectory.exists()) {
-        if (!generatedDirectory.isDirectory())
-          throw new IllegalArgumentException("Not a directory: " + generatedDirectory);
-
-//      if (!generatedDirectory.canWrite())
-//        throw new IllegalArgumentException("Can not write to: " + generatedDirectory);
-      } else {
-        if (!generatedDirectory.mkdirs())
-          throw new IllegalArgumentException("Can not create: " + generatedDirectory);
-      }
+      ensureDirectoryExists(generatedDirectory);
+      //checkCanWrite(generatedDirectory);
     }
 
     return generatedDirectory;
@@ -180,27 +175,46 @@ public class Album {
     if (metadataDirectory == null) {
       /** @todo alternative policy is - try originals directory first... */
       metadataDirectory = new File(parent.getMetadataDirectory(), name);
-
-      if (metadataDirectory.exists()) {
-        if (!metadataDirectory.isDirectory())
-          throw new IllegalArgumentException("Not a directory: " + metadataDirectory);
-
-//      if (!metadataDirectory.canWrite())
-//        throw new IllegalArgumentException("Can not write to: " + metadataDirectory);
-      } else {
-        if (!metadataDirectory.mkdirs())
-          throw new IllegalArgumentException("Can not create: " + metadataDirectory);
-      }
+      ensureDirectoryExists(metadataDirectory);
     }
 
     return metadataDirectory;
   }
 
 
-  private void ensureSubdirectoriesLoaded() {
-    if (!subdirectoriesLoaded) {
-      loadSubdirectories();
-      subdirectoriesLoaded = true;
+  private static void checkDirectoryExists(File file) {
+    if (!file.exists())
+      throw new IllegalArgumentException(file + " does not exist.");
+
+    if (!file.isDirectory())
+      throw new IllegalArgumentException(file + " is not a directory.");
+  }
+
+
+  private static void ensureDirectoryExists(File directory) {
+    if (directory.exists()) {
+      if (!directory.isDirectory())
+        throw new IllegalArgumentException(directory + " is not a directory.");
+    } else {
+      if (!directory.mkdirs())
+        throw new IllegalArgumentException("Can not create " + directory);
+    }
+  }
+
+
+  private void ensureAlbumMetadataLoaded() {
+    if (!albumMetadataLoaded) {
+      albumMetadataLoaded = true;
+      loadAlbumMetadata();
+      albumMetadataChanged = false;
+    }
+  }
+
+
+  private void ensureSubalbumsLoaded() {
+    if (!subalbumsLoaded) {
+      loadSubalbums();
+      subalbumsLoaded = true;
     }
   }
 
@@ -209,19 +223,41 @@ public class Album {
     if (!picturesLoaded) {
       loadPictures();
       picturesLoaded = true;
-      loadMetadata();
+      loadPictureReferences();
+      pictureReferencesChanged = false;
+      sortPicturesByDateTime();
     }
   }
 
 
-  private void loadSubdirectories() {
+  private void loadAlbumMetadata() {
+    try {
+      File file = getAlbumMetadataFile(false);
+      if (file != null) {
+        org.podval.album.jaxb.Album xml =
+          Metadata.unmarshallAlbum(file);
+
+        loadAlbumMetadata(xml);
+      }
+    } catch (JAXBException e) {
+      /** @todo  */
+    }
+  }
+
+
+  private void loadAlbumMetadata(org.podval.album.jaxb.Album xml) {
+    setTitle(xml.getTitle());
+  }
+
+
+  private void loadSubalbums() {
     File[] files = getOriginalsDirectory().listFiles();
 
     for (int i=0; i<files.length; i++) {
       File file = files[i];
       try {
         if (file.isDirectory())
-          addSubdirectory(file);
+          addSubalbum(file);
       } catch (IOException e) {
         /** @todo XXXX */
       }
@@ -242,24 +278,56 @@ public class Album {
       }
     }
 
-    for (Iterator i = pictures.entrySet().iterator(); i.hasNext();) {
+    removeNonPictures();
+  }
+
+
+  private void removeNonPictures() {
+    for (Iterator i = pictures.entrySet().iterator(); i.hasNext(); ) {
       Map.Entry entry = (Map.Entry) i.next();
       PictureLocal picture = (PictureLocal) entry.getValue();
       if (!picture.isPicture())
         i.remove();
     }
-
-    /** @todo sort pictures by date. */
   }
 
 
-  private void addSubdirectory(File file) throws IOException {
+  private void loadPictureReferences() {
+    try {
+      File file = getPictureReferencesFile(false);
+      if (file != null) {
+        org.podval.album.jaxb.PictureReferences xml =
+          Metadata.unmarshallPictureReferences(file);
+
+        loadPictureReferences(xml);
+      }
+    } catch (JAXBException e) {
+      /** @todo  */
+    }
+  }
+
+
+  private void loadPictureReferences(org.podval.album.jaxb.PictureReferences xml) {
+    for (Iterator references = xml.getReferences().iterator(); references.hasNext();) {
+      org.podval.album.jaxb.PictureReferences.Picture reference =
+        (org.podval.album.jaxb.PictureReferences.Picture) references.next();
+      addPictureReference(reference.getPath());
+    }
+  }
+
+
+  private void sortPicturesByDateTime() {
+    sortedPictures.addAll(pictures.values());
+  }
+
+
+  private void addSubalbum(File file) throws IOException {
     String name = file.getName();
 
-    if (subdirectories.get(name) != null)
-      throw new IOException("Duplicate case-sensitive subdirectory name " + name);
+    if (subalbums.get(name) != null)
+      throw new IOException("Duplicate case-sensitive subalbum name " + name);
 
-    subdirectories.put(name, new Album(this, name));
+    subalbums.put(name, new Album(this, name));
   }
 
 
@@ -294,117 +362,16 @@ public class Album {
   }
 
 
-  private File getMetadataFile() {
-    return new File(getMetadataDirectory(), "album.xml");
-  }
-
-
-  private void loadMetadata() {
-    try {
-      File file = getMetadataFile();
-      if (file.exists()) {
-        InputStream in = new FileInputStream(file);
-        JAXBContext jc = JAXBContext.newInstance("org.podval.album.jaxb");
-        Unmarshaller u = jc.createUnmarshaller();
-        u.setValidating(true);
-
-        org.podval.album.jaxb.Album xml =
-          (org.podval.album.jaxb.Album) u.unmarshal(in);
-
-        loadMetadata(xml);
-      }
-    } catch (IOException e) {
-      /** @todo  */
-    } catch (JAXBException e) {
-      /** @todo  */
-    }
-  }
-
-
-  private void loadMetadata(org.podval.album.jaxb.Album xml) {
-    title = xml.getTitle();
-    for (Iterator pictureRefs = xml.getPictures().iterator(); pictureRefs.hasNext();)
-      loadPictureRef((org.podval.album.jaxb.PictureRef) pictureRefs.next());
-  }
-
-
-  private void loadPictureRef(org.podval.album.jaxb.PictureRef xml) {
-    String path = xml.getAlbum();
-    String referentName = xml.getName();
-    String name = xml.getLocalName();
-    addPicture(path, referentName, name);
-  }
-
-
-  public void save() throws FileNotFoundException, IOException, JAXBException {
-    if (metadataChanged) {
-      JAXBContext jc = JAXBContext.newInstance("org.podval.album.jaxb");
-      org.podval.album.jaxb.Album metadata = buildMetadata();
-
-      OutputStream out = new FileOutputStream(getMetadataFile());
-      Validator v = jc.createValidator();
-      boolean valid = v.validateRoot(metadata);
-      Marshaller m = jc.createMarshaller();
-      m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE );
-      m.marshal(metadata, out);
-      out.close();
-    }
-  }
-
-
-  private org.podval.album.jaxb.Album buildMetadata() throws JAXBException {
-    org.podval.album.jaxb.ObjectFactory of = new org.podval.album.jaxb.ObjectFactory();
-    org.podval.album.jaxb.Album result = of.createAlbum();
-
-    if (title != null)
-      result.setTitle(title);
-
-    for (Iterator i = getPictures().iterator(); i.hasNext();) {
-      Picture picture = (Picture) i.next();
-      if (picture instanceof PictureRef) {
-        PictureRef pictureRef = (PictureRef) picture;
-        org.podval.album.jaxb.PictureRef xml = of.createAlbumTypePicture();
-        xml.setAlbum(pictureRef.getPath());
-        String referentName = pictureRef.getReferentName();
-        xml.setName(referentName);
-        String name = pictureRef.getName();
-        if (!name.equals(referentName))
-          xml.setLocalName(name);
-
-        result.getPictures().add(xml);
-      }
-    }
-    return result;
-  }
-
-
-  public void addPicture(String path, String referentName) {
-    addPicture(path, referentName, null);
-  }
-
-
-  public void addPicture(String path, String referentName, String name) {
+  public void addPictureReference(String path) {
     ensurePicturesLoaded();
-
-    if (name == null)
-      name = referentName;
-
-    /** @todo I do not have to put references into the Map,
-     * since there is no need to be able to reference them,
-     * and their names may conflict with the others, but FOR NOW....
-     * Besides, maybe I do have to - I need to be able to remove them!
-     *  */
-    while (pictures.get(name) != null) name += "_";
-
-    Picture picture = new PictureRef(this, path, referentName, name);
-
-    pictures.put(name, picture);
-
-    metadataChanged = true;
+    /** @todo fail fast if referrent is null? Why didn't it throw in the process??? */
+    PictureRef picture = new PictureRef(this, path);
+    pictures.put(picture.getName(), picture);
+    pictureReferencesChanged = true;
   }
 
 
-  public void removePicture(String name) {
+  public void removePictureReference(String name) {
     ensurePicturesLoaded();
 
     Picture result = (Picture) pictures.get(name);
@@ -414,8 +381,108 @@ public class Album {
           "Only REFERENCES to pictures can be removed!");
       pictures.remove(name);
 
-      metadataChanged = true;
+      pictureReferencesChanged = true;
     }
+  }
+
+
+  public void save() throws FileNotFoundException, IOException, JAXBException {
+    if (albumMetadataChanged) {
+      saveAlbumMetadata();
+      albumMetadataChanged = false;
+    }
+    if (pictureReferencesChanged) {
+      savePictureReferences();
+      pictureReferencesChanged = false;
+    }
+  }
+
+
+  private void saveAlbumMetadata()
+    throws FileNotFoundException, IOException, JAXBException
+  {
+    File file = getAlbumMetadataFile(true);
+    if (file != null) {
+      org.podval.album.jaxb.Album result = Metadata.createAlbum();
+
+      if (title!=null)
+        result.setTitle(title);
+
+      Metadata.marshallAlbum(result, file);
+    }
+  }
+
+
+  private void savePictureReferences()
+    throws FileNotFoundException, IOException, JAXBException
+  {
+    File file = getPictureReferencesFile(true);
+    if (file != null) {
+      org.podval.album.jaxb.PictureReferences result = Metadata.
+        createPictureReferences();
+
+      for (Iterator i = getPictures().iterator(); i.hasNext(); ) {
+        Picture picture = (Picture) i.next();
+        if (picture instanceof PictureRef) {
+          org.podval.album.jaxb.PictureReferences.PictureType xml =
+            Metadata.createPictureReference();
+          xml.setPath(picture.getName());
+
+          result.getReferences().add(xml);
+        }
+      }
+
+      Metadata.marshallPictureReferences(result, file);
+    }
+  }
+
+
+  private File getAlbumMetadataFile(boolean write) {
+    return getMetadataFile("album", write);
+  }
+
+
+  private File getPictureReferencesFile(boolean write) {
+    return getMetadataFile("pictures", write);
+  }
+
+
+  private File getMetadataFile(String name, boolean write) {
+    name = name + ".xml";
+
+    File result = null;
+
+    if (!write) {
+      if (result == null)
+        result = ifCanRead(new File(getMetadataDirectory(), name));
+      if (result == null)
+        result = ifCanRead(new File(getOriginalsDirectory(), name));
+
+    } else {
+      if (result == null)
+        result = ifCanWrite(new File(getOriginalsDirectory(), name));
+      if (result == null)
+        result = ifCanWrite(new File(getMetadataDirectory(), name));
+    }
+
+    return result;
+  }
+
+
+  private File ifCanRead(File file) {
+    return (file.canRead()) ? file : null;
+  }
+
+
+  private File ifCanWrite(File file) {
+    File result = null;
+    try {
+      file.createNewFile();
+      if (file.canWrite())
+        result = file;
+    } catch (IOException e) {
+    }
+    return result;
   }
 
 
@@ -437,16 +504,19 @@ public class Album {
   private File generatedDirectory;
 
 
-  private boolean subdirectoriesLoaded = false;
+  private boolean albumMetadataLoaded;
 
 
-  private boolean picturesLoaded = false;
+  private boolean subalbumsLoaded;
+
+
+  private boolean picturesLoaded;
 
 
   /**
    * map<String name, Album>
    */
-  private final Map subdirectories = new TreeMap(String.CASE_INSENSITIVE_ORDER);
+  private final Map subalbums = new TreeMap(String.CASE_INSENSITIVE_ORDER);
 
 
   /**
@@ -455,5 +525,11 @@ public class Album {
   private final Map pictures = new TreeMap(String.CASE_INSENSITIVE_ORDER);
 
 
-  private boolean metadataChanged = false;
+  private final Set sortedPictures = new TreeSet();
+
+
+  private boolean albumMetadataChanged;
+
+
+  private boolean pictureReferencesChanged;
 }

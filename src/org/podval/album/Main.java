@@ -12,31 +12,24 @@ public class Main {
   public static void main(String[] args) throws IOException, JAXBException {
     int argNum = 0;
 
-    if (args.length < 5) { usage(); return; }
-
-    String originalsRoot = args[argNum++];
-    String metadataRoot = args[argNum++];
-    String generatedRoot = args[argNum++];
-    String command = args[argNum++];
+    if (args.length < 2) { usage(); return; }
     String path = args[argNum++];
+    String command = args[argNum++];
 
-    Album.setRoot(originalsRoot, metadataRoot, generatedRoot);
+    Album.setRoot("/mnt/extra/Photo", "/tmp/metadataDirectory", "/tmp/generatedDirectory");
 
     Album album = Album.getByPath(path);
-    if (album == null) {
-      System.out.println("No album at path " + path);
-    } else {
-      System.out.println("Operating on album at path " + path);
 
-      if ("view".equals(command)) viewAlbum(album); else
-      if ("title".equals(command)) setAlbumTitle(album, args, argNum); else
-      if ("add".equals(command)) addToAlbum(album, args, argNum); else
-      if ("remove".equals(command)) removeFromAlbum(album, args, argNum); else
-//    if ("rotate".equals(command)) ?????; else
-        { System.out.println("Command not recognized: " + command); usage(); return; }
+    System.out.println("Path " + album.getPath() + " (" + path + ")");
 
-      album.save();
-    }
+    if ("view".equals(command)) viewAlbum(album); else
+    if ("title".equals(command)) setAlbumTitle(album, args, argNum); else
+    if ("add".equals(command)) addToAlbum(album, args, argNum); else
+    if ("remove".equals(command)) removeFromAlbum(album, args, argNum); else
+//  if ("rotate".equals(command)) ?????; else
+      { System.out.println("Command not recognized: " + command); usage(); return; }
+
+    album.save();
   }
 
 
@@ -54,10 +47,10 @@ public class Main {
 
   private static void viewAlbum(Album album) throws IOException {
     System.out.println("Title: " + album.getTitle());
-    System.out.println(album.getNumSubdirectories() + " subalbums:");
-    for (Iterator i=album.getSubdirectories().iterator(); i.hasNext();) {
+    System.out.println(album.getNumSubalbums() + " subalbums:");
+    for (Iterator i=album.getSubalbums().iterator(); i.hasNext();) {
       Album subalbum = (Album) i.next();
-      System.out.println("  " + subalbum.getTitle());
+      System.out.println("  " + subalbum.getName() + " (" + subalbum.getTitle() + ")");
     }
     System.out.println(album.getNumPictures() + " pictures:");
     for (Iterator i=album.getPictures().iterator(); i.hasNext();) {
@@ -81,14 +74,15 @@ public class Main {
 
     String fromPath = args[argNum++];
     for (; argNum < args.length;)
-      album.addPicture(fromPath, args[argNum++]);
+      album.addPictureReference(fromPath + ":" + args[argNum++]);
   }
 
 
   private static void removeFromAlbum(Album album, String[] args, int argNum) {
-    if (argNum >= args.length) { usage(); return; }
+    if (argNum+1 >= args.length) { usage(); return; }
 
+    String fromPath = args[argNum++];
     for (; argNum < args.length;)
-      album.removePicture(args[argNum++]);
+      album.removePictureReference(fromPath + ":" + args[argNum++]);
   }
 }
