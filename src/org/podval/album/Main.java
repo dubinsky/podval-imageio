@@ -15,11 +15,15 @@ import javax.xml.bind.JAXBException;
 public class Main {
 
   public static void main(String[] args) throws IOException, JAXBException {
+    Level level = Level.WARNING;
+
+    Logger logger = Logger.getLogger("org.podval.album.Picture");
+    logger.setLevel(level);
+
     Handler handler = new ConsoleHandler();
-    handler.setLevel(Level.ALL);
-    Logger logger = Logger.getLogger("");
-    logger.setLevel(Level.ALL);
+    handler.setLevel(level);
     logger.addHandler(handler);
+
 
     int argNum = 0;
 

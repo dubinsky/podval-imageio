@@ -48,7 +48,8 @@ public class Util {
         } finally {
           reader.dispose();
         }
-      }
+      } else
+        throw new IOException("No reader for " + file);
     } finally {
       in.close();
     }
@@ -71,7 +72,8 @@ public class Util {
         } finally {
           reader.dispose();
         }
-      }
+      } else
+        throw new IOException("No reader for " + file);
     } finally {
       in.close();
     }
@@ -80,23 +82,28 @@ public class Util {
   }
 
 
-  private static ImageReader getImageReader(ImageInputStream in) {
+  private static ImageReader getImageReader(ImageInputStream in)
+    throws IOException
+  {
     ImageReader result = null;
 
     Iterator readers = ImageIO.getImageReaders(in);
     if (readers.hasNext()) {
       result = (ImageReader) readers.next();
       result.setInput(in, false, true);
-    }
+    };
 
     return result;
   }
 
 
-  public static void writeImage(RenderedImage result, File file) throws IOException {
+  public static void writeImage(RenderedImage result, File file)
+    throws IOException
+  {
     Iterator writers = ImageIO.getImageWritersBySuffix("jpg");
     ImageWriter writer = (ImageWriter) writers.next();
-    /** @todo what if there are no writers? */
+
+    // If there are no readers for JPEGs, we crash!
 
     ImageWriteParam param = writer.getDefaultWriteParam();
     param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
@@ -110,16 +117,15 @@ public class Util {
   }
 
 
-  public static synchronized RenderedImage scale(RenderedImage image, int height, int width) throws IOException {
+  public static synchronized RenderedImage scale(File file, int height, int width)
+    throws IOException
+  {
+    RenderedImage image = readImage(file);
+
     float longScale  = ((float) Math.max(width, height)) / Math.max(image.getWidth(), image.getHeight());
     float shortScale = ((float) Math.min(width, height)) / Math.min(image.getWidth(), image.getHeight());
     float scale = Math.min(longScale, shortScale);
-    RenderedImage result = scaleImage(image, scale);
-    return result;
-  }
 
-
-  private static RenderedImage scaleImage(RenderedImage image, float scale) {
     return ScaleDescriptor.create(
       image,
       new Float(scale),

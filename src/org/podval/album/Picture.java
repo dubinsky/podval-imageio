@@ -77,6 +77,7 @@ public abstract class Picture implements Comparable {
     return name;
   }
 
+  /** @todo short name! */
 
   /**
    * Sets this picture's album to a specified value.
@@ -301,7 +302,9 @@ public abstract class Picture implements Comparable {
 
 
   /**
-   * Marks this picture as changed when <code>true</code>.
+   * Marks this picture as changed when <code>true</code>.<br>
+   * INVARIANT: Before it changes to <code>true</true>,
+   * <code>load()</code> invoked.
    */
   protected boolean changed;
 }

@@ -15,7 +15,11 @@ import java.io.IOException;
 
 import org.podval.album.Picture;
 
-
+/*
+   Looks like static inner classes cannot be struts Actions -
+   class loader does not find them. That is why subclasses of this class
+   are not in it ;)
+ */
 public abstract class ViewAction extends Action {
 
   public ActionForward execute(
@@ -64,21 +68,4 @@ public abstract class ViewAction extends Action {
 
 
   protected abstract File getViewFile(Picture picture) throws IOException;
-
-
-  public static class Screensized extends ViewAction {
-
-    protected File getViewFile(Picture picture) throws IOException {
-      return picture.getScreensizedFile();
-    }
-  }
-
-
-
-  public static class Thumbnail extends ViewAction {
-
-    protected File getViewFile(Picture picture) throws IOException {
-      return picture.getThumbnailFile();
-    }
-  }
 }

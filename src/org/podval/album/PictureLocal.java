@@ -39,6 +39,10 @@ public class PictureLocal extends Picture {
   }
 
 
+  private void log(String what) {
+    LOG.log(Level.WARNING, what);
+  }
+
 
   public PictureLocal(String name) {
     super(name);
@@ -56,28 +60,23 @@ public class PictureLocal extends Picture {
    *   string containing the file's extension
    */
   public void addFile(File file, String extension) {
-    if (extension.equalsIgnoreCase("jpg")) {
-      checkIsNull(jpgFile);
-      jpgFile = file;
-    } else
-
-    if (extension.equalsIgnoreCase("crw")) {
-      checkIsNull(crwFile);
-      crwFile = file;
-    } else
-
-    if (extension.equalsIgnoreCase("thm")) {
-      checkIsNull(thmFile);
-      thmFile = file;
-    } else
-
+    if (extension.equalsIgnoreCase("jpg")) jpgFile = addFile(jpgFile, file); else
+    if (extension.equalsIgnoreCase("crw")) crwFile = addFile(crwFile, file); else
+    if (extension.equalsIgnoreCase("thm")) thmFile = addFile(thmFile, file); else
     ;
   }
 
 
-  private void checkIsNull(File file) {
-    if (file != null)
-      LOG.warning("Duplicate case-sensitive file name " + file);
+  private File addFile(File file, File value) {
+    File result;
+
+    if (file != null) {
+      log("Duplicate case-sensitive file name " + file);
+      result = file;
+    } else
+      result = value;
+
+    return result;
   }
 
 
@@ -99,7 +98,7 @@ public class PictureLocal extends Picture {
 
 
   public File getThumbnailFile() {
-    File result = getThumbnailGnereatedFile();
+    File result = getThumbnailGeneratedFile();
     if (!result.exists())
       scale(readCameraThumbnail(), 120, 160, result);
     return ifExists(result);
@@ -119,30 +118,46 @@ public class PictureLocal extends Picture {
   }
 
 
+  /** @todo review the naming: fullsized... original... camera... generated... */
   public File getFullsizedFile() {
-    File result;
+    File result = null;
 
-    if ((jpgFile != null) && (getOrientation() == Orientation.TOP_LEFT)) {
-      result = jpgFile;
+    if (getOrientation() == Orientation.TOP_LEFT)
+      result = getStandardOriginalFile();
 
-    } else {
+    if (result == null) {
       result = getFullsizedGeneratedFile();
 
       if (!result.exists()) {
         RenderedImage image = readCameraFullsized();
+        /** @todo this can not really be null, and resulting file must exist -
+         * once I do crw conversion... */
+        /* Theoretically it is possible to losslesly rotate JPEG,
+           but if this will become a problem, I'll just switch to using
+           some other format for generated files - format that supports
+           lossless compression.
+         */
         if (image != null) {
-          /* Theoretically it is possible to losslesly rotate JPEG,
-             but if this will become a problem, I'll just switch to using
-             some other format for generated files - format that supports
-             lossless compression.
-           */
-          image = Util.rotate(image, getOrientation());
+          log("*** Rotating fullsized file " + result);
+          try {
+            image = Util.rotate(image, getOrientation());
+          } catch (Throwable e) {
+            log("*** rotating" + e);
+          }
+          log("*** Writing fullsized file " + result);
           writeImage(image, result);
-        }
+          log("*** Wrote file " + result + " of length " + result.length());
+        } else
+          log("*** Fullsized image is null for " + result);
+
+        result = ifExists(result);
       }
     }
 
-    return ifExists(result);
+    if (result == null)
+      log("*** Fullsized file is null for " + getName());
+
+    return result;
   }
 
 
@@ -151,6 +166,15 @@ public class PictureLocal extends Picture {
 
     if (jpgFile != null) result = jpgFile; else
     if (crwFile != null) result = crwFile;
+
+    return result;
+  }
+
+
+  private File getStandardOriginalFile() {
+    File result = null;
+
+    if (jpgFile != null) result = jpgFile;
 
     return result;
   }
@@ -212,11 +236,8 @@ public class PictureLocal extends Picture {
 
     try {
       File file = getFullsizedFile();
-      if (file != null) {
-        RenderedImage image = Util.readImage(file);
-        if (image != null)
-          result = Util.scale(image, height, width);
-      }
+      if (file != null)
+        result = Util.scale(file, height, width);
     } catch (IOException e) {
       log("scaling image", e);
     }
@@ -229,17 +250,27 @@ public class PictureLocal extends Picture {
     if (image != null) {
       try {
         Util.writeImage(image, file);
-        if (file.length() == 0) {
-          LOG.warning("Wrote file of length 0!");
-        }
-      } catch (IOException e) {
-        log("writing image", e);
+//      } catch (IOException e) {
+//        log("writing image", e);
+//      }
+      } catch (Throwable t) {
+        /** @todo OutOfMemory is thrown here!
+         * I increased heap size for now (?).
+         * Trace shows
+         *   Rotating A - Writing fullsized A - Rotating B - Writing fullsized B - Wrote A - Wrote B
+         * I should introduce more synchronization so that no interleaving happens.
+         * I probably want to make Picture and friends thread-safe, since
+         * there may be different clients accessing it - directly or through the Facade.
+         *  */
+
+        log("***** Writing " + file + " " + t);
       }
-    }
+    } else
+      log("*** Not writing null image to " + file);
   }
 
 
-  private File getThumbnailGnereatedFile() {
+  private File getThumbnailGeneratedFile() {
     if (thumbnailFile == null)
       thumbnailFile = getGeneratedFile("120x160");
     return thumbnailFile;
@@ -308,7 +339,7 @@ public class PictureLocal extends Picture {
 
 
   private void deleteGeneratedFiles() {
-    deleteFile(getThumbnailGnereatedFile());
+    deleteFile(getThumbnailGeneratedFile());
     deleteFile(getScreensizedGeneratedFile());
     deleteFile(getFullsizedGeneratedFile());
   }
@@ -316,25 +347,52 @@ public class PictureLocal extends Picture {
 
   private void deleteFile(File file) {
     if(file.exists() && !file.delete())
-      LOG.warning("Can not delete file " + file);
+      log("Can not delete file " + file);
   }
 
 
   protected void load() {
     if (!changed) {
+      File metadataWriteFile = null;
+
       /* If I do not cache it, a File object is created every time.
          If I cache it, and metadata file gets created on the side, it
          will not be detected... */
-      if (metadataReadFile == null)
-        metadataReadFile = getAlbum().getMetadataReadFile(getMetadataFileName());
+      if (metadataFile == null) {
+        File separate =
+          new File(getAlbum().getMetadataDirectory(), getMetadataFileName());
+        File withOriginals =
+          new File(getAlbum().getDirectory()        , getMetadataFileName());
 
-      if (metadataReadFile != null) {
-        long lastModified = metadataReadFile.lastModified();
+        if (separate.exists()) {
+          metadataFile = separate;
+          metadataWriteFile = separate;
+        } else
+        if (withOriginals.exists()) {
+          metadataFile = withOriginals;
+          metadataWriteFile = (withOriginals.canWrite()) ? withOriginals : separate;
+        } else {
+          try {
+            withOriginals.createNewFile();
+          } catch (IOException e) {
+          }
+          metadataWriteFile = (withOriginals.canWrite()) ? withOriginals : separate;
+        }
+      }
+
+      if (metadataFile != null) {
+        long lastModified = metadataFile.lastModified();
         if (loaded < lastModified) {
           loaded = lastModified;
-          load(metadataReadFile);
+          load(metadataFile);
           changed = false;
         }
+      }
+
+      if ((metadataWriteFile != null) && (metadataWriteFile != metadataFile)) {
+        metadataFile = metadataWriteFile;
+        changed = true;
+        save();
       }
     }
   }
@@ -342,11 +400,9 @@ public class PictureLocal extends Picture {
 
   public void save() {
     if (changed) {
-      File file = getAlbum().getMetadataWriteFile(getMetadataFileName());
-      if (file != null) {
-        save(file);
-        metadataReadFile = file;
-        loaded = file.lastModified();
+      if (metadataFile != null) {
+        save(metadataFile);
+        loaded = metadataFile.lastModified();
         changed = false;
       }
     }
@@ -429,7 +485,7 @@ public class PictureLocal extends Picture {
   private File originalFile;
 
 
-  private File metadataReadFile;
+  private File metadataFile;
 
 
   private long loaded = 0;
