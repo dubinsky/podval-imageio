@@ -6,8 +6,8 @@
 
   <field index="1" name="macroMode">
     <enumeration>
-      <item value="1" description="true"/>
-      <item value="2" description="false"/>
+      <item tag="1" value="true"/>
+      <item tag="2" value="false"/>
     </enumeration>
   </field>
 
@@ -16,23 +16,23 @@
 
   <field index="3" name="imageQuality">
     <enumeration>
-      <item value="2" description="Normal"/>
-      <item value="3" description="Fine"/>
-      <item value="4" description="Raw"/>
-      <item value="5" description="Superfine"/>
+      <item tag="2" value="Normal"/>
+      <item tag="3" value="Fine"/>
+      <item tag="4" value="Raw"/>
+      <item tag="5" value="Superfine"/>
     </enumeration>
   </field>
 
   <field index="4" name="flashMode">
     <enumeration>
-      <item value="0" description="Off"/>
-      <item value="1" description="Auto"/>
-      <item value="2" description="On"/>
-      <item value="3" description="Eye"/>
-      <item value="4" description="Slow"/>
-      <item value="5" description="Auto and Eye"/>
-      <item value="6" description="On and Eye"/>
-      <item value="16" description="External"/>
+      <item tag="0" value="Off"/>
+      <item tag="1" value="Auto"/>
+      <item tag="2" value="On"/>
+      <item tag="3" value="Eye"/>
+      <item tag="4" value="Slow"/>
+      <item tag="5" value="Auto and Eye"/>
+      <item tag="6" value="On and Eye"/>
+      <item tag="16" value="External"/>
     </enumeration>
   </field>
 
@@ -41,9 +41,9 @@
 
   <field index="7" name="focusMode"> <!-- TODO! -->
     <enumeration>
-      <item value="3" description="Manual"/>
-      <item value="1" description="AI servo"/>
-      <item value="0" description="Single"/>
+      <item tag="3" value="Manual"/>
+      <item tag="1" value="AI servo"/>
+      <item tag="0" value="Single"/>
       <!-- 4 - in EXIF when 2 in CIFF?? -->
     </enumeration>
   </field>
@@ -52,18 +52,18 @@
 
   <field index="11" name="easyShootingMode">
     <enumeration>
-      <item value="1" description="Use index 20 instead of this"/>
-      <item value="0" description="Auto"/>
-      <item value="2" description="Landscape"/>
-      <item value="3" description="Fast"/>
-      <item value="4" description="Slow"/>
-      <item value="5" description="Night"/>
-      <item value="6" description="Black and white"/>
-      <item value="7" description="Sepia"/>
-      <item value="8" description="Portrait"/>
-      <item value="9" description="Action"/>
-      <item value="10" description="Macro"/>
-      <item value="11" description="Pan"/>
+      <item tag="1" value="Use index 20 instead of this"/>
+      <item tag="0" value="Auto"/>
+      <item tag="2" value="Landscape"/>
+      <item tag="3" value="Fast"/>
+      <item tag="4" value="Slow"/>
+      <item tag="5" value="Night"/>
+      <item tag="6" value="Black and white"/>
+      <item tag="7" value="Sepia"/>
+      <item tag="8" value="Portrait"/>
+      <item tag="9" value="Action"/>
+      <item tag="10" value="Macro"/>
+      <item tag="11" value="Pan"/>
     </enumeration>
   </field>
 
@@ -71,44 +71,44 @@
 
   <field index="13" name="contrast">
     <enumeration>
-      <item value="-1" description="Low"/>
-      <item value="0" description="Normal"/>
-      <item value="1" description="High"/>
+      <item tag="-1" value="Low"/>
+      <item tag="0" value="Normal"/>
+      <item tag="1" value="High"/>
     </enumeration>
   </field>
 
   <field index="14" name="saturation">
     <enumeration>
-      <item value="-1" description="Low"/>
-      <item value="0" description="Normal"/>
-      <item value="1" description="High"/>
+      <item tag="-1" value="Low"/>
+      <item tag="0" value="Normal"/>
+      <item tag="1" value="High"/>
     </enumeration>
   </field>
 
   <field index="15" name="sharpness">
     <enumeration>
-      <item value="-1" description="Low"/>
-      <item value="0" description="Normal"/>
-      <item value="1" description="High"/>
+      <item tag="-1" value="Low"/>
+      <item tag="0" value="Normal"/>
+      <item tag="1" value="High"/>
     </enumeration>
   </field>
 
   <field index="16" name="iso">
     <enumeration>
-      <item value="0" description="Use EXIF tag instead of this"/>
-      <item value="15" description="Auto"/>
-      <item value="16" description="50"/>
-      <item value="17" description="100"/>
-      <item value="18" description="200"/>
-      <item value="19" description="400"/>
+      <item tag="0" value="Use EXIF tag instead of this"/>
+      <item tag="15" value="Auto"/>
+      <item tag="16" value="50"/>
+      <item tag="17" value="100"/>
+      <item tag="18" value="200"/>
+      <item tag="19" value="400"/>
     </enumeration>
   </field>
 
   <field index="17" name="meteringMode">
     <enumeration>
-      <item value="3" description="Matrix"/>
-      <item value="4" description="Partial"/>
-      <item value="5" description="Center"/>
+      <item tag="3" value="Matrix"/>
+      <item tag="4" value="Partial"/>
+      <item tag="5" value="Center"/>
     </enumeration>
   </field>
 
@@ -116,22 +116,22 @@
 
   <field index="19" name="afPointSelected">
     <enumeration>
-      <item value="12288" description="None"/>
-      <item value="12289" description="Auto"/>
-      <item value="12290" description="Right"/>
-      <item value="12291" description="Center"/>
-      <item value="12292" description="Left"/>
+      <item tag="12288" value="None"/>
+      <item tag="12289" value="Auto"/>
+      <item tag="12290" value="Right"/>
+      <item tag="12291" value="Center"/>
+      <item tag="12292" value="Left"/>
     </enumeration>
   </field>
 
   <field index="20" name="exposureMode">
     <enumeration>
-      <item value="0" description="Easy shooting mode - see index 11"/>
-      <item value="1" description="Program"/>
-      <item value="2" description="Tv"/>
-      <item value="3" description="Av"/>
-      <item value="4" description="Manual"/>
-      <item value="5" description="A-DEP"/>
+      <item tag="0" value="Easy shooting mode - see index 11"/>
+      <item tag="1" value="Program"/>
+      <item tag="2" value="Tv"/>
+      <item tag="3" value="Av"/>
+      <item tag="4" value="Manual"/>
+      <item tag="5" value="A-DEP"/>
     </enumeration>
   </field>
 

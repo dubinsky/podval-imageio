@@ -7,7 +7,7 @@
   <record tag="256" name="imageWidth" type="U16orU32"/>
   <record tag="257" name="imageHeight" type="U16orU32"/>
 
-  <record tag="258" name="bitsPerSample"> <!-- value 8 8 8 -->
+  <record tag="258" name="bitsPerSample" skip="true"> <!-- value 8 8 8 -->
     <field name="bitsPerSampleChannel1"/>
     <field name="bitsPerSampleChannel2"/>
     <field name="bitsPerSampleChannel3"/>
@@ -15,16 +15,16 @@
 
   <record tag="259" name="compression">
     <enumeration>
-      <item value="1" description="Uncompressed"/>
-      <item value="6" description="JPEG compression"/>
+      <item tag="1" value="Uncompressed"/>
+      <item tag="6" value="JPEG compression"/>
     </enumeration>
   </record>
 
   <record tag="262" name="photometricInterpretation">
     <enumeration>
-      <!-- XXXX: <item value="1" description="Monochrome"/>-->
-      <item value="2" description="RGB"/>
-      <item value="6" description="YCbCr"/>
+      <!-- XXXX: <item tag="1" value="Monochrome"/>-->
+      <item tag="2" value="RGB"/>
+      <item tag="6" value="YCbCr"/>
     </enumeration>
   </record>
 
@@ -34,50 +34,56 @@
   <record tag="272" name="model" type="string"/>
 
   <!-- XXX -->
-  <record tag="273" name="stripOffsets" type="U16orU32" count="any"/>
+  <record tag="273" name="stripOffsets" type="U16orU32" count="any" skip="true"/>
 
-  <record tag="274" name="orientation">  <!-- 0th row - 0th column; default 1 -->
-    <enumeration>
-      <item value="1" description="Top left"/>
-      <item value="2" description="Top right"/> <!-- flipped around horizontal and rortated 180 -->
-      <item value="3" description="Bottom right"/> <!-- rotated 180 -->
-      <item value="4" description="Bottom left"/> <!-- flipped around horizontal -->
-      <item value="5" description="Left top"/> <!-- flipped around horizontal and rotated 90 -->
-      <item value="6" description="Right top"/> <!-- rotated 270 -->
-      <item value="7" description="Right bottom"/> <!-- flipped around horizontal and rotated 270 -->
-      <item value="8" description="Left bottom"/> <!-- rotated 90 -->
+  <!-- EXIF specification expresses this in terms of "what row of the image is
+       in the top (0th) row - and what column in the left (0th) column" (default
+       being 'Top left').
+       I use Orientation objects that signify what transform to apply to the
+       image to bring it into normal position.
+       Names specification uses are given in the comments. -->
+  <record tag="274" name="orientation">
+    <enumeration enumClass="org.podval.imageio.Orientation">
+      <item tag="1" value="NORMAL"/> <!-- Top left -->
+      <item tag="2" value="FLIP_AND_OVER"/> <!-- Top right -->
+      <item tag="3" value="OVER"/> <!-- Bottom right -->
+      <item tag="4" value="FLIP"/> <!-- Bottom left -->
+      <item tag="5" value="FLIP_AND_RIGHT"/> <!-- Left top -->
+      <item tag="6" value="RIGHT"/> <!-- Right top -->
+      <item tag="7" value="FLIP_AND_LEFT"/> <!-- Right bottom -->
+      <item tag="8" value="LEFT"/> <!-- Left bottom -->
     </enumeration>
   </record>
 
-  <record tag="277" name="samplesPerPixel"/> <!-- value 3 -->
+  <record tag="277" name="samplesPerPixel" skip="true"/> <!-- value 3 -->
 
-  <record tag="278" name="rowsPerStrip" type="U16orU32"/>
+  <record tag="278" name="rowsPerStrip" type="U16orU32" skip="true"/>
 
   <!-- XXX -->
-  <record tag="279" name="stripByteCounts" type="U16orU32" count="any"/>
+  <record tag="279" name="stripByteCounts" type="U16orU32" count="any" skip="true"/>
 
   <record tag="282" name="xResolution" type="rational"/> <!-- default 72 dpi -->
   <record tag="283" name="yResolution" type="rational"/> <!-- default 72 dpi -->
 
-  <record tag="284" name="planarConfiguration"> <!-- default 1 -->
+  <record tag="284" name="planarConfiguration" skip="true"> <!-- default 1 -->
     <enumeration>
-      <item value="1" description="Chunky"/>
-      <item value="2" description="Planar"/>
+      <item tag="1" value="Chunky"/>
+      <item tag="2" value="Planar"/>
     </enumeration>
   </record>
 
   <!-- see also exif/41488 -->
   <record tag="296" name="resolutionUnit"> <!-- default 2 -->
     <enumeration>
-      <!--<item value="1" description="Undefined"/>-->
-      <item value="2" description="Inch"/>
-      <item value="3" description="Centimeter"/>
+      <!--<item tag="1" value="Undefined"/>-->
+      <item tag="2" value="Inch"/>
+      <item tag="3" value="Centimeter"/>
     </enumeration>
   </record>
 
 
   <!-- Not used; colorspace is used instead. -->
-  <record tag="301" name="transferFunction" count="768"/> <!-- 3*256 -->
+  <record tag="301" name="transferFunction" count="768" skip="true"/> <!-- 3*256 -->
 
   <record tag="305" name="software" type="string"/>  <!-- Missing in G2's .THM file. -->
 
@@ -87,13 +93,14 @@
   <record tag="315" name="artist" type="string"/>
 
   <!-- Not used; colorspace is used instead. -->
-  <record tag="318" name="whitePointChromaticity" type="rational"> <!-- named 'whitePoint' in EXIF 2.2 specification -->
+  <!-- named 'whitePoint' in EXIF 2.2 specification -->
+  <record tag="318" name="whitePointChromaticity" type="rational" skip="true">
     <field name="whitePointChromaticity1"/>
     <field name="whitePointChromaticity2"/>
   </record>
 
   <!-- Not used; colorspace is used instead. -->
-  <record tag="319" name="primaryChromaticities" type="rational">
+  <record tag="319" name="primaryChromaticities" type="rational" skip="true">
     <field name="primaryChromaticity1Channel1"/>
     <field name="primaryChromaticity2Channel1"/>
     <field name="primaryChromaticity1Channel2"/>
@@ -103,26 +110,26 @@
   </record>
 
   <!-- Tags 513 and 514 are not used for primary image. -->
-  <record tag="513" name="jpegInterchangeFormat" type="U32"/> <!-- Offset to JPEG SOI -->
-  <record tag="514" name="jpegInterchangeFormatLength" type="U32"/> <!-- Bytes of JPEG data -->
+  <record tag="513" name="jpegInterchangeFormat" type="U32" skip="true"/> <!-- Offset to JPEG SOI -->
+  <record tag="514" name="jpegInterchangeFormatLength" type="U32" skip="true"/> <!-- Bytes of JPEG data -->
 
   <!-- Color space transformation matrix coefficients RGB -> YCbCr. -->
   <record tag="529" name="YCbCrCoefficients" type="rational" count="3"/>
 
-  <record tag="530" name="YCbCrSubSampling">
+  <record tag="530" name="YCbCrSubSampling" skip="true">
     <field name="YCbCrSubsampling1"/> <!-- value 2 -->
     <field name="YCbCrSubsampling">
       <enumeration>
-        <item value="1" description="YCbCr4:2:2"/>
-        <item value="2" description="YCbCr4:2:0"/>
+        <item tag="1" value="YCbCr4:2:2"/>
+        <item tag="2" value="YCbCr4:2:0"/>
       </enumeration>
     </field>
   </record>
 
-  <record tag="531" name="YCbCrPositioning"> <!-- default 1 -->
+  <record tag="531" name="YCbCrPositioning" skip="true"> <!-- default 1 -->
     <enumeration>
-      <item value="1" description="Centered"/>
-      <item value="2" description="Co-sited"/>
+      <item tag="1" value="Centered"/>
+      <item tag="2" value="Co-sited"/>
     </enumeration>
   </record>
 

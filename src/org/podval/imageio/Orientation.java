@@ -1,4 +1,4 @@
-package org.podval.album;
+package org.podval.imageio;
 
 public class Orientation {
 
@@ -9,7 +9,12 @@ public class Orientation {
     }
 
 
-    public static final Rotation NO = new Rotation("no");
+    public String toString() {
+      return name;
+    }
+
+
+    public static final Rotation NOTHING = new Rotation("nothing");
 
 
     public static final Rotation LEFT = new Rotation("left");
@@ -57,10 +62,10 @@ public class Orientation {
 
 
     static {
-      NO   .setTransform(LEFT , OVER , RIGHT, NO   );
-      LEFT .setTransform(OVER , RIGHT, NO   , RIGHT);
-      OVER .setTransform(RIGHT, NO   , LEFT , OVER );
-      RIGHT.setTransform(NO   , LEFT , OVER , LEFT );
+      NOTHING.setTransform(LEFT   , OVER   , RIGHT  , NOTHING);
+      LEFT   .setTransform(OVER   , RIGHT  , NOTHING, RIGHT  );
+      OVER   .setTransform(RIGHT  , NOTHING, LEFT   , OVER   );
+      RIGHT  .setTransform(NOTHING, LEFT   , OVER   , LEFT   );
     }
   }
 
@@ -69,6 +74,11 @@ public class Orientation {
   private Orientation(boolean flipAroundHorizontal, Rotation rotation) {
     this.flipAroundHorizontal = flipAroundHorizontal;
     this.rotation = rotation;
+  }
+
+
+  public String toString() {
+    return (((flipAroundHorizontal) ? "flip and " : "") + rotation);
   }
 
 
@@ -98,12 +108,11 @@ public class Orientation {
 
 
   public Orientation inverse() {
-    /** @todo XXXX */
-    return null;
+    return get(flipAroundHorizontal, (flipAroundHorizontal) ? rotation : rotation.inverse());
   }
 
 
-  public static final Orientation NORMAL = new Orientation(false, Rotation.NO);
+  public static final Orientation NORMAL = new Orientation(false, Rotation.NOTHING);
 
 
   public static final Orientation LEFT = new Orientation(false, Rotation.LEFT);
@@ -115,16 +124,16 @@ public class Orientation {
   public static final Orientation OVER = new Orientation(false, Rotation.OVER);
 
 
-  public static final Orientation FLIPPED = new Orientation(true, Rotation.NO);
+  public static final Orientation FLIP = new Orientation(true, Rotation.NOTHING);
 
 
-  public static final Orientation FLIPPED_AND_LEFT = new Orientation(true, Rotation.LEFT);
+  public static final Orientation FLIP_AND_LEFT = new Orientation(true, Rotation.LEFT);
 
 
-  public static final Orientation FLIPPED_AND_RIGHT = new Orientation(true, Rotation.RIGHT);
+  public static final Orientation FLIP_AND_RIGHT = new Orientation(true, Rotation.RIGHT);
 
 
-  public static final Orientation FLIPPED_AND_OVER = new Orientation(true, Rotation.OVER);
+  public static final Orientation FLIP_AND_OVER = new Orientation(true, Rotation.OVER);
 
 
 
@@ -138,16 +147,16 @@ public class Orientation {
     Orientation result = null;
 
     if (!flipAroundHorizontal) {
-      if (rotation == Rotation.NO   ) result = NORMAL; else
-      if (rotation == Rotation.LEFT ) result = LEFT  ; else
-      if (rotation == Rotation.OVER ) result = OVER  ; else
-      if (rotation == Rotation.RIGHT) result = RIGHT ;
+      if (rotation == Rotation.NOTHING) result = NORMAL; else
+      if (rotation == Rotation.LEFT   ) result = LEFT  ; else
+      if (rotation == Rotation.OVER   ) result = OVER  ; else
+      if (rotation == Rotation.RIGHT  ) result = RIGHT ;
 
     } else {
-      if (rotation == Rotation.NO   ) result = FLIPPED           ; else
-      if (rotation == Rotation.LEFT ) result = FLIPPED_AND_LEFT  ; else
-      if (rotation == Rotation.OVER ) result = FLIPPED_AND_OVER  ; else
-      if (rotation == Rotation.RIGHT) result = FLIPPED_AND_RIGHT ;
+      if (rotation == Rotation.NOTHING) result = FLIP           ; else
+      if (rotation == Rotation.LEFT   ) result = FLIP_AND_LEFT  ; else
+      if (rotation == Rotation.OVER   ) result = FLIP_AND_OVER  ; else
+      if (rotation == Rotation.RIGHT  ) result = FLIP_AND_RIGHT ;
     }
 
     return result;

@@ -29,6 +29,8 @@ public class Main {
     IllegalArgumentException,
     javax.xml.transform.TransformerException
   {
+    MetaMetadata.init();
+
     String command = "number";
 
     for (int i=0; i<args.length; i++) {

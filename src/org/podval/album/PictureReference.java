@@ -14,6 +14,16 @@ public class PictureReference extends Picture {
   }
 
 
+  public void setTitle(String value) {
+    getReferent().setTitle(value);
+  }
+
+
+  public String getTitle() {
+    return getReferent().getTitle();
+  }
+
+
   public Date getDateTime() {
     return getReferent().getDateTime();
   }
@@ -35,6 +45,7 @@ public class PictureReference extends Picture {
 
 
   public void save() {
+    getReferent().save(); /** @todo or nothing? */
   }
 
 

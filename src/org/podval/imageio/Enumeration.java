@@ -4,37 +4,62 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import java.lang.NoSuchFieldException;
+
+
 public class Enumeration {
 
-  public void addDescription(int value, String description) {
-    String oldDescription = getRawDescription(value);
-    if (oldDescription != null)
+  public Enumeration(Class enumClass) {
+    this.enumClass = enumClass;
+  }
+
+
+  public void addValue(int tag, String name) {
+    Object oldValue = getRawValue(tag);
+    if (oldValue != null)
       throw new IllegalArgumentException(
-        "Attempt to change description for " + value +
-        " from " + oldDescription +
-        " to " + description
+        "Attempt to change value for " + tag +
+        " from " + oldValue +
+        " to " + name
       );
 
-    descriptions.put(new Integer(value), description);
+    Object value = name;
+    if (enumClass != null) {
+      try {
+        /** @todo check that the field is static... */
+        value = enumClass.getField(name).get(null);
+      } catch (NoSuchFieldException e) {
+        /** @todo ignore? */
+      } catch (IllegalAccessException e) {
+      /** @todo ignore? */
+      }
+    }
+
+
+    values.put(new Integer(tag), value);
   }
 
 
-  private String getRawDescription(int value) {
-    return (String) descriptions.get(new Integer(value));
+  private Object getRawValue(int tag) {
+    return values.get(new Integer(tag));
   }
 
 
-  public String getDescription(int value) {
-    String result = getRawDescription(value);
+  public Object getValue(int tag) {
+    Object result = getRawValue(tag);
 
     if (result == null) {
-      result = "unknown-" + value;
-      addDescription(value, result);
+      String unknown = "unknown-" + tag;
+      result = unknown;
+      addValue(tag, unknown);
     }
 
     return result;
   }
 
 
-  private final Map descriptions = new HashMap();
+  private final Class enumClass;
+
+
+  private final Map values = new HashMap();
 }

@@ -197,7 +197,7 @@ public class Field extends Typed {
     if (enumeration == null)
       result = new Long(value);
     else
-      result = enumeration.getDescription((int) value);
+      result = enumeration.getValue((int) value);
 
     return result;
   }

@@ -156,7 +156,7 @@ public class MetaMetadata {
 
     result.setEnumeration(loadEnumeration(xml.getEnumeration()));
     result.setConversion(loadConversion(xml.getConversion()));
-    result.setHandler(loadHandler(xml.getHandler()));
+    result.setHandler(classForNonNullName(xml.getHandler()));
 
     int index = 0;
     for (Iterator i = xml.getFields().iterator(); i.hasNext();) {
@@ -203,13 +203,13 @@ public class MetaMetadata {
     Enumeration result = null;
 
     if (xml != null) {
-      result = new Enumeration();
+      result = new Enumeration(classForNonNullName(xml.getEnumClass()));
 
       for (Iterator i = xml.getItems().iterator(); i.hasNext(); ) {
-        org.podval.imageio.jaxb.EnumItem item =
-          (org.podval.imageio.jaxb.EnumItem) i.next();
+        org.podval.imageio.jaxb.Enumeration.Item item =
+          (org.podval.imageio.jaxb.Enumeration.Item) i.next();
 
-        result.addDescription(item.getValue(), item.getDescription());
+        result.addValue(item.getTag(), item.getValue());
       }
     }
 
@@ -227,13 +227,8 @@ public class MetaMetadata {
           " does not contain a '.'");
       String className = name.substring(0, dot);
       String methodName = name.substring(dot+1, name.length());
-      Class cls;
-      try {
-        cls = Class.forName(className);
-      } catch (ClassNotFoundException e) {
-        throw new IllegalArgumentException("Class with conversion " + name +
-          " not found");
-      }
+      Class cls = classForName(className);
+
       /** @todo I can - and should - figure out argument type for the conversion method and ask for it directly... */
       Method[] methods = cls.getDeclaredMethods();
       for (int i = 0; i<methods.length; i++) {
@@ -245,20 +240,23 @@ public class MetaMetadata {
       }
     }
 
+    /** @todo method not found? method not static? */
     return result;
   }
 
 
-  private static Class loadHandler(String name) {
+  private static Class classForNonNullName(String name) {
+    return (name != null) ? classForName(name) : null;
+  }
+
+
+  private static Class classForName(String name) {
     Class result = null;
 
-    if (name != null) {
-      try {
-        result = Class.forName(name);
-      } catch (ClassNotFoundException e) {
-        throw new IllegalArgumentException("Class with conversion " + name +
-          " not found");
-      }
+    try {
+      result = Class.forName(name);
+    } catch (ClassNotFoundException e) {
+      throw new IllegalArgumentException("Class " + name + " not found!");
     }
 
     return result;

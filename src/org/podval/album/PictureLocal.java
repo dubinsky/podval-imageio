@@ -53,6 +53,19 @@ public class PictureLocal extends Picture {
   }
 
 
+  public void setTitle(String value) {
+    ensureMetadataLoaded();
+    title = value;
+    metadataChanged = true;
+  }
+
+
+  public String getTitle() {
+    ensureMetadataLoaded();
+    return (title != null) ? title : getName();
+  }
+
+
   public File getThumbnailFile() throws IOException {
     if (thumbnailFile == null) thumbnailFile = getGeneratedFile("120x160");
 
@@ -134,6 +147,11 @@ public class PictureLocal extends Picture {
   }
 
 
+  private void ensureMetadataLoaded() {
+    /** @todo XXXXX */
+  }
+
+
   private Metadata getCameraMetadata() throws IOException {
     if ((cameraMetadata == null) || (cameraMetadata.get() == null)) {
       cameraMetadata = new SoftReference(Metadata.read(getOriginalFile()));
@@ -145,6 +163,9 @@ public class PictureLocal extends Picture {
   public void save() {
     /** @todo  */
   }
+
+
+  private String title;
 
 
   private File jpgFile;
@@ -163,6 +184,12 @@ public class PictureLocal extends Picture {
 
 
   private File convertedFile;
+
+
+  private long metadataLoaded = 0;
+
+
+  private boolean metadataChanged;
 
 
   private SoftReference cameraMetadata;
