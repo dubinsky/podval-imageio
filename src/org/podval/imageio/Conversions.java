@@ -58,12 +58,12 @@ public class Conversions {
    */
 
 
-  public float convertApexApertureValueToFNumber(float value) {
+  public static float convertApexApertureValueToFNumber(float value) {
      return (float) Math.pow(2.0, value/2);
   }
 
 
-  public float convertApexShutterSpeedValueToExposureTime(float value) {
+  public static float convertApexShutterSpeedValueToExposureTime(float value) {
     return (float) (1.0f / Math.pow(2.0, value));
   }
 
@@ -76,4 +76,34 @@ public class Conversions {
 //    }
 //    return result;
 //  }
+
+
+  /** @todo this should be done through record handler, not conversion - if at all! */
+  public static String decodeFlashStatus(long v) {
+    int value = (int) v;
+    boolean fired = (value & 0x01) != 0;
+    int strobeReturn = (value >> 1) & 0x03;
+    int mode = (value >> 3) & 0x03;
+    boolean flashFunctionPresent = (value & 0x20) != 0;
+    boolean redEyeReduction = (value & 0x40) != 0;
+
+    String result = "";
+
+    result += "mode: ";
+    switch (mode) {
+    case 0x00: result += "unknown"; break;
+    case 0x01: result += "on"; break;
+    case 0x02: result += "off"; break;
+    case 0x03: result += "auto"; break;
+    }
+
+    result += "; ";
+    result += (fired) ? "fired" : "not fired";
+
+    if (strobeReturn == 0x02)
+      result += "; strobe return detected";
+    result += '.';
+
+    return result;
+  }
 }

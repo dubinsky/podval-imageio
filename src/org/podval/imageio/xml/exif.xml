@@ -104,11 +104,11 @@
   <!-- Specific to compressed data. -->
   <record tag="37122" name="compressedBitsPerPixel" type="rational"/>
 
-  <!-- XXXX: The unit is the APEX (Additive System of Photographic Exposure). -->
-  <record tag="37377" name="shutterSpeedValue" type="signedRational"/>
+  <record tag="37377" name="shutterSpeedValue" type="signedRational"
+    conversion="org.podval.imageio.Conversions.convertApexShutterSpeedValueToExposureTime"/>
 
-  <!-- XXXX: The unit is the APEX value. -->
-  <record tag="37378" name="apertureValue" type="rational"/>
+  <record tag="37378" name="apertureValue" type="rational"
+    conversion="org.podval.imageio.Conversions.convertApexApertureValueToFNumber"/>
 
   <!-- XXXX: The unit is the APEX value. -->
   <record tag="37379" name="brightnessValue" type="signedRational"/> <!-- G2 does not put this into .THM file. -->
@@ -117,8 +117,8 @@
   <!-- XXXX: The unit is the APEX value. -->
   <record tag="37380" name="exposureBiasValue" type="signedRational"/>
 
-  <!-- XXXX: The unit is the APEX value. -->
-  <record tag="37381" name="maxApertureValue" type="rational"/>
+  <record tag="37381" name="maxApertureValue" type="rational"
+    conversion="org.podval.imageio.Conversions.convertApexApertureValueToFNumber"/>
 
   <record tag="37382" name="subjectDistance" type="rational"/>
   <!-- When numerator is 0xFFFFFFFF, treat as infinity; when 0 - as unknown. -->
@@ -162,21 +162,18 @@
     </enumeration>
   </record>
 
-  <record tag="37385" name="flash">
+  <record tag="37385" name="flash"
+    conversion="org.podval.imageio.Conversions.decodeFlashStatus"/>
     <!-- XXXX: Format: eummrrf
       f: flsh fired: 0/1
       r: strobe return light: 00 - no detection function; 01 - reserved; 10 - detected; 11 - not detected.
       m: flash mode: 00 - unknown; 01 - on; 10 - off; 11 - auto.
       u: flash function present: 0/1
       e: red eye reduction: 0 - no or unknown; 1 - yes.
+      So far, this is the only field with shorter-than-byte subfields,
+      so I handle it through a conversion...
+      Even if I do not introduce short subfields, this must be done through record handler!!!
     -->
-    <enumeration>
-      <item value="0" description="Did not fire"/>
-      <item value="1" description="Fired"/>
-      <item value="5" description="Fired, strobe return light not detected"/>
-      <item value="7" description="Fires, strobe return light detected"/>
-    </enumeration>
-  </record>
 
   <record tag="37386" name="focalLength" type="rational"/> <!-- millimeters -->
 

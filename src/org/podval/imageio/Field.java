@@ -8,7 +8,11 @@ import java.util.Iterator;
 
 import javax.imageio.stream.ImageInputStream;
 
+/** @todo yakyak! Dependency on IIOMetadataNode here?! OTOH, why not... */
+import javax.imageio.metadata.IIOMetadataNode;
+
 import java.lang.reflect.Method;
+import java.lang.reflect.InvocationTargetException;
 
 
 public class Field extends Typed {
@@ -108,9 +112,9 @@ public class Field extends Typed {
     if (type == Type.U16) integerValue(in.readUnsignedShort(), handler); else
     if (type == Type.S16) integerValue(in.readShort()        , handler); else
 
-    if (type == Type.F32      ) handler.floatValue(this, in.readFloat()        ); else
-    if (type == Type.RATIONAL ) handler.floatValue(this, readRational      (in)); else
-    if (type == Type.SRATIONAL) handler.floatValue(this, readSignedRational(in)); else
+    if (type == Type.F32      ) floatingValue(in.readFloat()        , handler); else
+    if (type == Type.RATIONAL ) floatingValue(readRational      (in), handler); else
+    if (type == Type.SRATIONAL) floatingValue(readSignedRational(in), handler); else
 
       assert false : "Unexpected field type " + type;
   }
@@ -130,7 +134,7 @@ public class Field extends Typed {
     }
 
     if (type == Type.STRING)
-      handler.stringValue(this, readString(in, (int) count));
+      addValue(readString(in, (int) count), handler);
     else
     if ((type == Type.U8) || (type == Type.X8)) {
       if (count == 1)
@@ -139,9 +143,9 @@ public class Field extends Typed {
         if (count < MAX_RECORD_LENGTH) {
           byte[] value = new byte[(int) count];
           in.read(value);
-          handler.binaryValue(this, value);
+          addValue(new BinaryValue(value), handler);
         } else {
-          handler.pointerValue(this, in.getStreamPosition(), count);
+          addValue(new PointerValue(in.getStreamPosition(), count), handler);
         }
       }
     } else
@@ -181,10 +185,33 @@ public class Field extends Typed {
 
 
   private void integerValue(long value, MetadataHandler handler) {
+    Object v;
     if (enumeration == null)
-      handler.integerValue(this, value);
+      v = new Long(value);
     else
-      handler.stringValue(this, enumeration.getDescription((int) value));
+      v = enumeration.getDescription((int) value);
+
+    addValue(v, handler);
+  }
+
+
+  private void floatingValue(float value, MetadataHandler handler) {
+    addValue(new Float(value), handler);
+  }
+
+
+  private void addValue(Object value, MetadataHandler handler) {
+    Method conversion = getConversion();
+    if (conversion != null) {
+      try {
+        /** @todo when the method is not static, error message is very confusing... */
+        value = conversion.invoke(null, new Object[] {value});
+      } catch (IllegalAccessException e) {
+      } catch (InvocationTargetException e) {
+      }
+    }
+
+    handler.addField(this, value);
   }
 
 
@@ -233,4 +260,52 @@ public class Field extends Typed {
 
 
   private List subfields = null;
+
+
+
+  /**
+   *
+   */
+  private static final class PointerValue implements Group.ComplexValue {
+    public PointerValue(long offset, long length) {
+      this.offset = offset;
+      this.length = length;
+    }
+
+    public void buildNativeTree(IIOMetadataNode result) {
+      result.setAttribute("offset", Long.toString(offset));
+      result.setAttribute("length", Long.toString(length));
+    }
+
+    public long getOffset() { return offset; }
+    public long getLength() { return length; }
+    private final long offset;
+    private final long length;
+  }
+
+
+
+  /**
+   *
+   */
+  private static final class BinaryValue {
+    public BinaryValue(byte[] value) { this.value = value; }
+
+    private static final char[] HEX_DIGIT = new char[]
+      { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+
+    private static char toHexDigit(int d) { return HEX_DIGIT[d]; }
+
+    public String toString() {
+      StringBuffer result = new StringBuffer(2*value.length);
+      for (int i=0; i<value.length; i++) {
+        byte b = value[i];
+        result.append(toHexDigit( b       & 0x0F));
+        result.append(toHexDigit((b >> 4) & 0x0F));
+      }
+      return new String(result);
+    }
+
+    private final byte[] value;
+  }
 }
