@@ -10,8 +10,6 @@ import java.io.IOException;
 public class JpegStreamExifDecoder {
 
   public static Metadata read(ImageInputStream in) throws IOException {
-    Metadata result = null;
-
     int byte1 = in.readUnsignedByte();
     int byte2 = in.readUnsignedByte();
 
@@ -19,11 +17,7 @@ public class JpegStreamExifDecoder {
     if ((byte1 != 0xFF) || (byte2 != 0xD8))
       throw new IOException("Bad JPEG signature.");
 
-    boolean found = findExifMarker(in);
-    if (found)
-      result = ExifDecoder.read(in);
-
-    return result;
+    return (findExifMarker(in)) ? ExifDecoder.read(in) : null;
   }
 
 

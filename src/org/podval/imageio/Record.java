@@ -172,7 +172,9 @@ public class Record extends Typed {
   }
 
 
-  public Entry readWithLength(ImageInputStream in, Type type, long length) throws IOException {
+  public void readWithLength(ImageInputStream in, Type type, long length,
+    MetadataBuilder builder) throws IOException
+  {
     // All STRUCTURED fields in a record MUST be of the same length.
     // This is enforced by the Type.isFieldAllowed predicate.
 
@@ -188,13 +190,13 @@ public class Record extends Typed {
       count = length;
     }
 
-    return readWithCount(in, type, count);
+    readWithCount(in, type, count, builder);
   }
 
 
-  public Entry readWithCount(ImageInputStream in, Type type, long count) throws IOException {
-    Group result = new Group(getName());
-
+  public void readWithCount(ImageInputStream in, Type type, long count,
+    MetadataBuilder builder) throws IOException
+  {
     if (isVector()) {
       long length = in.readUnsignedShort();
 
@@ -212,21 +214,29 @@ public class Record extends Typed {
     }
 
 
+    long nmb;
+    long cnt;
     if (!getType().isVariableLength()) {
-      for (int index=1; index<=count; index++)
-        readField(in, result, index, type, 1);
+      nmb = count;
+      cnt = 1;
     } else {
-      for (int index=1; index<=fields.size(); index++) {
-        /** @todo correct count for the many-fields case */
-        readField(in, result, index, type, count);
-      }
+      nmb = fields.size();
+      cnt = count;
     }
 
-    return result.flatten();
+    builder.beginRecord(this);
+
+    for (int index=1; index<=nmb; index++) {
+      readField(in, index, type, cnt, builder);
+    }
+
+    builder.endRecord();
   }
 
 
-  private void readField(ImageInputStream in, Group result, int index, Type type, long count) throws IOException {
+  private void readField(ImageInputStream in, int index, Type type, long count,
+    MetadataBuilder builder) throws IOException
+  {
     Field field = getField(index);
 
     if ((field == null) && MetaMetadata.isDecodeUnknown()) {
@@ -236,7 +246,7 @@ public class Record extends Typed {
     }
 
     if (field != null) {
-      result.addEntry(field.read(in, type, count));
+      field.read(in, type, count, builder);
     }
   }
 

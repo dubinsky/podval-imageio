@@ -28,7 +28,7 @@ public class Main {
       reader.dispose();
       in.close();
 
-      /** @todo this should be done through a transcoder... */
+      /** @todo this should be done through a transcoder? */
       if (metadata instanceof JPEGMetadata) {
         metadata = JpegToExifTranscoder.read(metadata);
       }

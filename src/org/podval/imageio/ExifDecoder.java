@@ -17,13 +17,15 @@ public class ExifDecoder {
     long offsetBase = readPrologue(in);
 
     Metadata result = new Metadata(NATIVE_FORMAT_NAME);
+    MetadataBuilder builder = new SimpleMetadataBuilder(result);
+
     /*
      Since virtually all the tags (except 513 and 514) seem to be allowed
      both in IFD0 and IFD1 (including EXIF AND GPS IFDs), I just use the same
      IFD twice!
     */
-    readIfd(Directory.get("exif-root"), in, offsetBase, result.getRoot(), result);
-    readIfd(Directory.get("exif-root"), in, offsetBase, result.getRoot(), result);
+    readIfd(Directory.get("exif-root"), in, offsetBase, builder);
+    readIfd(Directory.get("exif-root"), in, offsetBase, builder);
 
     return result;
   }
@@ -50,29 +52,21 @@ public class ExifDecoder {
   }
 
 
-  private static void readIfd(Directory ifd,
-    ImageInputStream in, long offsetBase,
-    Group result,
-    Metadata metadata
-  ) throws IOException
+  private static void readIfd(Directory ifd, ImageInputStream in, long offsetBase,
+    MetadataBuilder builder) throws IOException
   {
     long offset = in.readUnsignedInt();
     if (offset != 0) {
       in.seek(offsetBase+offset);
-      readIfdInPlace(ifd, in, offsetBase, result, metadata);
+      readIfdInPlace(ifd, in, offsetBase, builder);
     }
   }
 
 
-  private static void readIfdInPlace(Directory ifd,
-    ImageInputStream in, long offsetBase,
-    Group result,
-    Metadata metadata
-  ) throws IOException
+  private static void readIfdInPlace(Directory ifd, ImageInputStream in, long offsetBase,
+    MetadataBuilder builder) throws IOException
   {
-    Group group = new Group(ifd.getName());
-    result.addEntry(group);
-    result = group;
+    builder.beginDirectory(ifd);
 
     long offset = in.getStreamPosition()-offsetBase;
 
@@ -85,18 +79,17 @@ public class ExifDecoder {
       if (i == numEntries)
         break;
 
-      readEntry(ifd, in, offsetBase, result, metadata);
+      readEntry(ifd, in, offsetBase, builder);
     }
+
+    builder.endDirectory();
 
     // At this point we are positioned at the offset of the linked IFD.
   }
 
 
-  private static void readEntry(Directory ifd,
-    ImageInputStream in, long offsetBase,
-    Group result,
-    Metadata metadata
-  ) throws IOException
+  private static void readEntry(Directory ifd, ImageInputStream in, long offsetBase,
+    MetadataBuilder builder) throws IOException
   {
     int tag = in.readUnsignedShort();
     Type type = decodeType(in.readUnsignedShort());
@@ -111,18 +104,14 @@ public class ExifDecoder {
 
     if (entry != null) {
       if (entry instanceof Record)
-        result.addEntry(((Record) entry).readWithCount(in, type, count));
+        ((Record) entry).readWithCount(in, type, count, builder);
       else
       if (entry instanceof Directory)
-        readIfd((Directory) entry, in, offsetBase, result, metadata);
+        readIfd((Directory) entry, in, offsetBase, builder);
       else
       if (entry == MakerNote.MARKER) {
-        String make = metadata.getStringValue("make");
-        MakerNote makerNote = MakerNote.get(make);
-        if (makerNote != null)
-          readIfdInPlace(makerNote.getDirectory(), in, offsetBase, result, metadata);
-        else
-          result.addEntry(new Group("UnknownMakerNote-" + make));
+        MakerNote makerNote = builder.getMakerNote();
+        readIfdInPlace(makerNote.getDirectory(), in, offsetBase, builder);
       } else
         assert false : "Unknown IFD entry " + entry;
     }

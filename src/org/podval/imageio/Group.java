@@ -22,6 +22,16 @@ public class Group extends Entry {
   }
 
 
+  public void setParent(Group parent) {
+    this.parent = parent;
+  }
+
+
+  public Group getParent() {
+    return parent;
+  }
+
+
   protected void buildNativeTree(IIOMetadataNode result) {
     for (Iterator i = entries.iterator(); i.hasNext();) {
       result.appendChild(((Entry) i.next()).getNativeTree());
@@ -46,4 +56,7 @@ public class Group extends Entry {
 
 
   private final List entries = new ArrayList();
+
+
+  private Group parent = null;
 }

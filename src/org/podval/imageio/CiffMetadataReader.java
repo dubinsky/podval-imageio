@@ -13,9 +13,13 @@ public class CiffMetadataReader {
   public static Metadata read(ImageInputStream in) throws IOException {
     MetaMetadata.load();
 
-    Metadata result = new Metadata(NATIVE_FORMAT_NAME);
     long heapLength = readPrologue(in);
-    result.addEntry(readHeap(Directory.get("ciff-root"), in, heapLength));
+
+    Metadata result = new Metadata(NATIVE_FORMAT_NAME);
+
+    readHeap(Directory.get("ciff-root"), in, heapLength,
+      new SimpleMetadataBuilder(result));
+
     return result;
   }
 
@@ -59,8 +63,10 @@ public class CiffMetadataReader {
   /**
    * At the begining must be positioned at the start of the heap.
    */
-  private static Entry readHeap(Directory heap, ImageInputStream in, long length) throws IOException {
-    Group result = new Group(heap.getName());
+  private static void readHeap(Directory heap, ImageInputStream in, long length,
+    MetadataBuilder builder) throws IOException
+  {
+    builder.beginDirectory(heap);
 
     long offset = in.getStreamPosition();
     in.seek(offset + length - 4);
@@ -88,13 +94,11 @@ public class CiffMetadataReader {
         }
 
         int idCode = typeCode & 0x3FFF;
-        Entry entry = readEntry(heap, idCode, in, dataLength);
-        if (entry != null)
-          result.addEntry(entry);
+        readEntry(heap, idCode, in, dataLength, builder);
       }
     }
 
-    return result;
+    builder.endDirectory();
   }
 
 
@@ -116,11 +120,9 @@ public class CiffMetadataReader {
   }
 
 
-  private static Entry readEntry(Directory heap, int idCode, ImageInputStream in, long length)
-    throws IOException
+  private static void readEntry(Directory heap, int idCode, ImageInputStream in, long length,
+    MetadataBuilder builder) throws IOException
   {
-    Entry result = null;
-
     int tag = idCode & 0x07FF;
     Type type = decodeType((idCode >> 11) & 0x07);
 
@@ -128,16 +130,13 @@ public class CiffMetadataReader {
 
     if (entry != null) {
       if (entry instanceof Record)
-        result = ((Record) entry).readWithLength(in, type, length);
+        ((Record) entry).readWithLength(in, type, length, builder);
       else
       if (entry instanceof Directory)
-        result = readHeap((Directory) entry, in, length);
+        readHeap((Directory) entry, in, length, builder);
       else
         assert false : "Unknown heap record entry " + entry;
     }
-
-
-    return result;
   }
 
 

@@ -29,50 +29,27 @@ import org.w3c.dom.Node;
 public class JpegToExifTranscoder {
 
   public static Metadata read(IIOMetadata metadata) throws IOException {
-    Metadata result = null;
     /** @todo check that it is a JPEG metadata.... */
-    Node root = metadata.getAsTree(metadata.getNativeMetadataFormatName());
-    Node exifSegment = findExifSegment(root);
+    IIOMetadataNode exifSegment = (IIOMetadataNode) findExifSegment(
+      metadata.getAsTree(metadata.getNativeMetadataFormatName()));
 
-    if (exifSegment != null) {
-      byte[] data = (byte[]) ((IIOMetadataNode) exifSegment).getUserObject();
-      ImageInputStream in = ImageIO.createImageInputStream(
-        new ByteArrayInputStream(data));
-      result = ExifDecoder.read(in);
-    }
-
-    return result;
+    return (exifSegment == null) ? null :
+      ExifDecoder.read(ImageIO.createImageInputStream(
+        new ByteArrayInputStream((byte[]) exifSegment.getUserObject())));
   }
 
 
-  private static final String APP1 = "225";
-
-
-  // Looking for: <unknown MarkerTag="225"/>
-  // We assume that there is at most one 'unknown'.
-  /** @todo We probably should not :( */
+  // Looking for: <unknown MarkerTag="225"/> (APP1 marker)
   private static Node findExifSegment(Node root) {
-    Node result = findElement(root, "unknown");
-
-    if (result != null) {
-      String marker = result.getAttributes().getNamedItem("MarkerTag").getNodeValue();
-      if (!marker.equals(APP1))
-        result = null;
-    }
-
-    return result;
-  }
-
-
-  private static Node findElement(Node root, String name) {
     if (root.getNodeType() != Node.ELEMENT_NODE)
       return null;
 
-    if (root.getNodeName().equals(name))
+    if (root.getNodeName().equals("unknown") &&
+        root.getAttributes().getNamedItem("MarkerTag").getNodeValue().equals("225"))
       return root;
 
     for (Node child = root.getFirstChild(); child != null; child = child.getNextSibling()) {
-      Node result = findElement(child, name);
+      Node result = findExifSegment(child);
       if (result != null)
         return result;
     }
