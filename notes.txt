@@ -84,46 +84,6 @@ write image:
     JAI.create("filestore", pb);
 
 
-  private RenderedImage scaleImageToFit(RenderedImage image) {
-    float xscale = (float) getMaxWidth () / image.getWidth ();
-    float yscale = (float) getMaxHeight() / image.getHeight();
-
-    float scale = Math.min(xscale, yscale);
-
-    return scaleImage(image, scale);
-  }
-
-
-  public RenderedImage scaleImageToSizes(RenderedImage image) {
-    float widthScale =
-      (float) Math.max(getMaxWidth(), getMaxHeight()) /
-              Math.max(image.getWidth(), image.getHeight());
-
-    float heightScale =
-      (float) Math.min(getMaxWidth(), getMaxHeight()) /
-              Math.min(image.getWidth(), image.getHeight());
-
-    float scale = Math.min(widthScale, heightScale);
-
-    return scaleImage(image, scale);
-  }
-
-
-  private RenderedImage scaleImage(RenderedImage image, float scale) {
-    ParameterBlock pb = new ParameterBlock();
-    pb.addSource(image);
-    pb.add(scale);
-    pb.add(scale);
-    pb.add((float) -image.getMinX());
-    pb.add((float) -image.getMinY());
-    pb.add(Interpolation.getInstance(Interpolation.INTERP_BICUBIC_2));
-
-    return JAI.create("scale", pb, renderingHints);
-  }
-
-
-  private static final RenderingHints renderingHints =
-    new RenderingHints(JAI.KEY_BORDER_EXTENDER, BorderExtender.createInstance(BorderExtender.BORDER_COPY));
 
 
 

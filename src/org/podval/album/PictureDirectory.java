@@ -1,5 +1,7 @@
 package org.podval.album;
 
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -120,6 +122,12 @@ public class PictureDirectory {
   }
 
 
+  private Collection getPictures() {
+    ensureLoaded();
+    return pictures.values();
+  }
+
+
   private final String name;
 
 
@@ -142,4 +150,17 @@ public class PictureDirectory {
    * map<String name, Picture>
    */
   private final Map pictures = new TreeMap(String.CASE_INSENSITIVE_ORDER);
+
+
+
+
+  public static void main(String[] args) throws IOException {
+    PictureDirectory root = new PictureDirectory("", new File("/tmp/crw"), new File("/tmp/crw-generated"));
+    for (Iterator pictures = root.getPictures().iterator(); pictures.hasNext();) {
+      Picture picture = (Picture) pictures.next();
+      System.err.print(picture);
+      System.err.println();
+    }
+    root.getPicture("0001").getScaled(300, 300);
+  }
 }
