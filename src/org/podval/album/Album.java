@@ -5,19 +5,73 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.StringTokenizer;
 
 import java.io.File;
+import java.io.InputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.bind.JAXBException;
 
 
 /**
  */
 
-public class PictureDirectory {
+public class Album {
 
-  public PictureDirectory(String name, File originalsDirectory, File generatedDirectory) {
+  public static void setRoot(String originalsRoot, String metadataRoot, String generatedRoot) {
+    /** @todo check that directories exist (and have proper permissions) - or else what? */
+    root = new Album("",
+      new File(originalsRoot),
+      new File(metadataRoot),
+      new File(generatedRoot)
+    );
+
+
+    /** @todo should register using jar manifest! */
+    javax.imageio.spi.IIORegistry.getDefaultInstance().registerServiceProvider(new
+      org.podval.imageio.CiffImageReaderSpi());
+
+    /** @todo where is the right place for this? */
+    org.podval.imageio.MetaMetadata.load();
+  }
+
+
+  public static Album getByPath(String path) {
+    Album result = root;
+
+    if (result == null)
+      throw new NullPointerException("Root is not set");
+
+//    if (!path.startsWith("/"))
+//      throw new IllegalArgumentException("Path does not start with '/'.");
+
+    StringTokenizer tokenizer = new StringTokenizer(path, "/");
+    while (tokenizer.hasMoreTokens() && (result != null)) {
+      result = ((Album) result).getSubdirectory(tokenizer.nextToken());
+    }
+
+    if (result == null)
+      throw new NullPointerException("No album at path: " + path);
+
+    return result;
+  }
+
+
+  private static Album root;
+
+
+  public Album(String name,
+    File originalsDirectory,
+    File metadataDirectory,
+    File generatedDirectory
+  ) {
     this.name = name;
     this.originalsDirectory = originalsDirectory;
+    this.metadataDirectory = metadataDirectory;
     this.generatedDirectory = generatedDirectory;
 
     if (name == null)
@@ -25,6 +79,9 @@ public class PictureDirectory {
 
     if (originalsDirectory == null)
       throw new NullPointerException("Originals directory is null.");
+
+    if (metadataDirectory == null)
+      throw new NullPointerException("Metadata directory is null.");
 
     if (generatedDirectory == null)
       throw new NullPointerException("Generated directory is null.");
@@ -62,9 +119,9 @@ public class PictureDirectory {
   }
 
 
-  public PictureDirectory getSubdirectory(String name) {
+  public Album getSubdirectory(String name) {
     ensureSubdirectoriesLoaded();
-    return (PictureDirectory) subdirectories.get(name);
+    return (Album) subdirectories.get(name);
   }
 
 
@@ -154,8 +211,9 @@ public class PictureDirectory {
       throw new IOException("Duplicate case-sensitive subdirectory name " + name);
 
     /** @todo now it would be nice to be able to place generated directory inside the originals one ... */
-    PictureDirectory subdirectory = new PictureDirectory(name,
+    Album subdirectory = new Album(name,
       new File(originalsDirectory, name),
+      new File(metadataDirectory , name),
       new File(generatedDirectory, name)
     );
 
@@ -186,7 +244,7 @@ public class PictureDirectory {
     Picture picture = (Picture) pictures.get(name);
 
     if (picture == null) {
-      picture = new Picture(name, generatedDirectory);
+      picture = new Picture(name, metadataDirectory, generatedDirectory);
       pictures.put(name, picture);
     }
 
@@ -194,10 +252,47 @@ public class PictureDirectory {
   }
 
 
+  private void loadMetadata() throws IOException, JAXBException {
+    File file = new File(metadataDirectory, "album.xml");
+    if (file.exists()) {
+      InputStream in = new FileInputStream(file);
+      JAXBContext jc = JAXBContext.newInstance("org.podval.album.jaxb");
+      Unmarshaller u = jc.createUnmarshaller();
+      u.setValidating(true);
+
+      org.podval.album.jaxb.Album xml =
+        (org.podval.album.jaxb.Album) u.unmarshal(in);
+
+      loadMetadata(xml);
+    }
+  }
+
+
+  private void loadMetadata(org.podval.album.jaxb.Album xml) {
+    title = xml.getTitle();
+    for (Iterator pictureRefs = xml.getPictures().iterator(); pictureRefs.hasNext();)
+      loadPictureRef((org.podval.album.jaxb.PictureRef) pictureRefs.next());
+  }
+
+
+  private void loadPictureRef(org.podval.album.jaxb.PictureRef xml) {
+    String path = xml.getAlbum();
+    String name = xml.getName();
+    /** @todo XXXX */
+////    Picture picture = new PictureRef(path, name);
+  }
+
+
   private final String name;
 
 
+  private String title;
+
+
   private final File originalsDirectory;
+
+
+  private final File metadataDirectory;
 
 
   private final File generatedDirectory;

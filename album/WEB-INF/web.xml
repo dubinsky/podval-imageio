@@ -3,12 +3,16 @@
 <web-app>
   <display-name>Podval photo album</display-name>
   <context-param>
-    <param-name>generatedDirectory</param-name>
-    <param-value>/tmp/generatedDirectory</param-value>
+    <param-name>originalsRoot</param-name>
+    <param-value>/mnt/extra/Photo</param-value>
   </context-param>
   <context-param>
-    <param-name>originalsDirectory</param-name>
-    <param-value>/mnt/extra/Photo</param-value>
+    <param-name>metadataRoot</param-name>
+    <param-value>/tmp/metadataDirectory</param-value>
+  </context-param>
+  <context-param>
+    <param-name>generatedRoot</param-name>
+    <param-value>/tmp/generatedDirectory</param-value>
   </context-param>
   <listener>
     <listener-class>org.podval.album.Context</listener-class>

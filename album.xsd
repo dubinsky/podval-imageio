@@ -1,0 +1,26 @@
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns:jxb="http://java.sun.com/xml/ns/jaxb"
+            jxb:version="1.0">
+
+<xsd:annotation><xsd:appinfo>
+  <jxb:schemaBindings><jxb:package name="org.podval.album.jaxb"/></jxb:schemaBindings>
+</xsd:appinfo></xsd:annotation>
+
+<xsd:element name="album">
+  <xsd:complexType>
+    <xsd:sequence minOccurs="0" maxOccurs="unbounded">
+      <xsd:annotation><xsd:appinfo><jxb:property name="pictures"/></xsd:appinfo></xsd:annotation>
+      <xsd:element name="picture" type="PictureRef"/>
+    </xsd:sequence>
+
+    <xsd:attribute name="title" type="xsd:string"/>
+  </xsd:complexType>
+</xsd:element>
+
+
+<xsd:complexType name="PictureRef">
+  <xsd:attribute name="album" type="xsd:string" use="required"/>
+  <xsd:attribute name="name" type="xsd:string" use="required"/>
+</xsd:complexType>
+
+</xsd:schema>

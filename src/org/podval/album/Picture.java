@@ -43,7 +43,7 @@ import org.podval.imageio.ExifReader;
 
 public class Picture {
 
-  public Picture(String name, File generatedDirectory) {
+  public Picture(String name, File metadataDirectory, File generatedDirectory) {
     this.name = name;
     this.thumbnailFile = getGeneratedFile(generatedDirectory, "120x160");
     this.screensizedFile = getGeneratedFile(generatedDirectory, "480x640");
@@ -59,11 +59,6 @@ public class Picture {
 
   public String getName() {
     return name;
-  }
-
-
-  public String getTimeString() {
-    return "Timestamp reading not yet implemented.";
   }
 
 
@@ -156,27 +151,39 @@ public class Picture {
 
 
   private Date getDateTime() throws IOException {
-    return (Date) getMetadata().find("dateTime");
+    File result = null;
+
+    if (jpgFile != null) result = jpgFile; else
+    if (thmFile != null) result = thmFile; else
+    if (crwFile != null) result = crwFile; else
+      throw new AssertionError("No date/time source!");
+
+    return new Date(result.lastModified());
+/////    return (Date) getCameraMetadata().find("dateTime");
   }
 
 
-  private Metadata getMetadata() throws IOException {
-    if ((metadata == null) || (metadata.get() == null)) {
-      metadata = new SoftReference(readMetadata(getMetadataFile()));
+  private Metadata getCameraMetadata() throws IOException {
+    if ((cameraMetadata == null) || (cameraMetadata.get() == null)) {
+      cameraMetadata = new SoftReference(readCameraMetadata(getCameraMetadataFile()));
     }
-    return (Metadata) metadata.get();
+    return (Metadata) cameraMetadata.get();
   }
 
 
-  private File getMetadataFile() {
-    File result = jpgFile;
-    if (!result.exists()) result = crwFile;
-    if (!result.exists()) result = thmFile;
+  private File getCameraMetadataFile() {
+    File result = null;
+
+    if (jpgFile != null) result = jpgFile; else
+    if (thmFile != null) result = thmFile; else
+    if (crwFile != null) result = crwFile; else
+      throw new AssertionError("No metadata source!");
+
     return result;
   }
 
 
-  private static IIOMetadata readMetadata(File file) throws IOException {
+  private static IIOMetadata readCameraMetadata(File file) throws IOException {
     IIOMetadata result = null;
 
     ImageInputStream in = ImageIO.createImageInputStream(file);
@@ -304,5 +311,5 @@ public class Picture {
   private final File convertedFile;
 
 
-  private SoftReference metadata;
+  private SoftReference cameraMetadata;
 }

@@ -27,21 +27,17 @@
   </taskdef>
 
 
-  <target name="Compile meta-meta-schema">
-    <xjc schema="src/org/podval/imageio/meta-meta-data.xsd"
-         target="src"
-		/>
+  <target name="Compile metadata description schema">
+    <xjc schema="metadata.xsd" target="src"/>
   </target>
 
-<!--
-  <target name="Compile DIG35 schema">
-    <xjc schema="src/org/podval/imageio/DIG35-2001-04-16-1.1.xsd" target="src" package="org.podval.imageio.dig35"/>
+  <target name="Compile album schema">
+    <xjc schema="album.xsd" target="src"/>
   </target>
 
-  <target name="Compile JPEG200 JPX schema">
-    <xjc schema="src/org/podval/imageio/jpx.xsd" target="src" package="org.podval.imageio.jpx"/>
+  <target name="Compile picture schema">
+    <xjc schema="picture.xsd" target="src"/>
   </target>
--->
 
   <target name="Deploy documentation">
     <delete dir="/var/www/html/imageio/"/>
