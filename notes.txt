@@ -66,3 +66,122 @@ File /home/dub/Photo/g2/2/2297.crw:
     </canonRawProperties>
   </imageProperties>
 </org_podval_imageio_ciff_1.0>
+
+
+
+
+
+write image:
+    JPEGEncodeParam param = new JPEGEncodeParam();
+    param.setWriteJFIFHeader(false);
+    param.setQuality(0.75f);
+
+    ParameterBlock pb = new ParameterBlock();
+    pb.addSource(image);
+    pb.add(file.getPath());
+    pb.add("JPEG");
+    pb.add(param);
+    JAI.create("filestore", pb);
+
+
+  private RenderedImage scaleImageToFit(RenderedImage image) {
+    float xscale = (float) getMaxWidth () / image.getWidth ();
+    float yscale = (float) getMaxHeight() / image.getHeight();
+
+    float scale = Math.min(xscale, yscale);
+
+    return scaleImage(image, scale);
+  }
+
+
+  public RenderedImage scaleImageToSizes(RenderedImage image) {
+    float widthScale =
+      (float) Math.max(getMaxWidth(), getMaxHeight()) /
+              Math.max(image.getWidth(), image.getHeight());
+
+    float heightScale =
+      (float) Math.min(getMaxWidth(), getMaxHeight()) /
+              Math.min(image.getWidth(), image.getHeight());
+
+    float scale = Math.min(widthScale, heightScale);
+
+    return scaleImage(image, scale);
+  }
+
+
+  private RenderedImage scaleImage(RenderedImage image, float scale) {
+    ParameterBlock pb = new ParameterBlock();
+    pb.addSource(image);
+    pb.add(scale);
+    pb.add(scale);
+    pb.add((float) -image.getMinX());
+    pb.add((float) -image.getMinY());
+    pb.add(Interpolation.getInstance(Interpolation.INTERP_BICUBIC_2));
+
+    return JAI.create("scale", pb, renderingHints);
+  }
+
+
+  private static final RenderingHints renderingHints =
+    new RenderingHints(JAI.KEY_BORDER_EXTENDER, BorderExtender.createInstance(BorderExtender.BORDER_COPY));
+
+
+
+  protected void processWindowEvent(WindowEvent e) {
+    super.processWindowEvent(e);
+    if (e.getID() == WindowEvent.WINDOW_CLOSING) {
+      close();
+    }
+  }
+
+
+  public AlbumView() {
+    enableEvents(java.awt.AWTEvent.WINDOW_EVENT_MASK);
+  }
+
+
+  private void describe(javax.swing.JComponent what) {
+    what.addMouseListener(describer);
+  }
+
+
+  private MouseAdapter describer = new MouseAdapter() {
+    public void mouseEntered(java.awt.event.MouseEvent e)  {
+      if (e.getSource() instanceof AbstractButton)  {
+        AbstractButton button = (AbstractButton) e.getSource();
+        Action action = button.getAction();
+
+        if (action != null)  {
+          Object message = action.getValue(Action.LONG_DESCRIPTION);
+          statusBar.setText(message.toString());
+        }
+      }
+    }
+  };
+
+
+  private abstract class DecoratedAction extends javax.swing.AbstractAction {
+    private DecoratedAction(
+      String name,
+      String iconPath,
+      String shortDescription,
+      String longDescription,
+      String accelerator,
+      int mnemonic)
+    {
+      putValue(Action.NAME, name);
+
+      if (iconPath != null)
+        putValue(Action.SMALL_ICON, new javax.swing.ImageIcon(AlbumView.class.getResource(iconPath)));
+
+      putValue(Action.SHORT_DESCRIPTION, shortDescription);
+
+      putValue(Action.LONG_DESCRIPTION, longDescription);
+
+      if (accelerator != null)
+        putValue(Action.ACCELERATOR_KEY, javax.swing.KeyStroke.getKeyStroke(accelerator));
+
+      if (mnemonic != 0)
+        putValue(Action.MNEMONIC_KEY, new Integer(mnemonic));
+    }
+  }
