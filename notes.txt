@@ -54,22 +54,6 @@ File /home/dub/Photo/g2/2/2297.crw:
 
 
 
-write image:
-    JPEGEncodeParam param = new JPEGEncodeParam();
-    param.setWriteJFIFHeader(false);
-    param.setQuality(0.75f);
-
-    ParameterBlock pb = new ParameterBlock();
-    pb.addSource(image);
-    pb.add(file.getPath());
-    pb.add("JPEG");
-    pb.add(param);
-    JAI.create("filestore", pb);
-
-
-
-
-
   protected void processWindowEvent(WindowEvent e) {
     super.processWindowEvent(e);
     if (e.getID() == WindowEvent.WINDOW_CLOSING) {

@@ -8,6 +8,10 @@
     <action type="org.podval.album.IndexAction" parameter="path" path="/index">
       <forward name="jsp" path="/index-internal.jsp" />
     </action>
-    <action type="org.podval.album.ViewAction" parameter="path" path="/view"/>
+    <action type="org.podval.album.PictureAction" parameter="path" path="/picture">
+      <forward name="jsp" path="/picture-internal.jsp" />
+    </action>
+    <action type="org.podval.album.ViewThumbnailAction" parameter="path" path="/view-thumbnail"/>
+    <action type="org.podval.album.ViewScreensizedAction" parameter="path" path="/view-screensized"/>
   </action-mappings>
 </struts-config>

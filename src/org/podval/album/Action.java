@@ -12,34 +12,34 @@ import java.util.StringTokenizer;
 
 public abstract class Action extends org.apache.struts.action.Action {
 
-  public ActionForward execute(
-    ActionMapping mapping,
-    ActionForm actionForm,
-    HttpServletRequest request,
-    HttpServletResponse response)
-    throws Exception
-  {
-    String path = request.getParameter("path");
-    if (path == null)
-      path = "";
-
-    PictureDirectory directory = getByPath(path);
-
+  protected PictureDirectory setupDirectory(HttpServletRequest request) {
+    String path = getParameterOrEmpty(request, "path");
+    PictureDirectory result = getByPath(path);
     request.setAttribute("path", path);
-    request.setAttribute("directory", directory);
-
-    return doExecute(mapping, actionForm, request, response, path, directory);
+    request.setAttribute("directory", result);
+    return result;
   }
 
 
-  protected abstract ActionForward doExecute(
-    ActionMapping mapping,
-    ActionForm actionForm,
-    HttpServletRequest request,
-    HttpServletResponse response,
-    String path,
-    PictureDirectory directory
-  ) throws Exception;
+  protected Picture setupPicture(HttpServletRequest request) {
+    PictureDirectory directory = setupDirectory(request);
+
+    String name = getParameterOrEmpty(request, "name");
+    Picture result = directory.getPicture(name);
+    if (result == null)
+      throw new NullPointerException("No picture with this name.");
+
+    request.setAttribute("name", name);
+    request.setAttribute("picture", result);
+
+    return result;
+  }
+
+
+  private String getParameterOrEmpty(HttpServletRequest request, String name) {
+    String result = request.getParameter(name);
+    return (result != null) ? result : "";
+  }
 
 
   private PictureDirectory getByPath(String path) {

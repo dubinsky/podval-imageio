@@ -19,7 +19,7 @@
 	<tr class="head">
 		<td class="navigation" width="20%" align="left" nowrap>
 		  <!-- Link to parent index, if any -->
-			<a href="../index.html"><img SRC="../../res/up.gif" BORDER=0 ALT="Up one level"></a>
+			<a href="../index.html"><img SRC="../../res/up.gif" border=0 alt="Up one level"></a>
 
 			<!-- Create navigation buttons if more than one index page -->
 	 </td>
@@ -63,14 +63,17 @@
         <a href="<c:url value='/do/picture'><c:param name='path' value='${path}'/><c:param name='name' value='${picture.name}'/></c:url>">
           <img
             class="image"
-            src="<c:url value='/do/view'><c:param name='path' value='${path}'/><c:param name='name' value='${picture.name}'/><c:param name='view' value='thumbnail'/></c:url>"
+            src="<c:url value='/do/view-thumbnail'><c:param name='path' value='${path}'/><c:param name='name' value='${picture.name}'/></c:url>"
             width="160"
             height="120"
             border="0"
 					>
-          <br>
-          <small><c:out value="${picture.name}"/></small>
         </a>
+        <br>
+        <small>
+          <c:out value="${picture.name}"/>
+          <c:out value="${picture.dateTimeString}"/>
+        </small>
       </td>
       <c:set var="i" value="${i+1}"/>
       <c:if test="${((i mod 6) == 0) and (i > 0)}"></tr><tr></c:if>

@@ -8,7 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 
-public class IndexAction extends Action {
+public class PictureAction extends Action {
 
   public ActionForward execute(
     ActionMapping mapping,
@@ -16,7 +16,7 @@ public class IndexAction extends Action {
     HttpServletRequest request,
     HttpServletResponse response)
   {
-    setupDirectory(request);
+    setupPicture(request);
     return mapping.findForward("jsp");
   }
 }

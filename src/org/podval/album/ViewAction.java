@@ -14,46 +14,35 @@ import java.io.OutputStream;
 import java.io.IOException;
 
 
-public class ViewAction extends Action {
+public abstract class ViewAction extends Action {
 
-  public ActionForward doExecute(
+  public ActionForward execute(
     ActionMapping mapping,
     ActionForm actionForm,
     HttpServletRequest request,
-    HttpServletResponse response,
-    String path,
-    PictureDirectory directory)
+    HttpServletResponse response)
     throws IOException
   {
-    String name = request.getParameter("name");
-    if (name == null)
-      throw new NullPointerException("No name parameter.");
+    Picture picture = setupPicture(request);
 
-    String view = request.getParameter("view");
-    if (view == null)
-      throw new NullPointerException("No view parameter.");
-
-    Picture picture = directory.getPicture(name);
-
-    File file = null;
-
-//    if (view.equals("thumbnail"))
-      file = picture.getScaledFile(160, 120);
-
+    File file = getViewFile(picture);
+    if (file == null)
+      throw new AssertionError("getViewFile() returned null!");
 
     response.setContentType("image/jpeg");
 
-    if (file != null) {
-      InputStream is = new FileInputStream(file);
-      OutputStream os = response.getOutputStream();
-      stream(is, os);
-    }
+    InputStream is = new FileInputStream(file);
+    OutputStream os = response.getOutputStream();
+    stream(is, os);
 
     return null;
   }
 
 
-  private static final int BUF_SIZE = 65536;
+  protected abstract File getViewFile(Picture picture) throws IOException;
+
+
+  private static final int BUF_SIZE = 512;
 
 
   private void stream(final InputStream is, final OutputStream os) {

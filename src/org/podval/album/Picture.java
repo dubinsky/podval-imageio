@@ -4,27 +4,38 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Date;
+
+import java.text.SimpleDateFormat;
 
 import java.io.File;
 import java.io.IOException;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
-import java.awt.RenderingHints;
 import java.awt.image.renderable.ParameterBlock;
 
-import javax.media.jai.Interpolation;
+import java.awt.RenderingHints;
+
 import javax.media.jai.JAI;
+import javax.media.jai.Interpolation;
 import javax.media.jai.BorderExtender;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
-import javax.imageio.stream.ImageInputStream;
 import javax.imageio.ImageWriter;
+
+import javax.imageio.metadata.IIOMetadata;
+
+import javax.imageio.stream.ImageInputStream;
 import javax.imageio.stream.ImageOutputStream;
 
 import java.lang.ref.SoftReference;
 
+import com.sun.imageio.plugins.jpeg.JPEGMetadata;
+
+import org.podval.imageio.Metadata;
+import org.podval.imageio.ExifReader;
 
 
 /**
@@ -32,12 +43,18 @@ import java.lang.ref.SoftReference;
 
 public class Picture {
 
-  public Picture(String name, File originalsDirectory, File generatedDirectory) {
+  public Picture(String name, File generatedDirectory) {
     this.name = name;
-    this.originalsDirectory = originalsDirectory;
-    this.generatedDirectory = generatedDirectory;
+    this.thumbnailFile = getGeneratedFile(generatedDirectory, "120x160");
+    this.screensizedFile = getGeneratedFile(generatedDirectory, "480x640");
+    this.convertedFile = getGeneratedFile(generatedDirectory, "converted");
   }
 
+
+
+  private File getGeneratedFile(File generatedDirectory, String modifier) {
+    return new File(generatedDirectory, name+"-"+modifier+".jpg");
+  }
 
 
   public String getName() {
@@ -50,96 +67,47 @@ public class Picture {
   }
 
 
-  public void addFile(File file, String name, String modifier,
-    String extension) throws IOException {
-    if (!modifier.equals(""))
-      throw new IllegalArgumentException(
-        "Modifiers in the originals directory - are they a good idea?");
-
-    addFile(file, name, extension);
-  }
-
-
-
-  private void addFile(File file, String name,
-    String extension) throws IOException {
+  public void addFile(File file, String name, String extension) throws IOException {
     if (!this.name.equals(name))
       throw new IOException("Duplicate case-sensitive file name " + name);
 
-    if (files.get(extension) != null)
-      throw new IOException("Duplicate case-sensitive extension " + extension);
+    if (extension.equalsIgnoreCase("jpg")) {
+      if (jpgFile != null)
+        throw new IOException("Duplicate case-sensitive extension " + extension);
+      jpgFile = file;
+    } else
 
-    files.put(extension, file);
+    if (extension.equalsIgnoreCase("crw")) {
+      if (crwFile != null)
+        throw new IOException("Duplicate case-sensitive extension " + extension);
+      crwFile = file;
+    } else
+
+    if (extension.equalsIgnoreCase("thm")) {
+      if (thmFile != null)
+        throw new IOException("Duplicate case-sensitive extension " + extension);
+      thmFile = file;
+    } else
+
+    ;
   }
 
 
   public boolean isPicture() {
-    return (getFile("crw") != null) || (getFile("jpg") != null);
+    return (crwFile != null) || (jpgFile != null);
   }
 
 
-  private BufferedImage getFullsized() throws IOException {
-    BufferedImage result = null;
-
-    if (fullsizedReference != null)
-      result = (BufferedImage) fullsizedReference.get();
-
-    if (result == null) {
-      File file;
-      if ((file = getFile("jpg")) != null) result = readImage(file); else
-      if ((file = getFile("crw")) != null) {
-        File convertedFile = new File(generatedDirectory, name+".jpg");
-        if (convertedFile.exists())
-          result = readImage(convertedFile);
-        else {
-          result = convert(file);
-          writeImage(result, convertedFile);
-        }
-      }
-      fullsizedReference = new SoftReference(result);
-    }
-
-    /** @todo  */
-    return result;
-  }
-
-
-  public RenderedImage getScaled(int width, int height) throws IOException {
-    RenderedImage result = null;
-    Scaling scaling = new Scaling(width, height);
-    SoftReference reference = (SoftReference) scalings.get(scaling);
-
-    if (reference != null) {
-      result = (BufferedImage) reference.get();
-    }
-
-    if (result == null) {
-      String modifier = height+"x"+width;
-      File file = new File(generatedDirectory, name+"-"+modifier+".jpg");
-      if (file.exists())
-        result = readImage(file);
-      else {
-        if ((width == 160) && (height == 120)) result = getCameraThumbnail(); else
-        if ((width == 640) && (height == 480)) result = getCameraScreensized();
-        if (result == null) result = scale(getFullsized(), width, height);
-        writeImage(result, file);
-      }
-
-      scalings.put(scaling, new SoftReference(result));
-    }
-
-    return result;
-  }
-
-
-  public File getScaledFile(int width, int height) throws IOException {
-    String modifier = height+"x"+width;
-    File result = new File(generatedDirectory, name+"-"+modifier+".jpg");
+  public File getThumbnailFile() throws IOException {
+    File result = thumbnailFile;
     if (!result.exists()) {
       RenderedImage image = null;
-      if ((width == 160) && (height == 120)) image = getCameraThumbnail(); else
-      if ((width == 640) && (height == 480)) image = getCameraScreensized();
-      if (image == null) image = scale(getFullsized(), width, height);
+
+      if (thmFile != null) image = readImage(thmFile); else
+      if (crwFile != null) image = readThumbnail(crwFile, 0);
+
+      if (image == null) image = scale(120, 160);
+
       writeImage(image, result);
     }
 
@@ -147,37 +115,106 @@ public class Picture {
   }
 
 
-  private BufferedImage getCameraThumbnail() throws IOException {
-    BufferedImage result = null;
+  public File getScreensizedFile() throws IOException {
+    File result = screensizedFile;
+    if (!result.exists()) {
+      RenderedImage image = null;
 
-    File file;
-    if ((file = getFile("thm")) != null) result = readImage(file); else
-    if ((file = getFile("crw")) != null) result = readThumbnail(file, 0);
+      if (crwFile != null) image = readThumbnail(crwFile, 1);
 
-    return result;
-  }
+      if (image == null) image = scale(480, 640);
 
-
-
-  private BufferedImage getCameraScreensized() throws IOException {
-    BufferedImage result = null;
-
-    File file;
-    if ((file = getFile("crw")) != null) result = readThumbnail(file, 1);
+      writeImage(image, result);
+    }
 
     return result;
   }
 
 
-  private RenderedImage scale(BufferedImage image, int width, int height) {
+  public File getFullsizedFile() throws IOException {
+    File result = jpgFile;
+    if (result == null) {
+      result = convertedFile;
+      if (!result.exists()) {
+        if (crwFile == null)
+          throw new NullPointerException("No JPEG or RAW file!");
+        writeImage(convert(crwFile), result);
+      }
+    }
+
+    return result;
+  }
+
+
+  private static final SimpleDateFormat dateFormat =
+    new SimpleDateFormat("M/d/y HH:mm:ss");
+
+
+  public String getDateTimeString() throws IOException {
+    return dateFormat.format(getDateTime());
+  }
+
+
+  private Date getDateTime() throws IOException {
+    return (Date) getMetadata().find("dateTime");
+  }
+
+
+  private Metadata getMetadata() throws IOException {
+    if ((metadata == null) || (metadata.get() == null)) {
+      metadata = new SoftReference(readMetadata(getMetadataFile()));
+    }
+    return (Metadata) metadata.get();
+  }
+
+
+  private File getMetadataFile() {
+    File result = jpgFile;
+    if (!result.exists()) result = crwFile;
+    if (!result.exists()) result = thmFile;
+    return result;
+  }
+
+
+  private static IIOMetadata readMetadata(File file) throws IOException {
+    IIOMetadata result = null;
+
+    ImageInputStream in = ImageIO.createImageInputStream(file);
+    Iterator readers = ImageIO.getImageReaders(in);
+    ImageReader reader = (readers.hasNext()) ? (ImageReader) readers.next() : null;
+
+    if (reader != null) {
+      reader.setInput(in);
+      result = reader.getImageMetadata(0);
+      reader.dispose();
+
+      /** @todo this should be done through a transcoder? */
+      if (result instanceof JPEGMetadata)
+        result = ExifReader.transcodeJpegMetadata(result);
+    }
+
+    in.close();
+    return (Metadata) result;
+  }
+
+
+  private RenderedImage scale(int height, int width) throws IOException {
+    return scale(getFullsizedFile(), height, width);
+  }
+
+
+  private static synchronized RenderedImage scale(File file, int height, int width) throws IOException {
+    RenderedImage image = readImage(file);
     float xscale = (float) width / image.getWidth ();
     float yscale = (float) height / image.getHeight();
     float scale = Math.min(xscale, yscale);
-    return scaleImage(image, scale);
+    Context.log("*** Scaling " + file);
+    RenderedImage result = scaleImage(image, scale);
+    return result;
   }
 
 
-  private RenderedImage scaleImage(BufferedImage image, float scale) {
+  private static RenderedImage scaleImage(RenderedImage image, float scale) {
     ParameterBlock pb = new ParameterBlock();
     pb.addSource(image);
     pb.add(scale);
@@ -194,73 +231,54 @@ public class Picture {
     new RenderingHints(JAI.KEY_BORDER_EXTENDER, BorderExtender.createInstance(BorderExtender.BORDER_COPY));
 
 
-  private BufferedImage readImage(File file) throws IOException {
+  private static synchronized BufferedImage readImage(File file) throws IOException {
     BufferedImage result = null;
     ImageInputStream in = ImageIO.createImageInputStream(file);
     Iterator readers = ImageIO.getImageReaders(in);
     ImageReader reader = (readers.hasNext()) ? (ImageReader) readers.next() : null;
 
     if (reader != null) {
-      reader.setInput(in);
+      reader.setInput(in, false, true);
       result = reader.read(0);
       reader.dispose();
     }
     in.close();
+
     return result;
   }
 
 
-  private void writeImage(RenderedImage result, File file) throws IOException {
+  private static void writeImage(RenderedImage result, File file) throws IOException {
     Iterator writers = ImageIO.getImageWritersBySuffix("jpg");
     ImageWriter writer = (ImageWriter) writers.next();
     ImageOutputStream out = ImageIO.createImageOutputStream(file);
     writer.setOutput(out);
-    writer.write(result);
+    writer.write(result); /** @todo parameters can be used to specify 'quality'... */
     out.close();
     writer.dispose();
   }
 
 
-  private BufferedImage readThumbnail(File file, int number) throws IOException {
+  private static synchronized BufferedImage readThumbnail(File file, int number) throws IOException {
     BufferedImage result = null;
     ImageInputStream in = ImageIO.createImageInputStream(file);
     Iterator readers = ImageIO.getImageReaders(in);
     ImageReader reader = (readers.hasNext()) ? (ImageReader) readers.next() : null;
 
     if (reader != null) {
-      reader.setInput(in);
+      reader.setInput(in, false, true);
       result = reader.readThumbnail(0, number);
       reader.dispose();
     }
     in.close();
+
     return result;
   }
 
 
-  private BufferedImage convert(File file) {
+  private static BufferedImage convert(File file) {
     BufferedImage result = null;
     /** @todo XXXXX */
-    return result;
-  }
-
-
-  private File getFile(String extension) {
-    return (File) files.get(extension);
-  }
-
-
-
-  public String toString() {
-    boolean first = true;
-    String result = name + " [";
-    for (Iterator extensions = files.keySet().iterator(); extensions.hasNext();) {
-      String extension = (String) extensions.next();
-      if (!first)
-        result += ", ";
-      result += extension;
-      first = false;
-    }
-    result += "]";
     return result;
   }
 
@@ -268,53 +286,23 @@ public class Picture {
   private final String name;
 
 
-  private final File originalsDirectory;
+  private File jpgFile;
 
 
-  private final File generatedDirectory;
+  private File thmFile;
 
 
-  /**
-   * map<String extension, File>
-   */
-  private final Map files = new TreeMap(String.CASE_INSENSITIVE_ORDER);
+  private File crwFile;
 
 
-  private SoftReference fullsizedReference;
+  private final File thumbnailFile;
 
 
-  /**
-   *  map<Scaling, BufferedImage>
-   */
-  private final Map scalings = new HashMap();
+  private final File screensizedFile;
 
 
-
-  /**
-   *
-   */
-  private static class Scaling {
-
-    public Scaling(int width, int height) {
-      this.width = width;
-      this.height = height;
-    }
+  private final File convertedFile;
 
 
-    public int hashCode() {
-      return (width*57314 + height);
-    }
-
-
-    public boolean equals(Object o) {
-      Scaling other = (Scaling) o;
-      return (this.width == other.width) && (this.height == other.height);
-    }
-
-
-    private final int width;
-
-
-    private final int height;
-  }
+  private SoftReference metadata;
 }

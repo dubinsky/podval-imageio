@@ -31,7 +31,7 @@ public class Context implements ServletContextListener {
 
 
   public static void log(String what) {
-    System.out.println(what);
+    servletContext.log(what);
   }
 
 
