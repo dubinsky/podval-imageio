@@ -3,6 +3,8 @@
  * Copyright 2003 Leonid Dubinsky
  */
 
+//-Xms32m -Xmx512m
+
 package org.podval.album;
 
 import java.util.Date;
@@ -44,6 +46,11 @@ public class PictureLocal extends Picture {
   }
 
 
+  private void trace(String what) {
+    LOG.log(Level.FINE, what);
+  }
+
+
   public PictureLocal(String name) {
     super(name);
   }
@@ -59,7 +66,7 @@ public class PictureLocal extends Picture {
    * @param extension
    *   string containing the file's extension
    */
-  public void addFile(File file, String extension) {
+  public synchronized void addFile(File file, String extension) {
     if (extension.equalsIgnoreCase("jpg")) jpgFile = addFile(jpgFile, file); else
     if (extension.equalsIgnoreCase("crw")) crwFile = addFile(crwFile, file); else
     if (extension.equalsIgnoreCase("thm")) thmFile = addFile(thmFile, file); else
@@ -99,16 +106,22 @@ public class PictureLocal extends Picture {
 
   public File getThumbnailFile() {
     File result = getThumbnailGeneratedFile();
-    if (!result.exists())
-      scale(readCameraThumbnail(), 120, 160, result);
+    if (!result.exists()) {
+      synchronized (PictureLocal.class) {
+        scale(readCameraThumbnail(), 120, 160, result);
+      }
+    }
     return ifExists(result);
   }
 
 
   public File getScreensizedFile() {
     File result = getScreensizedGeneratedFile();
-    if (!result.exists())
-      scale(readCameraScreensized(), 480, 640, result);
+    if (!result.exists()) {
+      synchronized (PictureLocal.class) {
+        scale(readCameraScreensized(), 480, 640, result);
+      }
+    }
     return ifExists(result);
   }
 
@@ -129,33 +142,26 @@ public class PictureLocal extends Picture {
       result = getFullsizedGeneratedFile();
 
       if (!result.exists()) {
-        RenderedImage image = readCameraFullsized();
-        /** @todo this can not really be null, and resulting file must exist -
-         * once I do crw conversion... */
-        /* Theoretically it is possible to losslesly rotate JPEG,
-           but if this will become a problem, I'll just switch to using
-           some other format for generated files - format that supports
-           lossless compression.
-         */
-        if (image != null) {
-          log("*** Rotating fullsized file " + result);
-          try {
+        synchronized (PictureLocal.class) {
+          RenderedImage image = readCameraFullsized();
+          /** @todo this can not really be null, and resulting file must exist -
+           * once I do crw conversion... */
+          /* Theoretically it is possible to losslesly rotate JPEG,
+             but if this will become a problem, I'll just switch to using
+             some other format for generated files - format that supports
+             lossless compression.
+           */
+          if (image != null) {
             image = Util.rotate(image, getOrientation());
-          } catch (Throwable e) {
-            log("*** rotating" + e);
+            writeImage(image, result);
           }
-          log("*** Writing fullsized file " + result);
-          writeImage(image, result);
-          log("*** Wrote file " + result + " of length " + result.length());
-        } else
-          log("*** Fullsized image is null for " + result);
-
+        }
         result = ifExists(result);
       }
     }
 
     if (result == null)
-      log("*** Fullsized file is null for " + getName());
+      trace("*** Fullsized file is null for " + getName());
 
     return result;
   }
@@ -255,18 +261,14 @@ public class PictureLocal extends Picture {
 //      }
       } catch (Throwable t) {
         /** @todo OutOfMemory is thrown here!
-         * I increased heap size for now (?).
-         * Trace shows
-         *   Rotating A - Writing fullsized A - Rotating B - Writing fullsized B - Wrote A - Wrote B
-         * I should introduce more synchronization so that no interleaving happens.
+         * Introduce global exception handler?
          * I probably want to make Picture and friends thread-safe, since
          * there may be different clients accessing it - directly or through the Facade.
          *  */
 
-        log("***** Writing " + file + " " + t);
+        trace("***** Writing " + file + " " + t);
       }
-    } else
-      log("*** Not writing null image to " + file);
+    }
   }
 
 
@@ -319,7 +321,7 @@ public class PictureLocal extends Picture {
   }
 
 
-  private void setOrientation(Orientation value) {
+  private synchronized void setOrientation(Orientation value) {
     if (orientation != value) {
       orientation = value;
       deleteGeneratedFiles();
@@ -351,7 +353,7 @@ public class PictureLocal extends Picture {
   }
 
 
-  protected void load() {
+  protected synchronized void load() {
     if (!changed) {
       File metadataWriteFile = null;
 
@@ -391,6 +393,7 @@ public class PictureLocal extends Picture {
 
       if ((metadataWriteFile != null) && (metadataWriteFile != metadataFile)) {
         metadataFile = metadataWriteFile;
+        /** @todo can creation of a copy of a metadataReadFile be avoided? */
         changed = true;
         save();
       }
@@ -398,7 +401,7 @@ public class PictureLocal extends Picture {
   }
 
 
-  public void save() {
+  public synchronized void save() {
     if (changed) {
       if (metadataFile != null) {
         save(metadataFile);

@@ -133,7 +133,7 @@ public abstract class Picture implements Comparable {
    *   string specifying the title of this picture.
    *   Can be <code>null</code>.
    */
-  public final void setTitle(String value) {
+  public final synchronized void setTitle(String value) {
     load();
     if (((title == null) && (value != null)) || !title.equals(value)) {
       title = value;

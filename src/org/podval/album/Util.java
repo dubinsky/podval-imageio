@@ -34,7 +34,7 @@ import org.podval.imageio.Orientation;
 
 public class Util {
 
-  public static synchronized RenderedImage readImage(File file)
+  public static RenderedImage readImage(File file)
     throws IOException
   {
     RenderedImage result = null;
@@ -58,7 +58,7 @@ public class Util {
   }
 
 
-  public static synchronized RenderedImage readThumbnail(File file, int number)
+  public static RenderedImage readThumbnail(File file, int number)
     throws IOException
   {
     RenderedImage result = null;
@@ -117,7 +117,7 @@ public class Util {
   }
 
 
-  public static synchronized RenderedImage scale(File file, int height, int width)
+  public static RenderedImage scale(File file, int height, int width)
     throws IOException
   {
     RenderedImage image = readImage(file);

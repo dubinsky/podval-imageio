@@ -19,7 +19,7 @@ public class Context implements ServletContextListener {
   public void contextInitialized(ServletContextEvent e) {
     servletContext = e.getServletContext();
 
-    Level level = Level.WARNING;
+    Level level = Level.FINE;
 
     Logger logger = Logger.getLogger("org.podval.album.Picture");
     logger.setLevel(level);
