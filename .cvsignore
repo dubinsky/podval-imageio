@@ -7,8 +7,6 @@ imageio.oif
 ant.xml
 doc
 podval-imageio.jar
-album
 defaultroot
 album.war
-Tomcat
 Servlet.library
