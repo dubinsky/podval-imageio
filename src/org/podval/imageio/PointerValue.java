@@ -3,7 +3,7 @@ package org.podval.imageio;
 import javax.imageio.metadata.IIOMetadataNode;
 
 
-public class PointerValue extends Value {
+public class PointerValue extends Entry {
 
   public PointerValue(String name, long offset, long length) {
     super(name);
@@ -18,9 +18,13 @@ public class PointerValue extends Value {
   }
 
 
-  protected String getValueAsString() {
-    /** @todo eliminate... */
-    return null;
+  public long getOffset() {
+    return offset;
+  }
+
+
+  public long getLength() {
+    return length;
   }
 
 

@@ -13,29 +13,30 @@ import java.util.Iterator;
 
 public class Record extends Typed {
 
-  public static Record define(org.podval.imageio.jaxb.Record xml) {
+  public static Record loadTopLevel(org.podval.imageio.jaxb.Record xml) {
     String name = xml.getName();
     Record result = (Record) records.get(name);
-
     if (result == null) {
       result = new Record(name);
       records.put(name, result);
     }
 
     result.add(xml);
-
     return result;
   }
 
 
-//  public static Record use(String name) {
-//    Record result = (Record) records.get(name);
-//
-//    if (result == null)
-//      throw new IllegalArgumentException("Undefined record " + name);
-//
-//    return result;
-//  }
+  public static Record loadLocal(org.podval.imageio.jaxb.Record xml) {
+    String name = xml.getName();
+    /** @todo XXX: handle references differently from local definitions... */
+    Record result = (Record) records.get(name);
+    if (result == null) {
+      result = new Record(name);
+    }
+
+    result.add(xml);
+    return result;
+  }
 
 
   private static final Map records = new HashMap();

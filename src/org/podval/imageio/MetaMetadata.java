@@ -49,7 +49,12 @@ public class MetaMetadata {
 
       JAXBContext jc = JAXBContext.newInstance("org.podval.imageio.jaxb");
       Unmarshaller u = jc.createUnmarshaller();
-      u.setValidating(true);
+      /**
+       * @todo XXX:
+       * Bug ID: 4800069 Validation fails with unexpected attribute for extension type.
+       * Marked as fixed; information is not available.
+       * */
+//      u.setValidating(true);
 
       org.podval.imageio.jaxb.MetaMetadata xml =
         (org.podval.imageio.jaxb.MetaMetadata) u.unmarshal(in);
@@ -62,14 +67,17 @@ public class MetaMetadata {
     for (Iterator i = xml.getDescriptors().iterator(); i.hasNext();) {
       Object descriptor = i.next();
 
-      if (descriptor instanceof org.podval.imageio.jaxb.Record)
-        Record.define((org.podval.imageio.jaxb.Record) descriptor);
-      else
+      /**
+       * @todo While .jaxb.MakerNote is derived from .jaxb.Directory,
+       * order of alternatives is important... */
       if (descriptor instanceof org.podval.imageio.jaxb.MakerNote)
         MakerNote.load((org.podval.imageio.jaxb.MakerNote) descriptor);
       else
       if (descriptor instanceof org.podval.imageio.jaxb.Directory)
-        Directory.define((org.podval.imageio.jaxb.Directory) descriptor);
+        Directory.load((org.podval.imageio.jaxb.Directory) descriptor);
+      else
+      if (descriptor instanceof org.podval.imageio.jaxb.Record)
+        Record.loadTopLevel((org.podval.imageio.jaxb.Record) descriptor);
       else
         assert false : "Unknown top-level descriptor " + descriptor;
     }

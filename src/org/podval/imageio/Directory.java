@@ -7,26 +7,20 @@ import java.util.Iterator;
 
 public class Directory extends Typed {
 
-  public static Directory define(org.podval.imageio.jaxb.Directory xml) {
-    String name = xml.getName();
+  public static Directory load(org.podval.imageio.jaxb.Directory xml) {
+    Directory result = get(xml.getName());
+    result.add(xml);
+    return result;
+  }
+
+
+  public static Directory get(String name) {
     Directory result = (Directory) directories.get(name);
 
     if (result == null) {
       result = new Directory(name);
       directories.put(name, result);
     }
-
-    result.add(xml);
-
-    return result;
-  }
-
-
-  public static Directory use(String name) {
-    Directory result = (Directory) directories.get(name);
-
-    if (result == null)
-      throw new IllegalArgumentException("Undefined directory " + name);
 
     return result;
   }
@@ -56,16 +50,10 @@ public class Directory extends Typed {
     for (Iterator i = xml.getEntries().iterator(); i.hasNext();) {
       Object o = i.next();
 
-      if (o instanceof org.podval.imageio.jaxb.SubRecord) {
-        org.podval.imageio.jaxb.SubRecord recordXml =
-          (org.podval.imageio.jaxb.SubRecord) o;
-        addEntry(recordXml.getTag(), Record.define(recordXml));
-      } else
-
       if (o instanceof org.podval.imageio.jaxb.SubDirectory) {
         org.podval.imageio.jaxb.SubDirectory directoryXml =
           (org.podval.imageio.jaxb.SubDirectory) o;
-        addEntry(directoryXml.getTag(), Directory.define(directoryXml));
+        addEntry(directoryXml.getTag(), Directory.load(directoryXml));
       } else
 
       if (o instanceof org.podval.imageio.jaxb.MakerNoteMarker) {
@@ -74,7 +62,13 @@ public class Directory extends Typed {
         int tag = markerXml.getTag();
         Type type = Type.parse(markerXml.getType());
         entries.put(new Key(tag, type), MakerNote.MARKER);
-      }else
+      } else
+
+      if (o instanceof org.podval.imageio.jaxb.SubRecord) {
+        org.podval.imageio.jaxb.SubRecord recordXml =
+          (org.podval.imageio.jaxb.SubRecord) o;
+        addEntry(recordXml.getTag(), Record.loadLocal(recordXml));
+      } else
 
         assert false : "Unknown directory entry " + o;
     }

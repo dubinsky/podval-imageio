@@ -12,6 +12,10 @@
     <xjc schema="src/org/podval/imageio/DIG35-2001-04-16-1.1.xsd" target="src" package="org.podval.imageio.dig35"/>
   </target>
 
+  <target name="Compile JPEG200 JPX schema">
+    <xjc schema="src/org/podval/imageio/jpx.xsd" target="src" package="org.podval.imageio.jpx"/>
+  </target>
+
   <target name="Deploy documentation">
     <delete dir="/var/www/html/imageio/"/>
     <copy todir="/var/www/html/imageio/">

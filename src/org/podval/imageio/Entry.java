@@ -19,9 +19,7 @@ public abstract class Entry {
 
   public Node getNativeTree() {
     IIOMetadataNode result = new IIOMetadataNode(getName());
-
     buildNativeTree(result);
-
     return result;
   }
 

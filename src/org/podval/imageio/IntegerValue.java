@@ -3,7 +3,7 @@ package org.podval.imageio;
 import javax.imageio.metadata.IIOMetadataNode;
 
 
-public class IntegerValue extends Value {
+public class IntegerValue extends SimpleValue {
 
   public IntegerValue(String name, long value) {
     super(name);
@@ -13,11 +13,6 @@ public class IntegerValue extends Value {
 
   public long getValue() {
     return value;
-  }
-
-
-  protected void buildNativeTree(IIOMetadataNode result) {
-    result.setAttribute("value", getValueAsString());
   }
 
 

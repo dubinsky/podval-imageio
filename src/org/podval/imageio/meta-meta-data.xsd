@@ -10,9 +10,9 @@
   <xsd:complexType>
     <xsd:choice minOccurs="0" maxOccurs="unbounded">
       <xsd:annotation><xsd:appinfo><jxb:property name="descriptors"/></xsd:appinfo></xsd:annotation>
-      <xsd:element name="record" type="Record"/>
       <xsd:element name="directory" type="Directory"/>
-      <xsd:element name="makerNote" type ="MakerNote"/>
+      <xsd:element name="makerNote" type="MakerNote"/>
+      <xsd:element name="record"    type="Record"/>
     </xsd:choice>
   </xsd:complexType>
 </xsd:element>
@@ -27,12 +27,21 @@
     <xsd:extension base="Typed">
       <xsd:choice minOccurs="0" maxOccurs="unbounded">
         <xsd:annotation><xsd:appinfo><jxb:property name="entries"/></xsd:appinfo></xsd:annotation>
-        <xsd:element name="record" type="SubRecord"/>
         <xsd:element name="directory" type="SubDirectory">
           <xsd:annotation><xsd:appinfo><jxb:class name="Subdirectory"/></xsd:appinfo></xsd:annotation>
         </xsd:element>
+        <xsd:element name="record" type="SubRecord"/>
         <xsd:element name="makerNoteMarker" type="MakerNoteMarker"/>
       </xsd:choice>
+    </xsd:extension>
+  </xsd:complexContent>
+</xsd:complexType>
+
+<xsd:complexType name="MakerNote">
+  <xsd:complexContent>
+    <xsd:extension base="Directory">
+      <xsd:attribute name="make" type="xsd:string" use="required"/>
+      <xsd:attribute name="signature" type="xsd:string"/>
     </xsd:extension>
   </xsd:complexContent>
 </xsd:complexType>
@@ -76,15 +85,6 @@
   <xsd:complexContent>
     <xsd:extension base="Record">
       <xsd:attribute name="tag" type="xsd:unsignedShort" use="required"/>
-    </xsd:extension>
-  </xsd:complexContent>
-</xsd:complexType>
-
-<xsd:complexType name="MakerNote">
-  <xsd:complexContent>
-    <xsd:extension base="Directory">
-      <xsd:attribute name="make" type="xsd:string" use="required"/>
-      <xsd:attribute name="signature" type="xsd:string"/>
     </xsd:extension>
   </xsd:complexContent>
 </xsd:complexType>

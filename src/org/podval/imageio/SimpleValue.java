@@ -1,12 +1,11 @@
-package org.podval.imageio
-  ;
+package org.podval.imageio;
 
 import javax.imageio.metadata.IIOMetadataNode;
 
 
-public abstract class Value extends Entry {
+public abstract class SimpleValue extends Entry {
 
-  protected Value(String name) {
+  protected SimpleValue(String name) {
     super(name);
   }
 

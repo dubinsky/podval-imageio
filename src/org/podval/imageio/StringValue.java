@@ -5,7 +5,10 @@ import javax.imageio.stream.ImageInputStream;
 import java.io.IOException;
 
 
-public class StringValue extends Value {
+public class StringValue extends SimpleValue {
+
+  private static final int MAX_STRING_LENGTH = 64;
+
 
   public StringValue(String name, String value) {
     super(name);
@@ -26,9 +29,6 @@ public class StringValue extends Value {
   public String getValue() {
     return value;
   }
-
-
-  private static final int MAX_STRING_LENGTH = 64;
 
 
   public static String readString(ImageInputStream in, int length)

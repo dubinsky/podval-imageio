@@ -9,19 +9,16 @@
 </directory>
 
 
-
 <directory name="imageProperties">
   <directory tag="4" type="one" name="canonImageDescription"/>
   <directory tag="11" type="two" name="canonRawProperties"/>
 </directory>
 
 
-
 <directory name="canonImageDescription">
   <record tag="5" type="string" name="canonImageDescription-5"/> <!-- G2: "[CRW:]High definition CCD image". -->
   <record tag="21" type="string" name="canonImageDescription-21"/>
 </directory>
-
 
 
 <directory name="canonRawProperties">

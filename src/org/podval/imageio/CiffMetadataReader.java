@@ -11,12 +11,11 @@ public class CiffMetadataReader {
 
 
   public static Metadata read(ImageInputStream in) throws IOException {
-    /** @todo move this to SPI? */
     MetaMetadata.load();
 
     Metadata result = new Metadata(NATIVE_FORMAT_NAME);
     long heapLength = readPrologue(in);
-    result.addEntry(readHeap(Directory.use("ciff-root"), in, heapLength));
+    result.addEntry(readHeap(Directory.get("ciff-root"), in, heapLength));
     return result;
   }
 

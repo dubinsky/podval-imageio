@@ -22,8 +22,8 @@ public class ExifDecoder {
      both in IFD0 and IFD1 (including EXIF AND GPS IFDs), I just use the same
      IFD twice!
     */
-    readIfd(Directory.use("exif-root"), in, offsetBase, result.getRoot(), result);
-    readIfd(Directory.use("exif-root"), in, offsetBase, result.getRoot(), result);
+    readIfd(Directory.get("exif-root"), in, offsetBase, result.getRoot(), result);
+    readIfd(Directory.get("exif-root"), in, offsetBase, result.getRoot(), result);
 
     return result;
   }
@@ -121,6 +121,8 @@ public class ExifDecoder {
         MakerNote makerNote = MakerNote.get(make);
         if (makerNote != null)
           readIfdInPlace(makerNote.getDirectory(), in, offsetBase, result, metadata);
+        else
+          result.addEntry(new Group("UnknownMakerNote-" + make));
       } else
         assert false : "Unknown IFD entry " + entry;
     }

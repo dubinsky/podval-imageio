@@ -13,7 +13,6 @@
 </directory>
 
 
-
 <directory name="imageProperties">
 
   <record tag="3" type="U32" name="imageFormat">

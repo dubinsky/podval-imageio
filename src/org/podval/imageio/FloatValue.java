@@ -5,7 +5,13 @@ import javax.imageio.stream.ImageInputStream;
 import java.io.IOException;
 
 
-public class FloatValue extends Value {
+public class FloatValue extends SimpleValue {
+
+  public FloatValue(String name, float value) {
+    super(name);
+    this.value = value;
+  }
+
 
   public FloatValue(String name, ImageInputStream in)
     throws IOException
@@ -14,18 +20,12 @@ public class FloatValue extends Value {
   }
 
 
-  public FloatValue(String name, float value) {
-    super(name);
-    this.value = value;
-  }
-
-
   protected String getValueAsString() {
     return Float.toString(value);
   }
 
 
-  public static Value readRational(String name, ImageInputStream in)
+  public static Entry readRational(String name, ImageInputStream in)
     throws IOException
   {
     long numerator = in.readUnsignedInt();
@@ -35,7 +35,7 @@ public class FloatValue extends Value {
   }
 
 
-  public static Value readSignedRational(String name, ImageInputStream in)
+  public static Entry readSignedRational(String name, ImageInputStream in)
     throws IOException
   {
     int numerator = in.readInt();

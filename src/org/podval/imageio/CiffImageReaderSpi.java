@@ -20,7 +20,7 @@ public class CiffImageReaderSpi extends ImageReaderSpi {
       STANDARD_INPUT_TYPE,
       null,
       false,
-      null, // CiffMetadata.NATIVE_FORMAT_NAME,
+      null, // CiffMetadataReader.NATIVE_FORMAT_NAME,
       null,
       null,
       null,

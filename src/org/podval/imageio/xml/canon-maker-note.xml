@@ -2,22 +2,26 @@
 
 <meta-metadata>
 
+<record name="canon-maker-note-2" type="U16" count="4"/>
+
+<record name="canon-maker-note-3-focalLength" type="U16" count="4">
+  <field type="U16" name="typeOrScale"/>
+  <field type="U16" name="focalLengthInMillimeters"/>
+  <field type="U16" name="sensorXinMilliinches"/>
+  <field type="U16" name="sensorYinMilliInches"/>
+</record>
+
+<record name="canon-maker-note-13" type="U16" vector="true" count="20"/>
+
+
 <makerNote make="Canon" name="canon-maker-note">
 
   <!-- I see this twice, with different values! WTF? -->
-  <record tag="0" name="canonMakerNote-0" type="U16" count="6"/> <!-- 0z -->
+  <record tag="0" name="canonMakerNote-0-justZeroes" type="U16" count="6"/>
 
   <record tag="1" name="canon-maker-note-1"/>
-
-  <record tag="2" name="canon-maker-note-2" type="U16" count="4"/>
-
-  <record tag="3" name="canon-maker-note-3-focalLength" type="U16" count="4">
-    <field type="U16" name="typeOrScale"/>
-    <field type="U16" name="focalLengthInMillimeters"/>
-    <field type="U16" name="sensorXinMilliinches"/>
-    <field type="U16" name="sensorYinMilliInches"/>
-  </record>
-
+  <record tag="2" name="canon-maker-note-2"/>
+  <record tag="3" name="canon-maker-note-3-focalLength"/>
   <record tag="4" name="canon-maker-note-4"/>
 
   <record tag="6" name="imageType" type="string" count="32"/>
@@ -36,10 +40,9 @@
     Low 16 bits are printed as a 5-digit decimal number.
   -->
 
-  <record tag="13" name="canon-maker-note-13" type="U16" vector="true" count="20"/>
+  <record tag="13" name="canon-maker-note-13"/>
 
   <record tag="15" name="customFunctions" vector="true"/>
-
 <!--
   <record tag="16" name="canonMakerNote-16"/>
 -->
