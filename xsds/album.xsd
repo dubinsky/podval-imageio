@@ -3,7 +3,6 @@
             jxb:version="1.0">
 
 <xsd:annotation><xsd:appinfo>
-  <jxb:globalBindings typesafeEnumBase = "xsd:string"/>
   <jxb:schemaBindings><jxb:package name="org.podval.album.jaxb"/></jxb:schemaBindings>
 </xsd:appinfo></xsd:annotation>
 
@@ -20,6 +19,7 @@
       <xsd:element name="picture" minOccurs="0" maxOccurs="unbounded">
 				<xsd:complexType>
 				  <xsd:attribute name="path" type="xsd:string" use="required"/>
+					<xsd:attribute name="title" type="xsd:string"/>
 				</xsd:complexType>
       </xsd:element>
     </xsd:sequence>
@@ -34,16 +34,15 @@
 </xsd:element>
 
 <xsd:simpleType name="Orientation">
-<!--  <xsd:annotation><xsd:appinfo><jxb:typesafeEnumClass/></xsd:appinfo></xsd:annotation>-->
   <xsd:restriction base="xsd:string">
-    <xsd:enumeration value="Top left"/>
-    <xsd:enumeration value="Top right"/>
-    <xsd:enumeration value="Bottom right"/>
-    <xsd:enumeration value="Bottom left"/>
-    <xsd:enumeration value="Left top"/>
-    <xsd:enumeration value="Right top"/>
-    <xsd:enumeration value="Right bottom"/>
-    <xsd:enumeration value="Left bottom"/>
+    <xsd:enumeration value="normal"/>
+    <xsd:enumeration value="left"/>
+    <xsd:enumeration value="over"/>
+    <xsd:enumeration value="right"/>
+    <xsd:enumeration value="flip"/>
+    <xsd:enumeration value="flip and left"/>
+    <xsd:enumeration value="flip and over"/>
+    <xsd:enumeration value="flip and right"/>
   </xsd:restriction>
 </xsd:simpleType>
 
