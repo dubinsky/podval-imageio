@@ -10,6 +10,8 @@ public class Metadata extends IIOMetadata {
 
   public Metadata(String nativeMetadataFormatName) {
     super(false, nativeMetadataFormatName, null, null, null);
+    root = new Group();
+    root.setName(getNativeMetadataFormatName());
   }
 
 
@@ -49,8 +51,8 @@ public class Metadata extends IIOMetadata {
   public int getIntegerValue(String name) {
     int result = -1;
     Entry entry = getEntry(name);
-    if ((entry != null) && (entry instanceof IntegerValue)) {
-      result = (int) ((IntegerValue) entry).getValue();
+    if ((entry != null) && (entry instanceof Value.IntegerValue)) {
+      result = (int) ((Value.IntegerValue) entry).getValue();
     }
     return result;
   }
@@ -59,8 +61,8 @@ public class Metadata extends IIOMetadata {
   public String getStringValue(String name) {
     String result = null;
     Entry entry =  getEntry(name);
-    if ((entry != null) && (entry instanceof StringValue)) {
-      result = ((StringValue) entry).getValue();
+    if ((entry != null) && (entry instanceof Value.StringValue)) {
+      result = ((Value.StringValue) entry).getValue();
     }
     return result;
   }
@@ -93,5 +95,5 @@ public class Metadata extends IIOMetadata {
   }
 
 
-  private Group root = new Group(getNativeMetadataFormatName());
+  private final Group root;
 }

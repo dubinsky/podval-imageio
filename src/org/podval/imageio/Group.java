@@ -9,11 +9,6 @@ import javax.imageio.metadata.IIOMetadataNode;
 
 public class Group extends Entry {
 
-  public Group(String name) {
-    super(name);
-  }
-
-
   public void addEntry(Entry entry) {
     if (entry == null)
       throw new NullPointerException("Entry is null!");
@@ -32,13 +27,6 @@ public class Group extends Entry {
   }
 
 
-  protected void buildNativeTree(IIOMetadataNode result) {
-    for (Iterator i = entries.iterator(); i.hasNext();) {
-      result.appendChild(((Entry) i.next()).getNativeTree());
-    }
-  }
-
-
   public Entry flatten() {
     return (entries.size() == 1) ? (Entry) entries.get(0) : this;
   }
@@ -52,6 +40,13 @@ public class Group extends Entry {
         break;
     }
     return result;
+  }
+
+
+  protected void buildNativeTree(IIOMetadataNode result) {
+    for (Iterator i = entries.iterator(); i.hasNext();) {
+      result.appendChild(((Entry) i.next()).getNativeTree());
+    }
   }
 
 

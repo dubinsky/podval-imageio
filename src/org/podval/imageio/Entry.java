@@ -7,17 +7,23 @@ import javax.imageio.metadata.IIOMetadataNode;
 
 public abstract class Entry {
 
-  protected Entry(String name) {
+  public final void setName(String name) {
     this.name = name;
   }
 
 
-  public String getName() {
+  public final String getName() {
     return name;
   }
 
 
-  public Node getNativeTree() {
+  public abstract Entry flatten();
+
+
+  public abstract Entry getEntry(String name);
+
+
+  public final Node getNativeTree() {
     IIOMetadataNode result = new IIOMetadataNode(getName());
     buildNativeTree(result);
     return result;
@@ -27,15 +33,5 @@ public abstract class Entry {
   protected abstract void buildNativeTree(IIOMetadataNode result);
 
 
-  public Entry flatten() {
-    return this;
-  }
-
-
-  public Entry getEntry(String name) {
-    return (getName().equals(name)) ? this : null;
-  }
-
-
-  private final String name;
+  private String name;
 }

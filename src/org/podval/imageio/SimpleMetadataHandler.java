@@ -10,7 +10,8 @@ public class SimpleMetadataHandler implements MetadataHandler {
 
 
   public void startFolder(Typed folder) {
-    Group group = new Group(folder.getName());
+    Group group = new Group();
+    group.setName(folder.getName());
     group.setParent(tip);
     tip = group;
   }
@@ -25,31 +26,32 @@ public class SimpleMetadataHandler implements MetadataHandler {
 
 
   public void integerValue(Field field, long value) {
-    value(new IntegerValue(field.getName(), value));
+    value(field, new Value.IntegerValue(value));
   }
 
 
   public void stringValue(Field field, String value) {
-    value(new StringValue(field.getName(), value));
+    value(field, new Value.StringValue(value));
   }
 
 
   public void floatValue(Field field, float value) {
-    value(new FloatValue(field.getName(), value));
+    value(field, new Value.FloatValue(value));
   }
 
 
   public void binaryValue(Field field, byte[] value) {
-    value(new HexValue(field.getName(), value));
+    value(field, new Value.HexValue(value));
   }
 
 
   public void pointerValue(Field field, long offset, long length) {
-    value(new PointerValue(field.getName(), offset, length));
+    value(field, new Value.PointerValue(offset, length));
   }
 
 
-  private void value(Entry value) {
+  private void value(Field field, Value value) {
+    value.setName(field.getName());
     tip.addEntry(value);
   }
 
