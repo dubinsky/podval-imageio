@@ -12,7 +12,6 @@ import java.io.ByteArrayInputStream;
 import org.w3c.dom.Node;
 
 
-
 /*
   It is possible to use TIFFImageMetadata from the new jai_imageio package from Sun.
   But:

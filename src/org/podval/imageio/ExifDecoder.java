@@ -32,11 +32,8 @@ public class ExifDecoder {
 
 
   private static long readPrologue(ImageInputStream in) throws IOException {
-    for (int i=0; i< EXIF_SIGNATURE.length; i++) {
-      int b = in.readUnsignedByte();
-      if (b != EXIF_SIGNATURE[i])
-        throw new IOException("Bad EXIF signature.");
-    }
+    if (!Util.readSignature(in, EXIF_SIGNATURE))
+      throw new IOException("Bad EXIF signature.");
 
     long offsetBase = in.getStreamPosition();
 

@@ -10,14 +10,21 @@ import java.io.IOException;
 public class JpegStreamExifDecoder {
 
   public static Metadata read(ImageInputStream in) throws IOException {
-    int byte1 = in.readUnsignedByte();
-    int byte2 = in.readUnsignedByte();
-
     /* Start Of Image marker. */
-    if ((byte1 != 0xFF) || (byte2 != 0xD8))
+    if (readMarker(in) != 0xD8)
       throw new IOException("Bad JPEG signature.");
 
     return (findExifMarker(in)) ? ExifReader.read(in) : null;
+  }
+
+
+  private static int readMarker(ImageInputStream in) throws IOException {
+    // Can there be padding that I need to skip here?
+
+    if (in.readUnsignedByte() != 0xFF)
+      throw new IllegalArgumentException("Section does not begin with a marker.");
+
+    return in.readUnsignedByte();
   }
 
 
@@ -44,16 +51,6 @@ public class JpegStreamExifDecoder {
     }
 
     return found;
-  }
-
-
-  private static int readMarker(ImageInputStream in) throws IOException {
-    // Can there be padding that I need to skip here?
-
-    if (in.readUnsignedByte() != 0xFF)
-      throw new IllegalArgumentException("Section does not begin with a marker.");
-
-    return in.readUnsignedByte();
   }
 
 

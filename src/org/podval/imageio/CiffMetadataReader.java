@@ -26,7 +26,7 @@ public class CiffMetadataReader {
       throw new IOException("Bad CIFF signature.");
 
     if (in.readUnsignedInt() != 0x00010002)
-      throw new IOException("Bad CIFF signature.");
+      throw new IOException("Bad CIFF version signature.");
 
     long heapLength = in.length() - headerLength;
 
@@ -36,21 +36,12 @@ public class CiffMetadataReader {
   }
 
 
-  public static boolean readSignature(ImageInputStream in) throws IOException {
-    boolean result = true;
-
-    for (int i = 0; i<CIFF_SIGNATURE.length; i++) {
-      if (in.read() != CIFF_SIGNATURE[i]) {
-        result = false;
-        break;
-      }
-    }
-
-    return result;
-  }
-
-
   private static final int[] CIFF_SIGNATURE = {'H', 'E', 'A', 'P', 'C', 'C', 'D', 'R'};
+
+
+  public static boolean readSignature(ImageInputStream in) throws IOException {
+    return Util.readSignature(in, CIFF_SIGNATURE);
+  }
 
 
   /**

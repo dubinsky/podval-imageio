@@ -58,5 +58,6 @@ public class Group extends Entry {
   private final List entries = new ArrayList();
 
 
+  /** @todo maybe this should go away and Builder should have a stack? */
   private Group parent = null;
 }
