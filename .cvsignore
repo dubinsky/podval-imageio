@@ -8,3 +8,6 @@ ant.xml
 doc
 podval-imageio.jar
 Tomcat
+album
+defaultroot
+album.war
