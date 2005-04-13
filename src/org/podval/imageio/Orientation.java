@@ -18,7 +18,6 @@ public enum Orientation {
   public static final Orientation NORMAL = TOP_LEFT;
 
 
-  /** @todo use maps instead? What for? */
   public static Orientation valueOf(boolean flipAroundHorizontal, Rotation rotation) {
     Orientation result = null;
 
@@ -85,6 +84,11 @@ public enum Orientation {
 
   public Orientation inverse() {
     return valueOf(flipAroundHorizontal, (flipAroundHorizontal) ? rotation : rotation.inverse());
+  }
+
+
+  public Dimension apply(Dimension value) {
+    return getRotation().apply(value);
   }
 
 
