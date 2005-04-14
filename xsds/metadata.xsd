@@ -1,18 +1,8 @@
-<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-            xmlns:jxb="http://java.sun.com/xml/ns/jaxb"
-            jxb:version="1.0">
-
-<xsd:annotation><xsd:appinfo>
-  <jxb:schemaBindings>
-    <jxb:package name="org.podval.imageio.jaxb"/>
-    <jxb:nameXmlTransform><anonymousTypeName suffix="Type"/></jxb:nameXmlTransform>
-  </jxb:schemaBindings>
-</xsd:appinfo></xsd:annotation>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
 
 <xsd:element name="meta-metadata">
   <xsd:complexType>
     <xsd:choice minOccurs="0" maxOccurs="unbounded">
-      <xsd:annotation><xsd:appinfo><jxb:property name="descriptors"/></xsd:appinfo></xsd:annotation>
       <xsd:element name="directory" type="Directory"/>
       <xsd:element name="makerNote" type="MakerNote"/>
       <xsd:element name="record"    type="Record"/>
@@ -29,10 +19,9 @@
   <xsd:complexContent>
     <xsd:extension base="Typed">
       <xsd:choice minOccurs="0" maxOccurs="unbounded">
-        <xsd:annotation><xsd:appinfo><jxb:property name="entries"/></xsd:appinfo></xsd:annotation>
         <xsd:element name="directory">
           <!--
-						This here type was not always anonymous. It used to be called SubDirectory,
+            This here type was not always anonymous. It used to be called SubDirectory,
             and this element used to be annotated to induce an interface 'Subdirectory'.
             Somehow, JAXB started to generate cyclic dependencies, so I had to
             anonymize the type, rename the interface, use Directory.SubDirectory instead
@@ -41,14 +30,13 @@
             And I am still not pleased with the resulting generated mess.
             @todo: revise when next version of JAXB comes out...
             -->
-          <xsd:annotation><xsd:appinfo><jxb:class name="SubDirectory"/></xsd:appinfo></xsd:annotation>
-					<xsd:complexType>
-					  <xsd:complexContent>
-					    <xsd:extension base="Directory">
-					      <xsd:attribute name="tag" type="xsd:unsignedShort" use="required"/>
-					    </xsd:extension>
-					  </xsd:complexContent>
-					</xsd:complexType>
+          <xsd:complexType>
+            <xsd:complexContent>
+              <xsd:extension base="Directory">
+                <xsd:attribute name="tag" type="xsd:unsignedShort" use="required"/>
+              </xsd:extension>
+            </xsd:complexContent>
+          </xsd:complexType>
         </xsd:element>
         <xsd:element name="record" type="SubRecord"/>
         <xsd:element name="makerNoteMarker" type="MakerNoteMarker"/>
@@ -71,9 +59,7 @@
     <xsd:extension base="Typed">
 
       <xsd:choice>
-        <xsd:element name="field" type="Field" minOccurs="0" maxOccurs="unbounded">
-          <xsd:annotation><xsd:appinfo><jxb:property name="fields"/></xsd:appinfo></xsd:annotation>
-        </xsd:element>
+        <xsd:element name="field" type="Field" minOccurs="0" maxOccurs="unbounded"/>
         <xsd:element name="enumeration" type="Enumeration" minOccurs="0"/>
       </xsd:choice>
 
@@ -83,21 +69,13 @@
             Vectors consist of X16s; in the beginning, there is a U16 length in bytes,
             counting the length itself.
           </xsd:documentation>
-          <xsd:appinfo><jxb:property generateIsSetMethod="true"/></xsd:appinfo>
         </xsd:annotation>
       </xsd:attribute>
 
       <xsd:attribute name="count" type="Count"/>
-
       <xsd:attribute name="conversion" type="xsd:string"/>
-
-		  <xsd:attribute name="handler" type="xsd:string"/>
-
-			<xsd:attribute name="skip" type="xsd:boolean">
-        <xsd:annotation>
-          <xsd:appinfo><jxb:property generateIsSetMethod="true"/></xsd:appinfo>
-        </xsd:annotation>
-      </xsd:attribute>
+      <xsd:attribute name="handler" type="xsd:string"/>
+      <xsd:attribute name="skip" type="xsd:boolean"/>
 
     </xsd:extension>
   </xsd:complexContent>
@@ -128,34 +106,24 @@
             <xsd:documentation>
               Subfields are read most- to least-significant.
             </xsd:documentation>
-            <xsd:appinfo><jxb:property name="subfields"/></xsd:appinfo>
           </xsd:annotation>
         </xsd:element>
       </xsd:choice>
 
-      <xsd:attribute name="index" type="xsd:int">
-        <xsd:annotation><xsd:appinfo><jxb:property generateIsSetMethod="true"/></xsd:appinfo></xsd:annotation>
-      </xsd:attribute>
-
+      <xsd:attribute name="index" type="xsd:int"/>
       <xsd:attribute name="conversion" type="xsd:string"/>
-
-      <xsd:attribute name="skip" type="xsd:boolean">
-        <xsd:annotation>
-          <xsd:appinfo><jxb:property generateIsSetMethod="true"/></xsd:appinfo>
-        </xsd:annotation>
-      </xsd:attribute>
+      <xsd:attribute name="skip" type="xsd:boolean"/>
     </xsd:extension>
   </xsd:complexContent>
 </xsd:complexType>
 
 <xsd:complexType name="Enumeration">
   <xsd:sequence minOccurs="0" maxOccurs="unbounded">
-    <xsd:annotation><xsd:appinfo><jxb:property name="items"/></xsd:appinfo></xsd:annotation>
     <xsd:element name="item">
-			<xsd:complexType>
-			  <xsd:attribute name="tag" type="xsd:int" use="required"/>
-			  <xsd:attribute name="value" type="xsd:string" use="required"/>
-			</xsd:complexType>
+      <xsd:complexType>
+        <xsd:attribute name="tag" type="xsd:int" use="required"/>
+        <xsd:attribute name="value" type="xsd:string" use="required"/>
+      </xsd:complexType>
     </xsd:element>
   </xsd:sequence>
   <xsd:attribute name="enumClass" type="xsd:string"/>
