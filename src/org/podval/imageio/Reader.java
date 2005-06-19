@@ -22,13 +22,14 @@ public class Reader {
 
     ByteOrder byteOrder;
 
-    if ((byte1 == 'I') && (byte2 == 'I'))
+    if ((byte1 == 'I') && (byte2 == 'I')) {
       byteOrder = ByteOrder.LITTLE_ENDIAN;
-    else
-    if ((byte1 == 'M') && (byte2 == 'M'))
+    } else
+    if ((byte1 == 'M') && (byte2 == 'M')) {
       byteOrder = ByteOrder.BIG_ENDIAN;
-    else
+    } else {
       throw new IOException("Bad byte order marker.");
+    }
 
     in.setByteOrder(byteOrder);
   }

@@ -45,7 +45,12 @@ public class Test {
 
 
   public static void main(String[] args) throws IOException {
-    ImageInputStream in = new FileImageInputStream(new File(args[0]));
-    CiffReader.read(in, new DumpingHandler());
+    File file = new File(args[0]);
+
+    CiffReader.read(new FileImageInputStream(file), new DumpingHandler());
+
+    CrwThumbnailExtractor.extractBig(file, new File("/tmp/" + file.getName() + ".big.jpeg"));
+
+    CrwThumbnailExtractor.extractSmall(file, new File("/tmp/" + file.getName() + ".small.jpeg"));
   }
 }
