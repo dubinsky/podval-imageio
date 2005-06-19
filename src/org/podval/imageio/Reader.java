@@ -1,20 +1,22 @@
+/* $Id$ */
+
 package org.podval.imageio;
 
-import javax.imageio.stream.ImageInputStream;
-
 import java.io.IOException;
+
+import javax.imageio.stream.ImageInputStream;
 
 import java.nio.ByteOrder;
 
 
-public class Util {
+public class Reader {
 
   /**
    * Determines byte order used from a special marker, and arranges so that it
    * is used for all subsequant reads.
    * @throws IOException
    */
-  public static void determineByteOrder(ImageInputStream in) throws IOException {
+  protected static void determineByteOrder(ImageInputStream in) throws IOException {
     int byte1 = in.read();
     int byte2 = in.read();
 
@@ -32,7 +34,7 @@ public class Util {
   }
 
 
-  public static boolean readSignature(ImageInputStream in, int[] signature)
+  protected static boolean readSignature(ImageInputStream in, int[] signature)
     throws IOException
   {
     boolean result = true;

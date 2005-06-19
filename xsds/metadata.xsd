@@ -19,28 +19,18 @@
   <xsd:complexContent>
     <xsd:extension base="Typed">
       <xsd:choice minOccurs="0" maxOccurs="unbounded">
-        <xsd:element name="directory">
-          <!--
-            This here type was not always anonymous. It used to be called SubDirectory,
-            and this element used to be annotated to induce an interface 'Subdirectory'.
-            Somehow, JAXB started to generate cyclic dependencies, so I had to
-            anonymize the type, rename the interface, use Directory.SubDirectory instead
-            of just SubDirectory, and specify explicitly the suffix to add to the anonymous
-            type name - although I am using what is supposed to be the default...
-            And I am still not pleased with the resulting generated mess.
-            @todo: revise when next version of JAXB comes out...
-            -->
-          <xsd:complexType>
-            <xsd:complexContent>
-              <xsd:extension base="Directory">
-                <xsd:attribute name="tag" type="xsd:unsignedShort" use="required"/>
-              </xsd:extension>
-            </xsd:complexContent>
-          </xsd:complexType>
-        </xsd:element>
+        <xsd:element name="directory" type="SubDirectory"/>
         <xsd:element name="record" type="SubRecord"/>
         <xsd:element name="makerNoteMarker" type="MakerNoteMarker"/>
       </xsd:choice>
+    </xsd:extension>
+  </xsd:complexContent>
+</xsd:complexType>
+
+<xsd:complexType name="SubDirectory">
+  <xsd:complexContent>
+    <xsd:extension base="Directory">
+      <xsd:attribute name="tag" type="xsd:unsignedShort" use="required"/>
     </xsd:extension>
   </xsd:complexContent>
 </xsd:complexType>
