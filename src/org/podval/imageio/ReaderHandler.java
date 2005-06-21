@@ -12,8 +12,10 @@ public interface ReaderHandler {
   public boolean startHeap(int idCode);
 
 
+  /** @todo rename (to directory?) */
   public void endHeap();
 
 
+  /** @todo rename (to entry?) */
   public void readRecord(Reader reader);
 }

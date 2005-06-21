@@ -85,6 +85,32 @@ public abstract class Reader {
   }
 
 
+  protected final void processHeap(long dataOffset, long dataLength, int dataTag)
+    throws IOException
+  {
+    this.dataOffset = dataOffset;
+    this.dataLength = dataLength;
+    this.dataType = null;
+    this.dataTag = dataTag;
+    this.dataCount = 0;
+
+    if (handler.startHeap(dataTag)) {
+      readHeap();
+    }
+
+    handler.endHeap();
+  }
+
+
+  protected abstract void readHeap() throws IOException;
+
+
+  protected final void readEntries(long entriesOffset, int numEntries, int entryLength, long offsetBase) {
+    /** @todo or not to do? */
+
+  }
+
+
   protected final void processRecord(long dataOffset, long dataLength, TypeNG dataType, int dataCount, int dataTag) {
     this.dataOffset = dataOffset;
     this.dataLength = dataLength;
@@ -99,6 +125,11 @@ public abstract class Reader {
   public final ImageInputStream getInputStream() throws IOException {
     in.seek(dataOffset);
     return in;
+  }
+
+
+  public final long getDataOffset() {
+    return dataOffset;
   }
 
 

@@ -48,8 +48,9 @@ public class ExifReader extends Reader {
      have have it, and since I need one root for the resulting metadata.
      This can be changed if need be.
 
-         readIfd(1);
     */
+   /** @todo If 0th ifd was skipped, the reader will not be properly positioned to read the 1st ifd!!! */
+   readIfd(1);
   }
 
 
@@ -63,21 +64,20 @@ public class ExifReader extends Reader {
 
 
   private void readIfdInPlace(int tag) throws IOException {
+    processHeap(0, 0, tag);
+  }
+
+
+  protected void readHeap() throws IOException {
     int numEntries = in.readUnsignedShort();
     long entriesOffset = in.getStreamPosition();
 
-    boolean process = handler.startHeap(tag);
-
-    if (process) {
-      for (int i = 0; i < numEntries; i++) {
-        readEntry(entryOffset(entriesOffset, i));
-      }
+    for (int i = 0; i < numEntries; i++) {
+      readEntry(entryOffset(entriesOffset, i));
     }
 
     in.seek(entryOffset(entriesOffset, numEntries));
     // At this point we are positioned at the offset of the linked IFD.
-
-    handler.endHeap();
   }
 
 
