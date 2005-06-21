@@ -112,8 +112,8 @@ public class Metadata extends IIOMetadata {
     IIOMetadata result = reader.getImageMetadata(0);
 
     /** @todo this should be done through a transcoder? */
-    if (result instanceof JPEGMetadata)
-      result = ExifReader.transcodeJpegMetadata(result);
+//    if (result instanceof JPEGMetadata)
+//      result = ExifStream.fromJpegMetadata(result);
 
     return (Metadata) result;
   }

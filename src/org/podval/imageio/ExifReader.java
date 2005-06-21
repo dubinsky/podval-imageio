@@ -1,131 +1,152 @@
+/* $Id$ */
+
 package org.podval.imageio;
 
-import javax.imageio.ImageIO;
 import javax.imageio.stream.ImageInputStream;
-import javax.imageio.metadata.IIOMetadata;
-import javax.imageio.metadata.IIOMetadataNode;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
-import java.nio.ByteOrder;
 
-import org.w3c.dom.Node;
+public class ExifReader extends Reader {
 
-
-/*
-  It is possible to use TIFFImageMetadata from the new jai_imageio package from Sun.
-  But:
-  1) It is not aware of all the EXIF 2.2 tags, I do not think.
-  2) It is not easily expandable through xml files.
-  3) There are mistakes in its tag definitions, for instance:
-     a) Tag 0x0112 (274) 'Orientation' is missing value '8' (Left-Bottom).
-     b) Tag 0x927C (37500) 'MakerNote' is incorrectly named 'MarkerNote'.
-     c) In BaseLine..., tags 0x0201 and 0x0202 (JpegIFOffset/JpegIFByteCount) are missing?
-  4) It does not read interoperability IFDs.
-  5) It does not decode maker note.
-*/
-
-
-public class ExifReader {
-
-  public static Metadata transcodeJpegMetadata(IIOMetadata metadata) throws IOException {
-    /** @todo check that it is a JPEG metadata.... */
-    IIOMetadataNode exifSegment = (IIOMetadataNode) findExifSegment(
-      metadata.getAsTree(metadata.getNativeMetadataFormatName()));
-
-    return (exifSegment == null) ? null :
-      readExifStream(ImageIO.createImageInputStream(
-        new ByteArrayInputStream((byte[]) exifSegment.getUserObject())));
+  public ExifReader(ImageInputStream in) {
+    super(in);
   }
 
 
-  // Looking for: <unknown MarkerTag="225"/> (APP1 marker)
-  private static Node findExifSegment(Node root) {
-    if (root.getNodeType() != Node.ELEMENT_NODE)
-      return null;
-
-    if (root.getNodeName().equals("unknown") &&
-        root.getAttributes().getNamedItem("MarkerTag").getNodeValue().equals("225"))
-      return root;
-
-    for (Node child = root.getFirstChild(); child != null; child = child.getNextSibling()) {
-      Node result = findExifSegment(child);
-      if (result != null)
-        return result;
+  protected void readPrologue() throws IOException {
+    if (!readSignature()) {
+      throw new IOException("Bad EXIF signature.");
     }
 
-    return null;
+    offsetBase = in.getStreamPosition();
+
+    determineByteOrder();
+
+    if (in.readUnsignedShort() != 0x2A) {
+      throw new IOException("Bad TIFF magic.");
+    }
   }
 
 
-  public static Metadata readJpegStream(ImageInputStream in) throws IOException {
-    /* Start Of Image marker. */
-    if (readMarker(in) != 0xD8)
-      throw new IOException("Bad JPEG signature.");
+  private static int[] EXIF_SIGNATURE = {'E', 'x', 'i', 'f', 0, 0};
 
-    return (findExifMarker(in)) ? readExifStream(in) : null;
+
+  protected int[] getSignature() {
+    return EXIF_SIGNATURE;
   }
 
 
-  private static int readMarker(ImageInputStream in) throws IOException {
-    // Can there be padding that I need to skip here?
+  protected void doRead() throws IOException {
+    readIfd(0);
 
-    if (in.readUnsignedByte() != 0xFF)
-      throw new IllegalArgumentException("Section does not begin with a marker.");
+    /*
+     Since virtually all the tags (except 513 and 514) seem to be allowed
+     both in IFD0 and IFD1 (including EXIF and GPS IFDs),
+     the same directory descriptor can be used for IFD1 too.
+     At this point I do not read IFD1 at all, though, since none of the images I
+     have have it, and since I need one root for the resulting metadata.
+     This can be changed if need be.
 
-    return in.readUnsignedByte();
+         readIfd(1);
+    */
   }
 
 
-  private static boolean findExifMarker(ImageInputStream in) throws IOException {
-    boolean found = false;
+  private void readIfd(int tag) throws IOException {
+    long offset = in.readUnsignedInt();
+    if (offset != 0) {
+      in.seek(offsetBase + offset);
+      readIfdInPlace(tag);
+    }
+  }
 
-    while (true) {
-      int marker = readMarker(in);
 
-      /* Start Of Scan (data) or End Of Image (stream). */
-      if ((marker == 0xDA) || (marker == 0xD9))
-        break;
+  private void readIfdInPlace(int tag) throws IOException {
+    int numEntries = in.readUnsignedShort();
+    long entriesOffset = in.getStreamPosition();
 
-      /* EXIF (APP1) */
-      if (marker == 0xE1) {
-        found = true;
-        break;
+    boolean process = handler.startHeap(tag);
+
+    if (process) {
+      for (int i = 0; i < numEntries; i++) {
+        readEntry(entryOffset(entriesOffset, i));
       }
-
-      long sectionStart = in.getStreamPosition();
-      int sectionLength = readSectionLength(in);
-
-      in.seek(sectionStart+2+sectionLength);
     }
 
-    return found;
+    in.seek(entryOffset(entriesOffset, numEntries));
+    // At this point we are positioned at the offset of the linked IFD.
+
+    handler.endHeap();
   }
 
 
-  private static int readSectionLength(ImageInputStream in) throws IOException {
-    ByteOrder byteOrder = in.getByteOrder();
-    in.setByteOrder(ByteOrder.BIG_ENDIAN);
-    int result = in.readUnsignedShort();
-    in.setByteOrder(byteOrder);
+  private long entryOffset(long entriesOffset, int entryNumber) {
+    return entriesOffset + 12*entryNumber;
+  }
 
-    /* Length includes first two bytes representing it. */
-    result -= 2;
 
-    if (result < 0)
-      throw new IOException("Section length too small.");
+  private void readEntry(long offset) throws IOException {
+    in.seek(offset);
+
+    int tag = in.readUnsignedShort();
+    TypeNG type = decodeType(in.readUnsignedShort());
+    int count = (int) in.readUnsignedInt(); /** @todo cast... */
+    long dataLength = count * type.getLength();
+    long dataOffset;
+
+    if (dataLength > 4) {
+      dataOffset = offsetBase + in.readUnsignedInt();
+    } else {
+      dataOffset = in.getStreamPosition();
+    }
+
+    processRecord(dataOffset, dataLength, type, count, tag);
+
+//    seek!
+
+//    Object entry = ifd.getEntry(tag, type);
+//
+//    if (entry != null) {
+//      if (entry instanceof Record)
+//        ((Record) entry).readWithCount(in, type, count, handler);
+//      else
+//      if (entry instanceof Directory)
+//        readIfd((Directory) entry, in, offsetBase, handler);
+//      else
+//      if (entry == MakerNote.MARKER) {
+//        MakerNote makerNote = handler.getMakerNote();
+//        readIfdInPlace(makerNote.getDirectory(), in, offsetBase, handler);
+//      } else
+//        assert false : "Unknown IFD entry " + entry;
+//    }
+  }
+
+
+  private static TypeNG decodeType(int code) throws IOException {
+    TypeNG result;
+
+    switch (code) {
+    case  1: result = TypeNG.U8       ; break; // "byte"
+    case  2: result = TypeNG.STRING   ; break; // "ASCII string"
+    case  3: result = TypeNG.U16      ; break; // "short"
+    case  4: result = TypeNG.U32      ; break; // "long"
+    case  5: result = TypeNG.RATIONAL ; break; // "rational" (two longs)
+    //case  6: result = Type.S8       ; break;
+    case  7: result = TypeNG.STRUCTURE; break; // "undefined"
+    //case 8: result = Type.S16; break;
+    case  9: result = TypeNG.S32      ; break; // "slong"
+    case 10: result = TypeNG.SRATIONAL; break; // "srational"
+    //case 11: result = TypeNG.F32; break; // "single float"
+    //case 12: result = TypeNG.F64; break; // "double float"
+
+    default:
+      throw new IOException("Unknown data type " + code);
+    }
 
     return result;
   }
 
 
-  private static final String NATIVE_FORMAT_NAME = "org_podval_imageio_exif_1.0";
-
-
-  private static Metadata readExifStream(ImageInputStream in) throws IOException {
-    DefaultMetadataHandler handler = new DefaultMetadataHandler(NATIVE_FORMAT_NAME);
-    ExifDecoder.read(in, NATIVE_FORMAT_NAME, handler);
-    return handler.getResult();
-  }
+  private long offsetBase;
 }

@@ -184,8 +184,6 @@ public class Type {
   public static final Type RATIONAL = selfType("rational", 8);
   public static final Type SRATIONAL = selfType("signedRational", 8);
   public static final Type U16_OR_U32 = selfType("U16orU32", 0);
-  public static final Type ONE = type("one", 0);
-  public static final Type TWO = type("two", 0);
 
 
   static {
@@ -194,8 +192,6 @@ public class Type {
     STRING.setVariableLength();
 
     U32.setDirectoryAllowed();
-    ONE.setDirectoryAllowed();
-    TWO.setDirectoryAllowed();
 
     U16_OR_U32.setActualTypes(new Type[] { U16, U32 });
 

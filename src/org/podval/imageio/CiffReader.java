@@ -9,47 +9,41 @@ import java.io.IOException;
 
 public class CiffReader extends Reader {
 
-  public static boolean canDecodeInput(ImageInputStream in) {
-    boolean result = false;
-    try {
-      in.mark();
-      readPrologue(in);
-      result = true;
-      in.reset();
-    } catch (IOException e) {
-    }
-    return result;
+  public CiffReader(ImageInputStream in) {
+    super(in);
   }
 
 
-  private static long readPrologue(ImageInputStream in) throws IOException {
-    determineByteOrder(in);
+  protected void readPrologue() throws IOException {
+    determineByteOrder();
 
-    long headerLength = in.readUnsignedInt();
+    headerLength = in.readUnsignedInt();
 
-    if (!readSignature(in, CIFF_SIGNATURE)) {
+    if (!readSignature()) {
       throw new IOException("Bad CIFF signature.");
     }
 
     if (in.readUnsignedInt() != 0x00010002) {
       throw new IOException("Bad CIFF version.");
     }
-
-    return headerLength;
   }
 
 
   private static final int[] CIFF_SIGNATURE = {'H', 'E', 'A', 'P', 'C', 'C', 'D', 'R'};
 
 
-  public static void read(ImageInputStream in, CiffHandler handler) throws IOException {
-    long headerLength = readPrologue(in);
-    long heapLength = in.length() - headerLength;
-    readHeap(in, headerLength, heapLength, 0, handler);
+  protected int[] getSignature() {
+    return CIFF_SIGNATURE;
   }
 
 
-  private static void readHeap(ImageInputStream in, long offset, long length, int idCode, CiffHandler handler)
+  protected void doRead() throws IOException {
+    long heapLength = in.length() - headerLength;
+    readHeap(headerLength, heapLength, 0);
+  }
+
+
+  private void readHeap(long offset, long length, int idCode)
     throws IOException
   {
     boolean process = handler.startHeap(idCode);
@@ -64,8 +58,7 @@ public class CiffReader extends Reader {
       long entriesOffset = in.getStreamPosition();
 
       for (int i = 0; i < numEntries; i++) {
-        in.seek(entriesOffset + 10 * i);
-        readEntry(in, offset, handler);
+        readEntry(entriesOffset + 10*i, offset);
       }
     }
 
@@ -73,9 +66,11 @@ public class CiffReader extends Reader {
   }
 
 
-  private static void readEntry(ImageInputStream in, long offset, CiffHandler handler)
+  private void readEntry(long offset, long offsetBase)
     throws IOException
   {
+    in.seek(offset);
+
     int typeCode = in.readUnsignedShort();
 
     if ((typeCode != 0 /* Null entry. */) &&
@@ -102,18 +97,38 @@ public class CiffReader extends Reader {
 
       if (inHeapSpace) {
         dataLength = in.readUnsignedInt();
-        dataOffset = offset + in.readUnsignedInt();
+        dataOffset = offsetBase + in.readUnsignedInt();
       } else {
         dataLength = 8;
         dataOffset = in.getStreamPosition();
       }
 
       if (isHeap) {
-        readHeap(in, dataOffset, dataLength, idCode, handler);
+        readHeap(dataOffset, dataLength, idCode);
       } else {
-        CiffType type = CiffType.valueOf(dataType);
-        handler.readRecord(in, dataOffset, dataLength, type, idCode);
+        TypeNG type = decodeType(dataType);
+        processRecord(dataOffset, dataLength, type, 1, idCode);
       }
     }
   }
+
+
+  private static TypeNG decodeType(int dataType) {
+    TypeNG result;
+
+    switch (dataType) {
+    case 0: result = TypeNG.U8       ; break;
+    case 1: result = TypeNG.STRING   ; break;
+    case 2: result = TypeNG.U16      ; break;
+    case 3: result = TypeNG.U32      ; break;
+    case 4: result = TypeNG.STRUCTURE; break;
+    default:
+      throw new IllegalArgumentException("dataType");
+    }
+
+    return result;
+  }
+
+
+  private long headerLength;
 }

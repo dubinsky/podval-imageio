@@ -6,19 +6,14 @@ import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageInputStream;
 import javax.imageio.stream.ImageOutputStream;
 import javax.imageio.stream.FileImageInputStream;
-import javax.imageio.stream.FileImageOutputStream;
-import javax.imageio.metadata.IIOMetadata;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
 
 import java.awt.image.BufferedImage;
 
 import java.util.Iterator;
 import java.util.Date;
-
-import org.w3c.dom.Node;
 
 
 public class Main {

@@ -25,7 +25,7 @@ public class CiffImageReader extends ImageReader {
 
 
   public static boolean canDecodeInput(ImageInputStream in) {
-    return CiffDecoder.canDecodeInput(in);
+    return new CiffReader(in).canRead();
   }
 
 
@@ -122,7 +122,8 @@ public class CiffImageReader extends ImageReader {
     if (metadata == null) {
       DefaultMetadataHandler handler =
         new DefaultMetadataHandler(NATIVE_FORMAT_NAME);
-      CiffDecoder.read(getInputStream(), NATIVE_FORMAT_NAME, handler);
+      /** @todo !!! */
+//      CiffDecoder.read(getInputStream(), NATIVE_FORMAT_NAME, handler);
       metadata = handler.getResult();
     }
   }

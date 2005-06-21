@@ -2,10 +2,8 @@
 
 package org.podval.imageio;
 
-import javax.imageio.stream.ImageInputStream;
 
-
-public interface CiffHandler {
+public interface ReaderHandler {
 
   /**
    *
@@ -17,5 +15,5 @@ public interface CiffHandler {
   public void endHeap();
 
 
-  public void readRecord(ImageInputStream in, long offset, long length, CiffType type, int idCode);
+  public void readRecord(Reader reader);
 }
