@@ -12,18 +12,28 @@ public final class MetaMetaDataNG {
   }
 
 
-  public void registerInitialHeap(int tag, Heap heap) {
-    if (getInitialHeap(tag) != null) {
-      throw new IllegalArgumentException();
-    }
-    initialHeaps.put(tag, heap);
+  public void setInitialHeap(Heap value) {
+    initialHeap = value;
   }
 
 
-  public Heap getInitialHeap(int tag) {
-    return initialHeaps.get(tag);
+  public Heap getInitialHeap() {
+    return initialHeap;
   }
 
 
-  private final Map<Integer, Heap> initialHeaps = new HashMap<Integer,Heap>();
+  public void registerHeap(Heap heap) {
+    name2heap.put(heap.getName(), heap);
+  }
+
+
+  public Heap getHeapByName(String name) {
+    return name2heap.get(name);
+  }
+
+
+  private Heap initialHeap;
+
+
+  private final Map<String, Heap> name2heap = new HashMap<String,Heap>();
 }

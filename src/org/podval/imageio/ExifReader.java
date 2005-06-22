@@ -63,6 +63,11 @@ public class ExifReader extends Reader {
   }
 
 
+  protected void readHeap(long dummyOffset, long dummyLength, int tag) throws IOException {
+    readIfd(tag);
+  }
+
+
   protected void readHeap(long dummyOffset, long dummyLength) throws IOException {
     int numEntries = in.readUnsignedShort();
     long entriesOffset = in.getStreamPosition();
@@ -85,34 +90,16 @@ public class ExifReader extends Reader {
     int tag = in.readUnsignedShort();
     TypeNG type = decodeType(in.readUnsignedShort());
     int count = (int) in.readUnsignedInt(); /** @todo cast... */
-    long dataLength = count * type.getLength();
-    long dataOffset;
+    long length = count * type.getLength();
+    long offset;
 
-    if (dataLength > 4) {
-      dataOffset = offsetBase + in.readUnsignedInt();
+    if (length > 4) {
+      offset = offsetBase + in.readUnsignedInt();
     } else {
-      dataOffset = in.getStreamPosition();
+      offset = in.getStreamPosition();
     }
 
-    processRecord(dataOffset, dataLength, type, count, tag);
-
-//    seek!
-
-//    Object entry = ifd.getEntry(tag, type);
-//
-//    if (entry != null) {
-//      if (entry instanceof Record)
-//        ((Record) entry).readWithCount(in, type, count, handler);
-//      else
-//      if (entry instanceof Directory)
-//        readIfd((Directory) entry, in, offsetBase, handler);
-//      else
-//      if (entry == MakerNote.MARKER) {
-//        MakerNote makerNote = handler.getMakerNote();
-//        readIfdInPlace(makerNote.getDirectory(), in, offsetBase, handler);
-//      } else
-//        assert false : "Unknown IFD entry " + entry;
-//    }
+    processEntry(offset, length, type, count, tag);
   }
 
 
@@ -127,7 +114,7 @@ public class ExifReader extends Reader {
     case  5: result = TypeNG.RATIONAL ; break; // "rational" (two longs)
     //case  6: result = Type.S8       ; break;
     case  7: result = TypeNG.STRUCTURE; break; // "undefined"
-    //case 8: result = Type.S16; break;
+    //case 8: result = Type.S16       ; break;
     case  9: result = TypeNG.S32      ; break; // "slong"
     case 10: result = TypeNG.SRATIONAL; break; // "srational"
     //case 11: result = TypeNG.F32; break; // "single float"

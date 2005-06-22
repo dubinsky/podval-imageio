@@ -32,6 +32,11 @@ public class CiffReader extends Reader {
   }
 
 
+  protected void readHeap(long offset, long length, int tag) throws IOException {
+    processHeap(offset, length, tag);
+  }
+
+
   protected void doRead() throws IOException {
     long heapLength = in.length() - headerLength;
     processHeap(headerLength, heapLength, 0);
@@ -75,22 +80,22 @@ public class CiffReader extends Reader {
 
       boolean isHeap = ((dataType == 0x05) || (dataType == 0x06));
 
-      long dataOffset;
-      long dataLength;
+      long offset;
+      long length;
 
       if (inHeapSpace) {
-        dataLength = in.readUnsignedInt();
-        dataOffset = offsetBase + in.readUnsignedInt();
+        length = in.readUnsignedInt();
+        offset = offsetBase + in.readUnsignedInt();
       } else {
-        dataLength = 8;
-        dataOffset = in.getStreamPosition();
+        length = 8;
+        offset = in.getStreamPosition();
       }
 
       if (isHeap) {
-        processHeap(dataOffset, dataLength, idCode);
+        processHeap(offset, length, idCode);
+
       } else {
-        TypeNG type = decodeType(dataType);
-        processRecord(dataOffset, dataLength, type, 1, idCode);
+        processRecord(offset, length, decodeType(dataType), 1, idCode);
       }
     }
   }

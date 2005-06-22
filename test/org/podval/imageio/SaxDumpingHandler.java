@@ -27,9 +27,11 @@ public class SaxDumpingHandler extends SaxDumper implements ReaderHandler {
     TransformerFactory transformerFactory = TransformerFactory.newInstance();
     transformerFactory.setAttribute("indent-number", 2);
     Transformer transformer = transformerFactory.newTransformer();
+
     transformer.setOutputProperty(OutputKeys.INDENT, "yes");
 //    transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
 //    transformer.setOutputProperty("{http://xml.apache.org/xalan}indent-amount", "2");
+
       transformer.transform(
         new SAXSource(new SaxDumpingHandler(reader, metaMetaData), null),
         new StreamResult(new OutputStreamWriter(System.out))
@@ -51,13 +53,9 @@ public class SaxDumpingHandler extends SaxDumper implements ReaderHandler {
   public boolean startHeap(int idCode, Heap heap) {
     try {
       AttributesImpl attributes = new AttributesImpl();
-      attributes.addAttribute(null, "tag", "tag", "string", Integer.toString(idCode));
-      if (heap != null) {
-        String name = heap.getName();
-        if (name != null) {
-          attributes.addAttribute(null, null, "name", "string", name);
-        }
-      }
+      addAttribute(attributes, "tag", Integer.toString(idCode));
+      addNameAttribute(attributes, heap);
+
       contentHandler.startElement(null, null, "directory", attributes);
     } catch (SAXException e) {
     }
@@ -73,19 +71,43 @@ public class SaxDumpingHandler extends SaxDumper implements ReaderHandler {
   }
 
 
-  public void readRecord(int tag, TypeNG type, long length, int count, Reader reader) {
+  public void readRecord(int tag, TypeNG type, long length, int count, Reader reader, RecordNG record) {
     try {
       AttributesImpl attributes = new AttributesImpl();
-      attributes.addAttribute(null, "tag", "tag", "string", Integer.toString(tag));
-      attributes.addAttribute(null, "type", "type", "string", type.toString());
-      if (count != 1) {
-        attributes.addAttribute(null, "count", "count", "string", Integer.toString(count));
+      addAttribute(attributes, "tag", Integer.toString(tag));
+      addNameAttribute(attributes, record);
+      addAttribute(attributes, "type", type.toString());
+      if ((count != 1) && (count != length)) {
+        addAttribute(attributes, "count", Integer.toString(count));
       }
-      attributes.addAttribute(null, "length", "length", "string", Long.toString(length));
+      addAttribute(attributes, "length", Long.toString(length));
+
+      if (type == TypeNG.STRING) {
+        try {
+          addAttribute(attributes, "value", reader.getValue(type, length, count).toString());
+        } catch (IOException e) {
+        }
+      }
+
       contentHandler.startElement(null, "record", "record", attributes);
       contentHandler.endElement(null, "record", "record");
     } catch (SAXException e) {
     }
+  }
+
+
+  private void addNameAttribute(AttributesImpl attributes, Entry entry) {
+    if (entry != null) {
+      String name = entry.getName();
+      if (name != null) {
+        addAttribute(attributes, "name", name);
+      }
+    }
+  }
+
+
+  private void addAttribute(AttributesImpl attributes, String name, String value) {
+    attributes.addAttribute(null, null, name, "string", value);
   }
 
 

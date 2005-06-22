@@ -19,12 +19,16 @@ public abstract class Reader {
 
   public final boolean canRead() {
     boolean result = false;
+    in.mark();
     try {
-      in.mark();
       readPrologue();
       result = true;
-      in.reset();
     } catch (IOException e) {
+    } finally {
+      try {
+        in.reset();
+      } catch (IOException e) {
+      }
     }
     return result;
   }
@@ -101,7 +105,7 @@ public abstract class Reader {
       currentHeap = currentHeap.getHeap(tag);
     } else {
       if ((level == 0) && (metaMetaData != null)) {
-        currentHeap = metaMetaData.getInitialHeap(tag);
+        currentHeap = metaMetaData.getInitialHeap();
       }
     }
 
@@ -122,6 +126,9 @@ public abstract class Reader {
   protected abstract void readHeap(long offset, long length) throws IOException;
 
 
+  protected abstract void readHeap(long offset, long length, int tag) throws IOException;
+
+
   protected final void readEntry(long offset, long offsetBase)
     throws IOException
   {
@@ -133,12 +140,38 @@ public abstract class Reader {
   protected abstract void readEntry(long offsetBase) throws IOException;
 
 
-  protected final void processRecord(long offset, long length, TypeNG type, int count, int tag) {
+  protected final void processEntry(long offset, long length, TypeNG type, int count, int tag)
+    throws IOException
+  {
+    Entry entry = (currentHeap == null) ? null : currentHeap.getEntry(tag, type, length, count);
+
+    if (entry instanceof Heap) {
+      readHeap(offset, length, tag);
+    } else
+
+    if ((entry instanceof RecordNG) || (entry == null)) {
+      processRecord(offset, length, type, count, tag);
+    }
+
+    /** @todo  */
+//      if (entry == MakerNote.MARKER) {
+//        MakerNote makerNote = handler.getMakerNote();
+//        readIfdInPlace(makerNote.getDirectory(), in, offsetBase, handler);
+//      } else
+//        assert false : "Unknown IFD entry " + entry;
+  }
+
+
+  protected final void processRecord(long offset, long length, TypeNG type, int count, int tag)
+    throws IOException
+  {
     /* It is much simpler to just do seek right here, but if the data is not
      needed, the seek() would be wasted... */
     this.offset = offset;
 
-    handler.readRecord(tag, type, length, count, this);
+    RecordNG record = (currentHeap == null) ? null : currentHeap.getRecord(tag, type, length, count);
+
+    handler.readRecord(tag, type, length, count, this, record);
   }
 
 
@@ -147,6 +180,23 @@ public abstract class Reader {
   }
 
 
+  /** @todo this belongs in a separate interface for value retrieval */
+  public Object getValue(TypeNG type, long length, int count) throws IOException {
+    Object result = null;
+    seekToData();
+
+    switch (type) {
+    case STRING:
+      byte[] bytes = new byte[(int) length];
+      in.readFully(bytes);
+      result = new String(bytes);
+      break;
+    }
+    return result;
+  }
+
+
+  /** @todo this belongs in a separate interface for value retrieval */
   public void stream(long length, OutputStream os) throws IOException {
     seekToData();
 

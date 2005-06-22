@@ -17,5 +17,5 @@ public interface ReaderHandler {
 
 
   /** @todo rename (to entry?) */
-  public void readRecord(int tag, TypeNG type, long length, int count, Reader reader);
+  public void readRecord(int tag, TypeNG type, long length, int count, Reader reader, RecordNG record);
 }
