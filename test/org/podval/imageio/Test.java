@@ -10,9 +10,9 @@ import java.io.IOException;
 
 public class Test {
 
-  private static void dump(Reader reader) throws Exception {
+  private static void dump(Reader reader, MetaMetaDataNG metametadata) throws Exception {
 //    reader.read(new DumpingHandler());
-    SaxDumpingHandler.dump(reader);
+    SaxDumpingHandler.dump(reader, metametadata);
   }
 
 
@@ -38,8 +38,17 @@ public class Test {
 
 
   public static void main(String[] args) throws Exception {
-    dump(ciffReader("/mnt/extra/Photo/ORIGINALS/g2/2/2/2250.crw"));
-//    dump(exifReader("/mnt/extra/Photo/ORIGINALS/g2/2/2/2249.jpg"));
-//    extractCrwThumbnails("/mnt/extra/Photo/ORIGINALS/g2/2/2/2250.crw");
+    System.out.println("CIFF:");
+    MetaMetaDataNG metaMetaData = new MetaMetaDataNG();
+    Heap ciffHeap = new Heap("org_podval_imageio_ciff_1.0");
+    metaMetaData.registerInitialHeap(0, ciffHeap);
+    dump(ciffReader("/mnt/extra/Photo/ORIGINALS/g2/2/2/2250.crw"), metaMetaData);
+
+    System.out.println();
+
+    System.out.println("EXIF:");
+    dump(exifReader("/mnt/extra/Photo/ORIGINALS/g2/2/2/2249.jpg"), null);
+
+    extractCrwThumbnails("/mnt/extra/Photo/ORIGINALS/g2/2/2/2250.crw");
   }
 }

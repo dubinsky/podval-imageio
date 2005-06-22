@@ -45,7 +45,7 @@ public class CrwThumbnailExtractor {
 
     new CiffReader(in).read(new ReaderHandler() {
 
-      public boolean startHeap(int idCode) {
+      public boolean startHeap(int idCode, Heap heap) {
         return (idCode == 0);
       }
 
@@ -54,8 +54,14 @@ public class CrwThumbnailExtractor {
       }
 
 
-      public void readRecord(Reader reader) {
-        read(reader);
+      public void readRecord(int tag, TypeNG type, long length, int count, Reader reader) {
+        if (tag == idCode) {
+          try {
+            reader.stream(length, new FileOutputStream(file));
+          } catch (IOException e) {
+            exception = e;
+          }
+        }
       }
     });
 
@@ -64,30 +70,6 @@ public class CrwThumbnailExtractor {
     if (exception != null) {
       throw exception;
     }
-  }
-
-
-  private void read(Reader reader) {
-    if (reader.getDataTag() == this.idCode) {
-      try {
-        copy(reader.getInputStream(), reader.getDataLength());
-      } catch (IOException e) {
-        exception = e;
-      }
-    }
-  }
-
-
-
-  private void copy(ImageInputStream in, long length)
-    throws IOException
-  {
-    OutputStream os = new FileOutputStream(file);
-    for (long i = 0; i < length; i++) {
-      int b = in.read();
-      os.write(b);
-    }
-    os.close();
   }
 
 

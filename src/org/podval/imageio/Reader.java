@@ -2,6 +2,7 @@
 
 package org.podval.imageio;
 
+import java.io.OutputStream;
 import java.io.IOException;
 
 import javax.imageio.stream.ImageInputStream;
@@ -30,16 +31,23 @@ public abstract class Reader {
 
 
   public final void read(ReaderHandler handler) throws IOException {
-    this.handler = handler;
+    read(handler, null);
+  }
+
+
+  public final void read(ReaderHandler handler, MetaMetaDataNG metaMetaData)
+    throws IOException
+  {
     readPrologue();
+
+    this.handler = handler;
+    this.metaMetaData = metaMetaData;
+
     doRead();
   }
 
 
   protected abstract void readPrologue() throws IOException;
-
-
-  protected abstract int[] getSignature();
 
 
   protected abstract void doRead() throws IOException;
@@ -71,10 +79,9 @@ public abstract class Reader {
   }
 
 
-  protected final boolean readSignature() throws IOException {
+  protected final boolean readSignature(int[] signature) throws IOException {
     boolean result = true;
-    int[] signature = getSignature();
-    for (int i = 0; i<signature.length; i++) {
+    for (int i = 0; i < signature.length; i++) {
       if (in.read() != signature[i]) {
         result = false;
         break;
@@ -85,94 +92,87 @@ public abstract class Reader {
   }
 
 
-  protected final void processHeap(long dataOffset, long dataLength, int dataTag)
+  protected final void processHeap(long offset, long length, int tag)
     throws IOException
   {
-    this.dataOffset = dataOffset;
-    this.dataLength = dataLength;
-    this.dataType = null;
-    this.dataTag = dataTag;
-    this.dataCount = 0;
+    Heap parentHeap = currentHeap;
 
-    if (handler.startHeap(dataTag)) {
-      readHeap();
+    if (currentHeap != null) {
+      currentHeap = currentHeap.getHeap(tag);
+    } else {
+      if ((level == 0) && (metaMetaData != null)) {
+        currentHeap = metaMetaData.getInitialHeap(tag);
+      }
+    }
+
+    level++;
+
+    if (handler.startHeap(tag, currentHeap)) {
+      readHeap(offset, length);
     }
 
     handler.endHeap();
+
+    currentHeap = parentHeap;
+
+    level--;
   }
 
 
-  protected abstract void readHeap() throws IOException;
+  protected abstract void readHeap(long offset, long length) throws IOException;
 
 
-  protected final void readEntries(long entriesOffset, int numEntries, int entryLength, long offsetBase) {
-    /** @todo or not to do? */
-
+  protected final void readEntry(long offset, long offsetBase)
+    throws IOException
+  {
+    in.seek(offset);
+    readEntry(offsetBase);
   }
 
 
-  protected final void processRecord(long dataOffset, long dataLength, TypeNG dataType, int dataCount, int dataTag) {
-    this.dataOffset = dataOffset;
-    this.dataLength = dataLength;
-    this.dataType = dataType;
-    this.dataTag = dataTag;
-    this.dataCount = dataCount;
+  protected abstract void readEntry(long offsetBase) throws IOException;
 
-    handler.readRecord(this);
+
+  protected final void processRecord(long offset, long length, TypeNG type, int count, int tag) {
+    /* It is much simpler to just do seek right here, but if the data is not
+     needed, the seek() would be wasted... */
+    this.offset = offset;
+
+    handler.readRecord(tag, type, length, count, this);
   }
 
 
-  public final ImageInputStream getInputStream() throws IOException {
-    in.seek(dataOffset);
-    return in;
+  private final void seekToData() throws IOException {
+    in.seek(offset);
   }
 
 
-  public final long getDataOffset() {
-    return dataOffset;
-  }
+  public void stream(long length, OutputStream os) throws IOException {
+    seekToData();
 
+    for (long i = 0; i < length; i++) {
+      int b = in.read();
+      os.write(b);
+    }
 
-  public final long getDataLength() {
-    return dataLength;
-  }
-
-
-  public final TypeNG getDataType() {
-    return dataType;
-  }
-
-
-  public final int getDataCount() {
-    return dataCount;
-  }
-
-
-  public int getDataTag() {
-    return dataTag;
+    os.close();
   }
 
 
   protected final ImageInputStream in;
 
 
-  protected ReaderHandler handler;
+  private ReaderHandler handler;
 
 
-  private long dataOffset;
+  private MetaMetaDataNG metaMetaData;
 
 
-  private long dataLength;
+  private Heap currentHeap;
 
 
-  private TypeNG dataType;
+  private int level;
 
 
-  private int dataCount;
-
-
-  private int dataTag;
-
-
-  private int tag;
+  private long offset;
 }

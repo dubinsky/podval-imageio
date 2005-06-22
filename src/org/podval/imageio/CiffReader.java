@@ -14,12 +14,15 @@ public class CiffReader extends Reader {
   }
 
 
+  private static final int[] CIFF_SIGNATURE = {'H', 'E', 'A', 'P', 'C', 'C', 'D', 'R'};
+
+
   protected void readPrologue() throws IOException {
     determineByteOrder();
 
     headerLength = in.readUnsignedInt();
 
-    if (!readSignature()) {
+    if (!readSignature(CIFF_SIGNATURE)) {
       throw new IOException("Bad CIFF signature.");
     }
 
@@ -29,24 +32,14 @@ public class CiffReader extends Reader {
   }
 
 
-  private static final int[] CIFF_SIGNATURE = {'H', 'E', 'A', 'P', 'C', 'C', 'D', 'R'};
-
-
-  protected int[] getSignature() {
-    return CIFF_SIGNATURE;
-  }
-
-
   protected void doRead() throws IOException {
     long heapLength = in.length() - headerLength;
     processHeap(headerLength, heapLength, 0);
   }
 
 
-  protected void readHeap() throws IOException {
-    long offset = getDataOffset();
-
-    in.seek(offset + getDataLength() - 4);
+  protected void readHeap(long offset, long length) throws IOException {
+    in.seek(offset + length - 4);
 
     long offsetTblOffset = in.readUnsignedInt();
     in.seek(offset + offsetTblOffset);
@@ -60,11 +53,7 @@ public class CiffReader extends Reader {
   }
 
 
-  private void readEntry(long offset, long offsetBase)
-    throws IOException
-  {
-    in.seek(offset);
-
+  protected void readEntry(long offsetBase) throws IOException {
     int typeCode = in.readUnsignedShort();
 
     if ((typeCode != 0 /* Null entry. */) &&

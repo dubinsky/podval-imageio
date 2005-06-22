@@ -14,8 +14,11 @@ public class ExifReader extends Reader {
   }
 
 
+  private static int[] EXIF_SIGNATURE = {'E', 'x', 'i', 'f', 0, 0};
+
+
   protected void readPrologue() throws IOException {
-    if (!readSignature()) {
+    if (!readSignature(EXIF_SIGNATURE)) {
       throw new IOException("Bad EXIF signature.");
     }
 
@@ -26,14 +29,6 @@ public class ExifReader extends Reader {
     if (in.readUnsignedShort() != 0x2A) {
       throw new IOException("Bad TIFF magic.");
     }
-  }
-
-
-  private static int[] EXIF_SIGNATURE = {'E', 'x', 'i', 'f', 0, 0};
-
-
-  protected int[] getSignature() {
-    return EXIF_SIGNATURE;
   }
 
 
@@ -68,12 +63,12 @@ public class ExifReader extends Reader {
   }
 
 
-  protected void readHeap() throws IOException {
+  protected void readHeap(long dummyOffset, long dummyLength) throws IOException {
     int numEntries = in.readUnsignedShort();
     long entriesOffset = in.getStreamPosition();
 
     for (int i = 0; i < numEntries; i++) {
-      readEntry(entryOffset(entriesOffset, i));
+      readEntry(entryOffset(entriesOffset, i), offsetBase);
     }
 
     in.seek(entryOffset(entriesOffset, numEntries));
@@ -86,9 +81,7 @@ public class ExifReader extends Reader {
   }
 
 
-  private void readEntry(long offset) throws IOException {
-    in.seek(offset);
-
+  protected void readEntry(long offsetBase) throws IOException {
     int tag = in.readUnsignedShort();
     TypeNG type = decodeType(in.readUnsignedShort());
     int count = (int) in.readUnsignedInt(); /** @todo cast... */

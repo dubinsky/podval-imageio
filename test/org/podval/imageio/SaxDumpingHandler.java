@@ -19,39 +19,46 @@ import java.io.IOException;
 
 public class SaxDumpingHandler extends SaxDumper implements ReaderHandler {
 
-  public static void dump(Reader reader) throws
+  public static void dump(Reader reader, MetaMetaDataNG metaMetaData) throws
     TransformerFactoryConfigurationError,
     TransformerException,
     IllegalArgumentException
   {
     TransformerFactory transformerFactory = TransformerFactory.newInstance();
-    transformerFactory.setAttribute("indent-number", new Integer(2));
+    transformerFactory.setAttribute("indent-number", 2);
     Transformer transformer = transformerFactory.newTransformer();
     transformer.setOutputProperty(OutputKeys.INDENT, "yes");
 //    transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
 //    transformer.setOutputProperty("{http://xml.apache.org/xalan}indent-amount", "2");
       transformer.transform(
-        new SAXSource(new SaxDumpingHandler(reader), null),
+        new SAXSource(new SaxDumpingHandler(reader, metaMetaData), null),
         new StreamResult(new OutputStreamWriter(System.out))
       );
   }
 
 
-  public SaxDumpingHandler(Reader reader) {
+  public SaxDumpingHandler(Reader reader, MetaMetaDataNG metaMetaData) {
     this.reader = reader;
+    this.metaMetaData = metaMetaData;
   }
 
 
   protected void read() throws IOException {
-    reader.read(this);
+    reader.read(this, metaMetaData);
   }
 
 
-  public boolean startHeap(int idCode) {
+  public boolean startHeap(int idCode, Heap heap) {
     try {
       AttributesImpl attributes = new AttributesImpl();
       attributes.addAttribute(null, "tag", "tag", "string", Integer.toString(idCode));
-      contentHandler.startElement(null, "directory", "directory", attributes);
+      if (heap != null) {
+        String name = heap.getName();
+        if (name != null) {
+          attributes.addAttribute(null, null, "name", "string", name);
+        }
+      }
+      contentHandler.startElement(null, null, "directory", attributes);
     } catch (SAXException e) {
     }
     return true;
@@ -66,16 +73,15 @@ public class SaxDumpingHandler extends SaxDumper implements ReaderHandler {
   }
 
 
-  public void readRecord(Reader reader) {
+  public void readRecord(int tag, TypeNG type, long length, int count, Reader reader) {
     try {
       AttributesImpl attributes = new AttributesImpl();
-      attributes.addAttribute(null, "tag", "tag", "string", Integer.toString(reader.getDataTag()));
-      attributes.addAttribute(null, "type", "type", "string", reader.getDataType().toString());
-      int count = reader.getDataCount();
+      attributes.addAttribute(null, "tag", "tag", "string", Integer.toString(tag));
+      attributes.addAttribute(null, "type", "type", "string", type.toString());
       if (count != 1) {
         attributes.addAttribute(null, "count", "count", "string", Integer.toString(count));
       }
-      attributes.addAttribute(null, "length", "length", "string", Long.toString(reader.getDataLength()));
+      attributes.addAttribute(null, "length", "length", "string", Long.toString(length));
       contentHandler.startElement(null, "record", "record", attributes);
       contentHandler.endElement(null, "record", "record");
     } catch (SAXException e) {
@@ -84,4 +90,7 @@ public class SaxDumpingHandler extends SaxDumper implements ReaderHandler {
 
 
   private final Reader reader;
+
+
+  private final MetaMetaDataNG metaMetaData;
 }
