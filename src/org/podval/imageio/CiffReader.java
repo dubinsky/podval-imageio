@@ -20,33 +20,33 @@ public class CiffReader extends Reader {
   protected void readPrologue() throws IOException {
     determineByteOrder();
 
-    headerLength = in.readUnsignedInt();
+    headerLength = readUnsignedInt();
 
     if (!readSignature(CIFF_SIGNATURE)) {
       throw new IOException("Bad CIFF signature.");
     }
 
-    if (in.readUnsignedInt() != 0x00010002) {
+    if (readUnsignedInt() != 0x00010002) {
       throw new IOException("Bad CIFF version.");
     }
   }
 
 
-  protected void readHeap(long offset, long length, int tag) throws IOException {
+  protected void readHeap(long offset, int length, int tag) throws IOException {
     processHeap(offset, length, tag);
   }
 
 
   protected void doRead() throws IOException {
-    long heapLength = in.length() - headerLength;
+    int heapLength = TypeNG.toInt(in.length() - headerLength);
     processHeap(headerLength, heapLength, 0);
   }
 
 
-  protected void readHeap(long offset, long length) throws IOException {
+  protected void readHeap(long offset, int length) throws IOException {
     in.seek(offset + length - 4);
 
-    long offsetTblOffset = in.readUnsignedInt();
+    int offsetTblOffset = readUnsignedInt();
     in.seek(offset + offsetTblOffset);
 
     int numEntries = in.readUnsignedShort();
@@ -81,11 +81,11 @@ public class CiffReader extends Reader {
       boolean isHeap = ((dataType == 0x05) || (dataType == 0x06));
 
       long offset;
-      long length;
+      int length;
 
       if (inHeapSpace) {
-        length = in.readUnsignedInt();
-        offset = offsetBase + in.readUnsignedInt();
+        length = readUnsignedInt();
+        offset = offsetBase + readUnsignedInt();
       } else {
         length = 8;
         offset = in.getStreamPosition();
@@ -95,7 +95,8 @@ public class CiffReader extends Reader {
         processHeap(offset, length, idCode);
 
       } else {
-        processRecord(offset, length, decodeType(dataType), 1, idCode);
+        TypeNG type = decodeType(dataType);
+        processRecord(offset, length, type, length / type.length, idCode);
       }
     }
   }
@@ -118,5 +119,5 @@ public class CiffReader extends Reader {
   }
 
 
-  private long headerLength;
+  private int headerLength;
 }

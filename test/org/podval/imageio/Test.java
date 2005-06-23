@@ -12,7 +12,7 @@ public class Test {
 
   private static void dump(Reader reader, MetaMetaDataNG metametadata) throws Exception {
 //    reader.read(new DumpingHandler());
-    SaxDumpingHandler.dump(reader, metametadata);
+    new SaxDumpingHandler(reader, metametadata).dump(System.out);
   }
 
 

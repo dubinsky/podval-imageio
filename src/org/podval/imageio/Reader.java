@@ -96,7 +96,7 @@ public abstract class Reader {
   }
 
 
-  protected final void processHeap(long offset, long length, int tag)
+  protected final void processHeap(long offset, int length, int tag)
     throws IOException
   {
     Heap parentHeap = currentHeap;
@@ -123,10 +123,10 @@ public abstract class Reader {
   }
 
 
-  protected abstract void readHeap(long offset, long length) throws IOException;
+  protected abstract void readHeap(long offset, int length) throws IOException;
 
 
-  protected abstract void readHeap(long offset, long length, int tag) throws IOException;
+  protected abstract void readHeap(long offset, int length, int tag) throws IOException;
 
 
   protected final void readEntry(long offset, long offsetBase)
@@ -140,7 +140,7 @@ public abstract class Reader {
   protected abstract void readEntry(long offsetBase) throws IOException;
 
 
-  protected final void processEntry(long offset, long length, TypeNG type, int count, int tag)
+  protected final void processEntry(long offset, int length, TypeNG type, int count, int tag)
     throws IOException
   {
     Entry entry = (currentHeap == null) ? null : currentHeap.getEntry(tag, type, length, count);
@@ -162,7 +162,7 @@ public abstract class Reader {
   }
 
 
-  protected final void processRecord(long offset, long length, TypeNG type, int count, int tag)
+  protected final void processRecord(long offset, int length, TypeNG type, int count, int tag)
     throws IOException
   {
     /* It is much simpler to just do seek right here, but if the data is not
@@ -181,23 +181,68 @@ public abstract class Reader {
 
 
   /** @todo this belongs in a separate interface for value retrieval */
-  public Object getValue(TypeNG type, long length, int count) throws IOException {
+  public Object readValue(TypeNG type, int length, int count) throws IOException {
+    /** @todo type/length/count sanity checks... */
     Object result = null;
     seekToData();
 
-    switch (type) {
-    case STRING:
-      byte[] bytes = new byte[(int) length];
-      in.readFully(bytes);
-      result = new String(bytes);
-      break;
+    if (type == TypeNG.STRING) {
+      result = readString(length);
+    } else {
+      if (count == 1) {
+        result = type.read(in);
+      } else {
+        if ((type == TypeNG.U8) || (type == TypeNG.STRUCTURE)) {
+          result = doReadBytes(count);
+        } else {
+          Object[] objects = new Object[count];
+          for (int i = 0; i<count; i++) {
+            objects[i] = type.read(in);
+          }
+          result = objects;
+        }
+      }
     }
+
+    return result;
+  }
+
+
+  private String readString(int length) throws IOException {
+    // Length of 0 indicates 'indefinite'. We limit 'em here... - ???
+
+    byte[] bytes = doReadBytes(length);
+    int l = 0;
+    for (; l<length; l++) {
+      if (bytes[l] == 0) {
+        break;
+      }
+    }
+
+//      if (l == length) {
+////        result.append("|NO ZERO. TRUNCATED?");
+//      }
+
+    return new String(bytes, 0, l).trim();
+  }
+
+
+  /** @todo this belongs in a separate interface for value retrieval */
+  public byte[] readBytes(int length) throws IOException {
+    seekToData();
+    return doReadBytes(length);
+  }
+
+
+  private byte[] doReadBytes(int length) throws IOException {
+    byte[] result = new byte[(int) length]; /** @todo cast */
+    in.readFully(result);
     return result;
   }
 
 
   /** @todo this belongs in a separate interface for value retrieval */
-  public void stream(long length, OutputStream os) throws IOException {
+  public void stream(int length, OutputStream os) throws IOException {
     seekToData();
 
     for (long i = 0; i < length; i++) {
@@ -206,6 +251,11 @@ public abstract class Reader {
     }
 
     os.close();
+  }
+
+
+  protected int readUnsignedInt() throws IOException {
+    return TypeNG.readUnsignedInt(in);
   }
 
 

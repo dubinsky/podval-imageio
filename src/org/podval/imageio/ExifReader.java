@@ -44,7 +44,7 @@ public class ExifReader extends Reader {
      This can be changed if need be.
 
     */
-   /** @todo If 0th ifd was skipped, the reader will not be properly positioned to read the 1st ifd!!! */
+   /* If 0th ifd was skipped, the reader will not be properly positioned to read the 1st ifd!!! */
    readIfd(1);
   }
 
@@ -63,12 +63,12 @@ public class ExifReader extends Reader {
   }
 
 
-  protected void readHeap(long dummyOffset, long dummyLength, int tag) throws IOException {
+  protected void readHeap(long dummyOffset, int dummyLength, int tag) throws IOException {
     readIfd(tag);
   }
 
 
-  protected void readHeap(long dummyOffset, long dummyLength) throws IOException {
+  protected void readHeap(long dummyOffset, int dummyLength) throws IOException {
     int numEntries = in.readUnsignedShort();
     long entriesOffset = in.getStreamPosition();
 
@@ -89,8 +89,8 @@ public class ExifReader extends Reader {
   protected void readEntry(long offsetBase) throws IOException {
     int tag = in.readUnsignedShort();
     TypeNG type = decodeType(in.readUnsignedShort());
-    int count = (int) in.readUnsignedInt(); /** @todo cast... */
-    long length = count * type.getLength();
+    int count = readUnsignedInt();
+    int length = count * type.getLength();
     long offset;
 
     if (length > 4) {

@@ -2,18 +2,49 @@
 
 package org.podval.imageio;
 
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactoryConfigurationError;
+import javax.xml.transform.sax.SAXSource;
+
 import org.xml.sax.ContentHandler;
 import org.xml.sax.XMLReader;
 import org.xml.sax.DTDHandler;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.SAXNotRecognizedException;
-import java.io.IOException;
 import org.xml.sax.SAXException;
 import org.xml.sax.InputSource;
 
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.IOException;
+
 
 public abstract class SaxDumper implements XMLReader {
+
+  public void dump(OutputStream os) throws
+    TransformerFactoryConfigurationError,
+    TransformerException,
+    IllegalArgumentException
+  {
+    TransformerFactory transformerFactory = TransformerFactory.newInstance();
+    transformerFactory.setAttribute("indent-number", 2);
+    Transformer transformer = transformerFactory.newTransformer();
+
+    transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+//    transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+//    transformer.setOutputProperty("{http://xml.apache.org/xalan}indent-amount", "2");
+
+      transformer.transform(
+        new SAXSource(this, null),
+        new StreamResult(new OutputStreamWriter(os))
+      );
+  }
+
 
   public boolean getFeature(String name) throws SAXNotRecognizedException {
     throw new SAXNotRecognizedException();
