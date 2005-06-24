@@ -23,7 +23,8 @@ public class Heap extends Entry {
   public void addEntry(int tag, Entry entry) {
     Entry oldEntry = entries.get(tag);
     if (oldEntry != null) {
-      throw new IllegalArgumentException("Entry with this tag already exists");
+      throw new IllegalArgumentException("Can not add " + entry.getName() + " to " + getName() +
+        ": entry " + oldEntry.getName() + " with the same tag " + tag + " exists!");
     }
     entries.put(tag, entry);
   }

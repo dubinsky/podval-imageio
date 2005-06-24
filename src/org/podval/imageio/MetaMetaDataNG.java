@@ -28,7 +28,12 @@ public final class MetaMetaDataNG {
 
 
   public Heap getHeapByName(String name) {
-    return name2heap.get(name);
+    Heap result = name2heap.get(name);
+    if (result == null) {
+      result = new Heap(name);
+      registerHeap(result);
+    }
+    return result;
   }
 
 

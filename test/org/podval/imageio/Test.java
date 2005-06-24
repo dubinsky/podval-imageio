@@ -44,10 +44,11 @@ public class Test {
     metaMetaData.setInitialHeap(ciffHeap);
     ciffHeap.addEntry(5, new RecordNG("crwImage"));
     dump(ciffReader("/mnt/extra/Photo/ORIGINALS/g2/2/2/2250.crw"), metaMetaData);
+    System.out.println();
   }
 
 
-  public static void testExif() throws Exception {
+  private static void testExif() throws Exception {
     System.out.println("EXIF:");
     MetaMetaDataNG metaMetaData = new MetaMetaDataNG();
     Heap exifHeap = new Heap("org_podval_imageio_exif_1.0");
@@ -55,16 +56,22 @@ public class Test {
     exifHeap.addEntry(271, new RecordNG("make"));
     exifHeap.addEntry(34665, new Heap("exif"));
     dump(exifReader("/mnt/extra/Photo/ORIGINALS/g2/2/2/2249.jpg"), metaMetaData);
+    System.out.println();
+  }
+
+
+  private static void testLoad() throws Exception {
+    MetaMetaDataNG metaMetaData = new MetaMetaDataNG();
+    Loader.load("/home/dub/Projects/imageio/xml/ciff.xml", metaMetaData);
   }
 
 
   public static void main(String[] args) throws Exception {
     testCiff();
-
-    System.out.println();
-
     testExif();
 
 //    extractCrwThumbnails("/mnt/extra/Photo/ORIGINALS/g2/2/2/2250.crw");
+
+    testLoad();
   }
 }
