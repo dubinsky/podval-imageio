@@ -32,14 +32,14 @@ public class CiffReader extends Reader {
   }
 
 
-  protected void readHeap(long offset, int length, int tag) throws IOException {
-    processHeap(offset, length, tag);
+  protected void doRead() throws IOException {
+    int heapLength = TypeNG.toInt(in.length() - headerLength);
+    processHeap(headerLength, heapLength, 0, null);
   }
 
 
-  protected void doRead() throws IOException {
-    int heapLength = TypeNG.toInt(in.length() - headerLength);
-    processHeap(headerLength, heapLength, 0);
+  protected void readHeap(long offset, int length, int tag, TypeNG type) throws IOException {
+    processHeap(offset, length, tag, type);
   }
 
 
@@ -74,11 +74,7 @@ public class CiffReader extends Reader {
 
       boolean inHeapSpace = ((storageMethod & 0x01) == 0);
 
-      if (dataType == 0x07) {
-        throw new IOException("Unknown data type.");
-      }
-
-      boolean isHeap = ((dataType == 0x05) || (dataType == 0x06));
+      TypeNG type = decodeType(dataType);
 
       long offset;
       int length;
@@ -91,18 +87,18 @@ public class CiffReader extends Reader {
         offset = in.getStreamPosition();
       }
 
+      boolean isHeap = ((type == TypeNG.ONE) || (type == TypeNG.TWO));
       if (isHeap) {
-        processHeap(offset, length, idCode);
+        processHeap(offset, length, idCode, type);
 
       } else {
-        TypeNG type = decodeType(dataType);
-        processRecord(offset, length, type, length / type.length, idCode);
+        processRecord(offset, length, length / type.length, idCode, type);
       }
     }
   }
 
 
-  private static TypeNG decodeType(int dataType) {
+  private static TypeNG decodeType(int dataType) throws IOException {
     TypeNG result;
 
     switch (dataType) {
@@ -111,8 +107,10 @@ public class CiffReader extends Reader {
     case 2: result = TypeNG.U16      ; break;
     case 3: result = TypeNG.U32      ; break;
     case 4: result = TypeNG.STRUCTURE; break;
+    case 5: result = TypeNG.ONE      ; break;
+    case 6: result = TypeNG.TWO      ; break;
     default:
-      throw new IllegalArgumentException("dataType");
+      throw new IOException("Unknown data type.");
     }
 
     return result;

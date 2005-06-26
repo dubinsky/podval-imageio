@@ -21,11 +21,7 @@ public enum TypeNG {
     }
   },
 
-  STRING(1) {
-    public Object read(ImageInputStream in) throws IOException {
-      throw new UnsupportedOperationException();
-    }
-  },
+  STRING(1),
 
   U16(2) {
     public Object read(ImageInputStream in) throws IOException {
@@ -51,11 +47,7 @@ public enum TypeNG {
     }
   },
 
-  F32(4) {
-    public Object read(ImageInputStream in) throws IOException {
-      throw new UnsupportedOperationException();
-    }
-  },
+  F32(4),
 
   RATIONAL(8) {
     public Object read(ImageInputStream in) throws IOException {
@@ -69,11 +61,12 @@ public enum TypeNG {
     }
   },
 
-  U16_OR_U32(0) {
-    public Object read(ImageInputStream in) throws IOException {
-      throw new UnsupportedOperationException();
-    }
-  };
+  U16_OR_U32(0),
+
+
+  ONE(0),
+
+  TWO(0);
 
 
 
@@ -87,7 +80,9 @@ public enum TypeNG {
   }
 
 
-  abstract Object read(ImageInputStream in) throws IOException;
+  protected Object read(ImageInputStream in) throws IOException {
+    throw new UnsupportedOperationException();
+  }
 
 
   public static int readUnsignedInt(ImageInputStream in) throws IOException {

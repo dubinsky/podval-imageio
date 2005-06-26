@@ -9,7 +9,7 @@ public interface ReaderHandler {
    *
    * @return boolean true if the heap should be processed; false if it should be skipped
    */
-  public boolean startHeap(int idCode, Heap heap);
+  public boolean startHeap(int tag, Heap heap);
 
 
   /** @todo rename (to directory?) */

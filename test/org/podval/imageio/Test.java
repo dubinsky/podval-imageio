@@ -39,39 +39,31 @@ public class Test {
 
   private static void testCiff() throws Exception {
     System.out.println("CIFF:");
-    MetaMetaDataNG metaMetaData = new MetaMetaDataNG();
-    Heap ciffHeap = new Heap("org_podval_imageio_ciff_1.0");
-    metaMetaData.setInitialHeap(ciffHeap);
-    ciffHeap.addEntry(5, new RecordNG("crwImage"));
+    MetaMetaDataNG metaMetaData = loadCiffMetaMetaData();
     dump(ciffReader("/mnt/extra/Photo/ORIGINALS/g2/2/2/2250.crw"), metaMetaData);
     System.out.println();
+  }
+
+
+  private static MetaMetaDataNG loadCiffMetaMetaData() throws Exception {
+    MetaMetaDataNG result = new MetaMetaDataNG();
+    Loader.load("/home/dub/Projects/imageio/xml/ciff.xml", result);
+    return result;
   }
 
 
   private static void testExif() throws Exception {
     System.out.println("EXIF:");
     MetaMetaDataNG metaMetaData = new MetaMetaDataNG();
-    Heap exifHeap = new Heap("org_podval_imageio_exif_1.0");
-    metaMetaData.setInitialHeap(exifHeap);
-    exifHeap.addEntry(271, new RecordNG("make"));
-    exifHeap.addEntry(34665, new Heap("exif"));
     dump(exifReader("/mnt/extra/Photo/ORIGINALS/g2/2/2/2249.jpg"), metaMetaData);
     System.out.println();
   }
 
 
-  private static void testLoad() throws Exception {
-    MetaMetaDataNG metaMetaData = new MetaMetaDataNG();
-    Loader.load("/home/dub/Projects/imageio/xml/ciff.xml", metaMetaData);
-  }
-
-
   public static void main(String[] args) throws Exception {
-    testCiff();
     testExif();
+    testCiff();
 
 //    extractCrwThumbnails("/mnt/extra/Photo/ORIGINALS/g2/2/2/2250.crw");
-
-    testLoad();
   }
 }

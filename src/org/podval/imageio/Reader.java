@@ -96,17 +96,17 @@ public abstract class Reader {
   }
 
 
-  protected final void processHeap(long offset, int length, int tag)
+  protected final void processHeap(long offset, int length, int tag, TypeNG type)
     throws IOException
   {
     Heap parentHeap = currentHeap;
 
-    if (currentHeap != null) {
-      currentHeap = currentHeap.getHeap(tag);
-    } else {
+    if (currentHeap == null) {
       if ((level == 0) && (metaMetaData != null)) {
         currentHeap = metaMetaData.getInitialHeap();
       }
+    } else {
+      currentHeap = currentHeap.getHeap(tag, type);
     }
 
     level++;
@@ -126,7 +126,7 @@ public abstract class Reader {
   protected abstract void readHeap(long offset, int length) throws IOException;
 
 
-  protected abstract void readHeap(long offset, int length, int tag) throws IOException;
+  protected abstract void readHeap(long offset, int length, int tag, TypeNG type) throws IOException;
 
 
   protected final void readEntry(long offset, long offsetBase)
@@ -140,17 +140,17 @@ public abstract class Reader {
   protected abstract void readEntry(long offsetBase) throws IOException;
 
 
-  protected final void processEntry(long offset, int length, TypeNG type, int count, int tag)
+  protected final void processEntry(long offset, int length, int count, int tag, TypeNG type)
     throws IOException
   {
     Entry entry = (currentHeap == null) ? null : currentHeap.getEntry(tag, type, length, count);
 
     if (entry instanceof Heap) {
-      readHeap(offset, length, tag);
+      readHeap(offset, length, tag, type);
     } else
 
     if ((entry instanceof RecordNG) || (entry == null)) {
-      processRecord(offset, length, type, count, tag);
+      processRecord(offset, length, count, tag, type);
     }
 
     /** @todo  */
@@ -162,14 +162,21 @@ public abstract class Reader {
   }
 
 
-  protected final void processRecord(long offset, int length, TypeNG type, int count, int tag)
+  protected final void processRecord(long offset, int length, int count, int tag, TypeNG type)
     throws IOException
   {
+    RecordNG record = (currentHeap == null) ? null : currentHeap.getRecord(tag, type, length, count);
+
+//    if (handler.startHeap(tag, record)) {
+//      read right here in a loop
+//    }
+//
+//    handler.endHeap();
+
+
     /* It is much simpler to just do seek right here, but if the data is not
      needed, the seek() would be wasted... */
     this.offset = offset;
-
-    RecordNG record = (currentHeap == null) ? null : currentHeap.getRecord(tag, type, length, count);
 
     handler.readRecord(tag, type, length, count, this, record);
   }
@@ -181,7 +188,7 @@ public abstract class Reader {
 
 
   /** @todo this belongs in a separate interface for value retrieval */
-  public Object readValue(TypeNG type, int length, int count) throws IOException {
+  public Object readValue(int length, int count, TypeNG type) throws IOException {
     /** @todo type/length/count sanity checks... */
     Object result = null;
     seekToData();

@@ -45,7 +45,7 @@ public class CrwThumbnailExtractor {
 
     new CiffReader(in).read(new ReaderHandler() {
 
-      public boolean startHeap(int idCode, Heap heap) {
+      public boolean startHeap(int tag, Heap heap) {
         return (idCode == 0);
       }
 

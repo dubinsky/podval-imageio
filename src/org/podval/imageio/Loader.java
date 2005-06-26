@@ -152,15 +152,30 @@ public class Loader {
         throw new SAXException(e);
       }
 
+      String typeName = attributes.getValue("type");
+
+      TypeNG type;
+      if (typeName == null) {
+        type = null; /** @todo default? exception? */
+      } else {
+        try {
+          /** @todo check that typeName is in lower case */
+          typeName = typeName.toUpperCase();
+          type = TypeNG.valueOf(typeName);
+        } catch (IllegalArgumentException e) {
+          throw new SAXException("Unknown type " + typeName);
+        }
+      }
+
       if ("directory".equals(name)) {
         HeapBuilder heapBuilder = new HeapBuilder(this, attributes);
-        heap.addEntry(tag, heapBuilder.heap);
+        heap.addEntry(tag, type, heapBuilder.heap);
         result = heapBuilder;
       } else
 
       if ("record".equals(name)) {
         RecordBuilder recordBuilder = new RecordBuilder(this, attributes);
-        heap.addEntry(tag, recordBuilder.record);
+        heap.addEntry(tag, type, recordBuilder.record);
         result = recordBuilder;
       } else {
 

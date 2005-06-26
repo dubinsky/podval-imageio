@@ -59,11 +59,13 @@ public class ExifReader extends Reader {
 
 
   private void readIfdInPlace(int tag) throws IOException {
-    processHeap(0, 0, tag);
+    processHeap(0, 0, tag, null);
   }
 
 
-  protected void readHeap(long dummyOffset, int dummyLength, int tag) throws IOException {
+  protected void readHeap(long dummyOffset, int dummyLength, int tag, TypeNG type)
+    throws IOException
+  {
     readIfd(tag);
   }
 
@@ -99,7 +101,7 @@ public class ExifReader extends Reader {
       offset = in.getStreamPosition();
     }
 
-    processEntry(offset, length, type, count, tag);
+    processEntry(offset, length, count, tag, type);
   }
 
 

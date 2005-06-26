@@ -12,11 +12,6 @@ public final class MetaMetaDataNG {
   }
 
 
-  public void setInitialHeap(Heap value) {
-    initialHeap = value;
-  }
-
-
   public Heap getInitialHeap() {
     return initialHeap;
   }
@@ -24,6 +19,9 @@ public final class MetaMetaDataNG {
 
   public void registerHeap(Heap heap) {
     name2heap.put(heap.getName(), heap);
+    if (initialHeap == null) {
+      initialHeap = heap;
+    }
   }
 
 

@@ -20,18 +20,22 @@ public class Heap extends Entry {
   }
 
 
-  public void addEntry(int tag, Entry entry) {
-    Entry oldEntry = entries.get(tag);
+  public void addEntry(int tag, TypeNG type, Entry entry) {
+    /** @todo type parameter needs to be removed; all entries should have type in them */
+    Key key = new Key(tag, type);
+
+    Entry oldEntry = entries.get(key);
     if (oldEntry != null) {
-      throw new IllegalArgumentException("Can not add " + entry.getName() + " to " + getName() +
-        ": entry " + oldEntry.getName() + " with the same tag " + tag + " exists!");
+      throw new IllegalArgumentException("Attempt to replace " + entry.getName() + " with " + getName() +
+        "; key " /*+ key*/);
     }
-    entries.put(tag, entry);
+    entries.put(key, entry);
   }
 
 
   public Entry getEntry(int tag, TypeNG type, long length, int count) {
-    Entry result = entries.get(tag);
+    Key key = new Key(tag, type);
+    Entry result = entries.get(key);
 
     /** @todo check point!!! */
 
@@ -41,13 +45,15 @@ public class Heap extends Entry {
   }
 
 
-  public Heap getHeap(int tag) throws IOException {
-    Entry result = entries.get(tag);
+  public Heap getHeap(int tag, TypeNG type) throws IOException {
+    Key key = new Key(tag, type);
+
+    Entry result = entries.get(key);
 
     /** @todo learning point */
 
     if ((result != null) &&!(result instanceof Heap)) {
-      throw new IOException("Tag does not correspond to a heap");
+      throw new IOException("Not a heap: " + key);
     }
 
     return (Heap) result;
@@ -57,19 +63,59 @@ public class Heap extends Entry {
   public RecordNG getRecord(int tag, TypeNG type, long length, int count)
     throws IOException
   {
-    Entry result = entries.get(tag);
+    Key key = new Key(tag, type);
+    Entry result = entries.get(key);
 
     /** @todo check point!!! */
 
     /** @todo learning point */
 
     if ((result != null) && !(result instanceof RecordNG)) {
-      throw new IOException("Tag does not correspond to a record");
+      throw new IOException("Not a record: " + key);
     }
 
     return (result instanceof RecordNG) ? (RecordNG) result : null;
   }
 
 
-  private final Map<Integer, Entry> entries = new HashMap<Integer,Entry>();
+
+  /**
+   */
+  private static class Key {
+
+    public Key(int tag, TypeNG type) {
+      this.tag = tag;
+      this.type = type;
+    }
+
+
+    public boolean equals(Object o) {
+      Key other = (Key) o;
+      return (this.tag == other.tag) && (this.type == other.type);
+    }
+
+
+    public int hashCode() {
+      int result = tag*317;
+      if (type != null) {
+        result += type.hashCode();
+      }
+      return result;
+    }
+
+
+    public String toString() {
+      return tag + "-" + type;
+    }
+
+
+    private final int tag;
+
+
+    private final TypeNG type;
+  }
+
+
+
+  private final Map<Key, Entry> entries = new HashMap<Key,Entry>();
 }
