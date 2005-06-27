@@ -25,10 +25,10 @@ public final class MetaMetaDataNG {
   }
 
 
-  public Heap getHeapByName(String name) {
+  public Heap getHeap(String name, TypeNG type) {
     Heap result = name2heap.get(name);
     if (result == null) {
-      result = new Heap(name);
+      result = new Heap(name, type);
       registerHeap(result);
     }
     return result;

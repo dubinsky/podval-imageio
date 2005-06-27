@@ -16,11 +16,12 @@ import java.io.IOException;
 
 public class Loader {
 
-  public static void load(String path, MetaMetaDataNG metaMetaData)
-    throws ParserConfigurationException, SAXException, IOException
-  {
+  public static void load(String path,
+    MetaMetaDataNG metaMetaData) throws ParserConfigurationException,
+    SAXException, IOException {
     new Loader(metaMetaData).load(path);
   }
+
 
 
   private Loader(MetaMetaDataNG metaMetaData) {
@@ -28,33 +29,32 @@ public class Loader {
   }
 
 
-  private void load(String path)
-    throws ParserConfigurationException, SAXException, IOException
-  {
+
+  private void load(String path) throws ParserConfigurationException,
+    SAXException, IOException {
     SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
     parser.parse(new File(path), new DefaultHandler() {
 
-      public void startDocument ()
-        throws SAXException
-      {
+      public void startDocument() throws SAXException {
         currentBuilder = new DocumentBuilder(metaMetaData);
       }
 
 
-      public void startElement(String uri, String localName, String qName, Attributes attributes)
-        throws SAXException
-      {
+
+      public void startElement(String uri, String localName, String qName,
+        Attributes attributes) throws SAXException {
         currentBuilder = currentBuilder.startElement(qName, attributes);
       }
 
 
-      public void endElement(String uri, String localName, String qName)
-        throws SAXException
-      {
+
+      public void endElement(String uri, String localName,
+        String qName) throws SAXException {
         currentBuilder = currentBuilder.previous;
       }
     });
   }
+
 
 
   private final MetaMetaDataNG metaMetaData;
@@ -72,8 +72,53 @@ public class Loader {
       this.previous = previous;
     }
 
-    public abstract Builder startElement(String name, Attributes attributes)
-      throws SAXException;
+
+    public abstract Builder startElement(String name,
+      Attributes attributes) throws SAXException;
+
+
+    protected final Heap getHeap(Attributes attributes) throws SAXException {
+      return getMetaMetaData().getHeap(getName(attributes), getType(attributes));
+    }
+
+
+    private MetaMetaDataNG getMetaMetaData() {
+      Builder candidate = this;
+      while (!(candidate instanceof DocumentBuilder)) {
+        candidate = candidate.previous;
+      }
+      return ((DocumentBuilder) candidate).metaMetaData;
+    }
+
+
+    protected final String getName(Attributes attributes) throws SAXException {
+      String result = attributes.getValue("name");
+      if (result == null) {
+        throw new SAXException();
+      }
+      return result;
+    }
+
+
+   protected final TypeNG getType(Attributes attributes) throws SAXException {
+      TypeNG result;
+
+      String typeName = attributes.getValue("type");
+
+      if (typeName == null) {
+        result = null; /** @todo default? exception? */
+      } else {
+        try {
+          /** @todo check that typeName is in lower case */
+          typeName = typeName.toUpperCase();
+          result = TypeNG.valueOf(typeName);
+        } catch (IllegalArgumentException e) {
+          throw new SAXException("Unknown type " + typeName);
+        }
+      }
+
+      return result;
+    }
 
 
     public final Builder previous;
@@ -91,9 +136,8 @@ public class Loader {
     }
 
 
-    public Builder startElement(String name, Attributes attributes)
-      throws SAXException
-    {
+    public Builder startElement(String name,
+      Attributes attributes) throws SAXException {
       if (!"meta-metadata".equals(name)) {
         throw new SAXException();
       }
@@ -116,33 +160,30 @@ public class Loader {
     }
 
 
-    public Builder startElement(String name, Attributes attributes)
-      throws SAXException
-    {
+    public Builder startElement(String name,
+      Attributes attributes) throws SAXException {
       if (!"directory".equals(name)) {
         throw new SAXException();
       }
 
-      return new HeapBuilder(this, attributes);
+      return new HeapBuilder(this, getHeap(attributes));
     }
   }
+
 
 
   /**
    */
   private static class HeapBuilder extends Builder {
 
-    public HeapBuilder(Builder previous, Attributes attributes)
-      throws SAXException
-    {
+    public HeapBuilder(Builder previous, Heap heap) {
       super(previous);
-      this.heap = getMetaMetaData().getHeapByName(getName(attributes));
+      this.heap = heap;
     }
 
 
-    public Builder startElement(String name, Attributes attributes)
-      throws SAXException
-    {
+    public Builder startElement(String name,
+      Attributes attributes) throws SAXException {
       Builder result;
 
       int tag;
@@ -152,50 +193,29 @@ public class Loader {
         throw new SAXException(e);
       }
 
-      String typeName = attributes.getValue("type");
-
-      TypeNG type;
-      if (typeName == null) {
-        type = null; /** @todo default? exception? */
-      } else {
-        try {
-          /** @todo check that typeName is in lower case */
-          typeName = typeName.toUpperCase();
-          type = TypeNG.valueOf(typeName);
-        } catch (IllegalArgumentException e) {
-          throw new SAXException("Unknown type " + typeName);
-        }
-      }
-
+      Entry entry;
       if ("directory".equals(name)) {
-        HeapBuilder heapBuilder = new HeapBuilder(this, attributes);
-        heap.addEntry(tag, type, heapBuilder.heap);
-        result = heapBuilder;
+        Heap heap = getHeap(attributes);
+        entry = heap;
+        result = new HeapBuilder(this, heap);
       } else
 
       if ("record".equals(name)) {
-        RecordBuilder recordBuilder = new RecordBuilder(this, attributes);
-        heap.addEntry(tag, type, recordBuilder.record);
-        result = recordBuilder;
+        RecordNG record = new RecordNG(getName(attributes), getType(attributes));
+        entry = record;
+        result = new RecordBuilder(this, record);
       } else {
 
         throw new SAXException();
       }
 
+      heap.addEntry(tag, entry);
+
       return result;
     }
 
 
-    private MetaMetaDataNG getMetaMetaData() {
-      Builder candidate = this;
-      while (!(candidate instanceof DocumentBuilder)) {
-        candidate = candidate.previous;
-      }
-      return ((DocumentBuilder) candidate).metaMetaData;
-    }
-
-
-    public final Heap heap;
+    private final Heap heap;
   }
 
 
@@ -204,11 +224,9 @@ public class Loader {
    */
   private static class RecordBuilder extends Builder {
 
-    public RecordBuilder(HeapBuilder previous, Attributes attributes)
-      throws SAXException
-    {
+    public RecordBuilder(HeapBuilder previous, RecordNG record) {
       super(previous);
-      this.record = new RecordNG(getName(attributes));
+      this.record = record;
     }
 
 
@@ -219,7 +237,7 @@ public class Loader {
     }
 
 
-    public final RecordNG record;
+    private final RecordNG record;
   }
 
 
@@ -228,27 +246,13 @@ public class Loader {
    */
   private static class NullBuilder extends Builder {
 
-    public NullBuilder(Builder previous)
-      throws SAXException
-    {
+    public NullBuilder(Builder previous) throws SAXException {
       super(previous);
     }
 
-
-    public Builder startElement(String name, Attributes attributes)
-      throws SAXException
-    {
+    public Builder startElement(String name,
+      Attributes attributes) throws SAXException {
       return new NullBuilder(this);
     }
-  }
-
-
-
-  private static String getName(Attributes attributes) throws SAXException {
-    String result = attributes.getValue("name");
-    if (result == null) {
-      throw new SAXException();
-    }
-    return result;
   }
 }

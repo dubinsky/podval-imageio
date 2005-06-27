@@ -15,13 +15,13 @@ public enum TypeNG {
     }
   },
 
-  STRUCTURE(1) {  // X8
+  STRUCTURE(1, true) {  // X8
     public Object read(ImageInputStream in) throws IOException {
       return in.readUnsignedByte();
     }
   },
 
-  STRING(1),
+  STRING(1, true),
 
   U16(2) {
     public Object read(ImageInputStream in) throws IOException {
@@ -69,9 +69,14 @@ public enum TypeNG {
   TWO(0);
 
 
-
   private TypeNG(int length) {
+    this(length, false);
+  }
+
+
+  private TypeNG(int length, boolean isVariableLength) {
     this.length = length;
+    this.isVariableLength = isVariableLength;
   }
 
 
@@ -97,5 +102,7 @@ public enum TypeNG {
 
 
   public final int length;
-}
 
+
+  public final boolean isVariableLength;
+}

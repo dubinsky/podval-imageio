@@ -5,15 +5,24 @@ package org.podval.imageio;
 
 public class Entry {
 
-  public Entry(String name) {
+  protected Entry(String name, TypeNG type) {
     this.name = name;
+    this.type = type;
   }
 
 
-  public String getName() {
+  public final String getName() {
     return name;
   }
 
 
+  public final TypeNG getType() {
+    return type;
+  }
+
+
   private final String name;
+
+
+  private final TypeNG type;
 }

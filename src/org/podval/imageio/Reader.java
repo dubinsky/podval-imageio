@@ -167,18 +167,26 @@ public abstract class Reader {
   {
     RecordNG record = (currentHeap == null) ? null : currentHeap.getRecord(tag, type, length, count);
 
-//    if (handler.startHeap(tag, record)) {
-//      read right here in a loop
-//    }
-//
-//    handler.endHeap();
-
-
-    /* It is much simpler to just do seek right here, but if the data is not
-     needed, the seek() would be wasted... */
     this.offset = offset;
 
-    handler.readRecord(tag, type, length, count, this, record);
+    boolean treatAsFolder = ((count > 1) || ((record != null) /*&& (record.getCount() > 1)*/)) &&!type.isVariableLength;
+
+    if (treatAsFolder) {
+      int fieldLength = length / count;
+      if (handler.startRecord(tag, record)) {
+        for (int index = 0; index<count; index++) {
+          handler.readRecord(index, type, fieldLength, 1, this, record);
+          this.offset += fieldLength;
+        }
+      }
+
+      handler.endRecord();
+
+    } else {
+      /* It is much simpler to just do seek right here, but if the data is not
+       needed, the seek() would be wasted... */
+      handler.readRecord(tag, type, length, count, this, record);
+    }
   }
 
 

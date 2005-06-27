@@ -10,24 +10,24 @@ import java.io.IOException;
 
 public class Heap extends Entry {
 
-  public Heap() {
-    super(null);
+//  public Heap() {
+//    super(null);
+//  }
+
+
+  public Heap(String name, TypeNG type) {
+    super(name, type);
   }
 
 
-  public Heap(String name) {
-    super(name);
-  }
-
-
-  public void addEntry(int tag, TypeNG type, Entry entry) {
+  public void addEntry(int tag, Entry entry) {
     /** @todo type parameter needs to be removed; all entries should have type in them */
-    Key key = new Key(tag, type);
+    Key key = new Key(tag, entry.getType());
 
     Entry oldEntry = entries.get(key);
     if (oldEntry != null) {
       throw new IllegalArgumentException("Attempt to replace " + entry.getName() + " with " + getName() +
-        "; key " /*+ key*/);
+        "; key " + key);
     }
     entries.put(key, entry);
   }

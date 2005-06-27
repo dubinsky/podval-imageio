@@ -3,7 +3,6 @@
 package org.podval.imageio;
 
 import java.io.File;
-import java.io.OutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
@@ -46,11 +45,20 @@ public class CrwThumbnailExtractor {
     new CiffReader(in).read(new ReaderHandler() {
 
       public boolean startHeap(int tag, Heap heap) {
-        return (idCode == 0);
+        return (tag == 0);
       }
 
 
       public void endHeap() {
+      }
+
+
+      public boolean startRecord(int tag, RecordNG record) {
+        return false;
+      }
+
+
+      public void endRecord() {
       }
 
 

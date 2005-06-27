@@ -24,22 +24,43 @@ public class SaxDumpingHandler extends SaxDumper implements ReaderHandler {
   }
 
 
-  public boolean startHeap(int idCode, Heap heap) {
-    try {
-      AttributesImpl attributes = new AttributesImpl();
-      addAttribute(attributes, "tag", Integer.toString(idCode));
-      addNameAttribute(attributes, heap);
-
-      contentHandler.startElement(null, null, "directory", attributes);
-    } catch (SAXException e) {
-    }
+  public boolean startHeap(int tag, Heap heap) {
+    startFolder(tag, heap, "directory");
     return true;
   }
 
 
   public void endHeap() {
+    endFolder("directory");
+  }
+
+
+  public boolean startRecord(int tag, RecordNG record) {
+    startFolder(tag, record, "record");
+    return true;
+  }
+
+
+  public void endRecord() {
+    endFolder("record");
+  }
+
+
+  private void startFolder(int tag, Entry entry, String kind) {
     try {
-      contentHandler.endElement(null, "directory", "directory");
+      AttributesImpl attributes = new AttributesImpl();
+      addAttribute(attributes, "tag", Integer.toString(tag));
+      addNameAttribute(attributes, entry);
+
+      contentHandler.startElement(null, null, kind, attributes);
+    } catch (SAXException e) {
+    }
+  }
+
+
+  private void endFolder(String kind) {
+    try {
+      contentHandler.endElement(null, null, kind);
     } catch (SAXException e) {
     }
   }
@@ -61,7 +82,7 @@ public class SaxDumpingHandler extends SaxDumper implements ReaderHandler {
         System.out.println(e);
       }
 
-      if ((type == TypeNG.STRING) || (type == TypeNG.STRUCTURE)) { /** @todo TypeNG.isFlexibleLength() */
+      if (type.isVariableLength) {
         addAttribute(attributes, "length", Long.toString(length));
       }
 
@@ -71,8 +92,8 @@ public class SaxDumpingHandler extends SaxDumper implements ReaderHandler {
 
       addAttribute(attributes, "value", valueToString(value));
 
-      contentHandler.startElement(null, "record", "record", attributes);
-      contentHandler.endElement(null, "record", "record");
+      contentHandler.startElement(null, null, "record", attributes);
+      contentHandler.endElement(null, null, "record");
     } catch (SAXException e) {
     }
   }
