@@ -5,6 +5,8 @@ package org.podval.imageio;
 import java.util.Map;
 import java.util.HashMap;
 
+/** @todo where is the right place to load xml files? */
+/** @todo should "learning" be disableable? */
 
 public final class MetaMetaDataNG {
 
@@ -13,6 +15,10 @@ public final class MetaMetaDataNG {
 
 
   public Heap getInitialHeap() {
+    if (initialHeap == null) {
+      initialHeap = new Heap("initialHeap", null);
+    }
+
     return initialHeap;
   }
 

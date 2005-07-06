@@ -9,13 +9,13 @@ import java.io.IOException;
 
 public enum TypeNG {
 
-  U8(1) {
+  U8(1 /*, true*/) {
     public Object read(ImageInputStream in) throws IOException {
       return in.readUnsignedByte();
     }
   },
 
-  STRUCTURE(1, true) {  // X8
+  X8(1, true) {  // structure
     public Object read(ImageInputStream in) throws IOException {
       return in.readUnsignedByte();
     }
@@ -61,7 +61,7 @@ public enum TypeNG {
     }
   },
 
-  U16_OR_U32(0),
+  U16_OR_U32(0), /** @todo actual types */
 
 
   ONE(0),
@@ -105,4 +105,32 @@ public enum TypeNG {
 
 
   public final boolean isVariableLength;
+
+
+//  public final boolean isDirectoryAllowed;   // U32, ONE, TWO
+//  public final boolean isRecordAllowed;
+//  public final boolean isVectorAllowed;      // U16
+//  public final boolean isEnumerationAllowed; // U16, U8, X8
+//  private Type[] allowedFieldTypes;          // U32: U32, S32, F32; U16: U16, S16; self: U32, U8, X8, STRING, RATIONAL, SRATIONAL, U16_OR_U32
+//  private Type[] allowedSubfieldTypes;       // U32: U16, U8
+
+//  public boolean isFieldAllowed(Type type) {
+//    return (allowedFieldTypes != null) &&
+//      (((allowedFieldTypes.length == 0) && (type == this)) ||
+//      find(type, allowedFieldTypes));
+//  }
+//
+//
+//  public Type getDefaultFieldType() {
+//    assert (allowedFieldTypes != null) : "No default field type for non-record types.";
+//    return (allowedFieldTypes.length == 0) ? this : allowedFieldTypes[0];
+//  }
+//
+//
+//  private void setAllowedSubfieldTypes(Type[] allowedSubfieldTypes) {
+//    assert (allowedSubfieldTypes == null) || (allowedSubfieldTypes.length != 0)
+//      : "List of allowed subfield types can not be empty!";
+//
+//    this.allowedSubfieldTypes = allowedSubfieldTypes;
+//  }
 }

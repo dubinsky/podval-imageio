@@ -120,11 +120,11 @@ public class CiffImageReader extends ImageReader {
 
   private void readMetadata() throws IOException {
     if (metadata == null) {
-      DefaultMetadataHandler handler =
-        new DefaultMetadataHandler(NATIVE_FORMAT_NAME);
+/////      DefaultMetadataHandler handler =
+/////        new DefaultMetadataHandler(NATIVE_FORMAT_NAME);
       /** @todo !!! */
 //      CiffDecoder.read(getInputStream(), NATIVE_FORMAT_NAME, handler);
-      metadata = handler.getResult();
+/////      metadata = handler.getResult();
     }
   }
 

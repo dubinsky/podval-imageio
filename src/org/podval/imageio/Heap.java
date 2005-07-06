@@ -21,8 +21,13 @@ public class Heap extends Entry {
 
 
   public void addEntry(int tag, Entry entry) {
-    /** @todo type parameter needs to be removed; all entries should have type in them */
-    Key key = new Key(tag, entry.getType());
+    /** @todo add under all of the entry's types */
+    addEntry(tag, entry.getType(), entry);
+  }
+
+
+  private void addEntry(int tag, TypeNG type, Entry entry) {
+    Key key = new Key(tag, type);
 
     Entry oldEntry = entries.get(key);
     if (oldEntry != null) {
@@ -50,7 +55,11 @@ public class Heap extends Entry {
 
     Entry result = entries.get(key);
 
-    /** @todo learning point */
+    if (result == null) {
+      result = new Heap("unknown-"+tag, type);
+      /** @todo mark as auto-learned */
+      addEntry(tag, result);
+    }
 
     if ((result != null) &&!(result instanceof Heap)) {
       throw new IOException("Not a heap: " + key);
@@ -66,9 +75,14 @@ public class Heap extends Entry {
     Key key = new Key(tag, type);
     Entry result = entries.get(key);
 
-    /** @todo check point!!! */
-
     /** @todo learning point */
+    if (result == null) {
+      result = new RecordNG("unknown-"+tag, type);
+      /** @todo mark as auto-learned */
+      addEntry(tag, result);
+    }
+
+    /** @todo check point!!! */
 
     if ((result != null) && !(result instanceof RecordNG)) {
       throw new IOException("Not a record: " + key);

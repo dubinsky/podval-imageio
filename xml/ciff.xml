@@ -55,7 +55,10 @@
 
   <record tag="14" type="U32" name="capturedTime" handler="org.podval.imageio.CiffCapturedTimeHandler">
     <field type="U32" name="timeCount"/> <!-- Seconds from Epoch: 1/1/1970 -->
-    <!-- Canon G2 writes 0s in the other two fields, so time is GMT/UTC. -->
+    <!-- Canon G2 writes 0s in the other two fields, so time is GMT/UTC.
+      int timezoneOffset = TimeZone.getDefault().getOffset(millisFromEpoch);
+      result = new Date(millisFromEpoch-timezoneOffset);
+    -->
     <field type="S32" name="timeZoneCode"/> <!-- Zone offset in seconds. -->
     <field type="U32" name="timeZoneInfo"/> <!-- If MSB is 0, treat zone code as 0. -->
   </record>

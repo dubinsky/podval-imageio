@@ -9,6 +9,13 @@ import javax.imageio.ImageReader;
 
 public class CiffImageReaderSpi extends ImageReaderSpi {
 
+//  public static void init() {
+//    /** @todo should register using jar manifest (also). */
+//    IIORegistry.getDefaultInstance().registerServiceProvider(new
+//      CiffImageReaderSpi());
+//  }
+
+
   public CiffImageReaderSpi() {
     super(
       "Podval Group",

@@ -73,6 +73,14 @@ public class SaxDumpingHandler extends SaxDumper implements ReaderHandler {
       addNameAttribute(attributes, record);
       addAttribute(attributes, "type", type.toString());
 
+      if (type.isVariableLength) {
+        addAttribute(attributes, "length", Long.toString(length));
+      }
+
+      if ((count != 1) && (count != length)) {
+        addAttribute(attributes, "count", Integer.toString(count));
+      }
+
       Object value = null;
       try {
         value = (length <= MAX_LENGTH) ?
@@ -80,14 +88,6 @@ public class SaxDumpingHandler extends SaxDumper implements ReaderHandler {
           reader.readBytes(MAX_LENGTH);
       } catch (IOException e) {
         System.out.println(e);
-      }
-
-      if (type.isVariableLength) {
-        addAttribute(attributes, "length", Long.toString(length));
-      }
-
-      if ((count != 1) && (count != length)) {
-        addAttribute(attributes, "count", Integer.toString(count));
       }
 
       addAttribute(attributes, "value", valueToString(value));
@@ -120,6 +120,7 @@ public class SaxDumpingHandler extends SaxDumper implements ReaderHandler {
           result += " ";
         }
         result += toHex(b);
+        first = false;
       }
     } else {
 

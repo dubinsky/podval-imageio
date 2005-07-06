@@ -64,7 +64,7 @@ public class Directory extends Typed {
     Key key = new Key(tag, type);
     Object result = entries.get(key);
 
-    if ((result == null) && MetaMetadata.isDecodeUnknown()) {
+    if ((result == null) /*&& MetaMetadata.isDecodeUnknown()*/) {
       Typed entry = null;
 
       String name = "unknown-" + key;

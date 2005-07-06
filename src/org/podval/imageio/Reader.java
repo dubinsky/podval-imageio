@@ -169,7 +169,7 @@ public abstract class Reader {
 
     this.offset = offset;
 
-    boolean treatAsFolder = ((count > 1) || ((record != null) /*&& (record.getCount() > 1)*/)) &&!type.isVariableLength;
+    boolean treatAsFolder = ((count > 1) || ((record != null) /*&& (record.getCount() > 1)*/)) && !type.isVariableLength;
 
     if (treatAsFolder) {
       int fieldLength = length / count;
@@ -207,7 +207,7 @@ public abstract class Reader {
       if (count == 1) {
         result = type.read(in);
       } else {
-        if ((type == TypeNG.U8) || (type == TypeNG.STRUCTURE)) {
+        if ((type == TypeNG.U8) || (type == TypeNG.X8)) {
           result = doReadBytes(count);
         } else {
           Object[] objects = new Object[count];

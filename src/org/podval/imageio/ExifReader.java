@@ -115,7 +115,7 @@ public class ExifReader extends Reader {
     case  4: result = TypeNG.U32      ; break; // "long"
     case  5: result = TypeNG.RATIONAL ; break; // "rational" (two longs)
     //case  6: result = Type.S8       ; break;
-    case  7: result = TypeNG.STRUCTURE; break; // "undefined"
+    case  7: result = TypeNG.X8       ; break; // "undefined"
     //case 8: result = Type.S16       ; break;
     case  9: result = TypeNG.S32      ; break; // "slong"
     case 10: result = TypeNG.SRATIONAL; break; // "srational"

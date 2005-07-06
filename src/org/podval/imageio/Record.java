@@ -163,9 +163,7 @@ public class Record extends Typed {
   }
 
 
-  public void readWithLength(ImageInputStream in, Type type, long length,
-    MetadataHandler handler) throws IOException
-  {
+  public void readWithLength(ImageInputStream in, Type type, long length) throws IOException {
     // All STRUCTURED fields in a record MUST be of the same length.
     // This is enforced by the Type.isFieldAllowed predicate.
 
@@ -181,13 +179,11 @@ public class Record extends Typed {
       count = length;
     }
 
-    readWithCount(in, type, count, handler);
+/////    readWithCount(in, type, count, handler);
   }
 
 
-  public void readWithCount(ImageInputStream in, Type type, long count,
-    MetadataHandler handler) throws IOException
-  {
+  public void readWithCount(ImageInputStream in, Type type, long count) throws IOException {
     if (isVector()) {
       long length = in.readUnsignedShort();
 
@@ -218,41 +214,39 @@ public class Record extends Typed {
     }
 
     if (handlerClass != null) {
-      try {
-        FilteringMetadataHandler localHandler =
-          (FilteringMetadataHandler) handlerClass.newInstance();
-        localHandler.setNextHandler(handler);
-        handler = localHandler;
-      } catch (InstantiationException e) {
-        throw new IllegalArgumentException("Can not instantiate handler " + handlerClass); /** @todo wrong exception type! */
-      } catch (IllegalAccessException e) {
-        throw new IllegalArgumentException("Can not instantiate handler " + handlerClass); /** @todo wrong exception type! */
-      }
+/////      try {
+/////        FilteringMetadataHandler localHandler =
+/////          (FilteringMetadataHandler) handlerClass.newInstance();
+/////        localHandler.setNextHandler(handler);
+/////        handler = localHandler;
+/////      } catch (InstantiationException e) {
+/////        throw new IllegalArgumentException("Can not instantiate handler " + handlerClass); /** @todo wrong exception type! */
+/////      } catch (IllegalAccessException e) {
+/////        throw new IllegalArgumentException("Can not instantiate handler " + handlerClass); /** @todo wrong exception type! */
+/////      }
     }
 
-    handler.startGroup(this);
+/////    handler.startGroup(this);
 
     for (int index=1; index<=nmb; index++) {
-      readField(in, index, type, cnt, handler);
+      readField(in, index, type, cnt);
     }
 
-    handler.endGroup();
+/////    handler.endGroup();
   }
 
 
-  private void readField(ImageInputStream in, int index, Type type, long count,
-    MetadataHandler handler) throws IOException
-  {
+  private void readField(ImageInputStream in, int index, Type type, long count) throws IOException {
     Field field = getField(index);
 
-    if ((field == null) && MetaMetadata.isDecodeUnknown()) {
+    if ((field == null) /*&& MetaMetadata.isDecodeUnknown()*/) {
       Type fieldType = type.getDefaultFieldType();
       field = createUnknownField(index, fieldType);
       addField(index, field);
     }
 
     if (field != null) {
-      field.read(in, type, count, handler);
+      field.read(in, type, count);
     }
   }
 

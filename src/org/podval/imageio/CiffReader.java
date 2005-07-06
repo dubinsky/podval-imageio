@@ -102,13 +102,13 @@ public class CiffReader extends Reader {
     TypeNG result;
 
     switch (dataType) {
-    case 0: result = TypeNG.U8       ; break;
-    case 1: result = TypeNG.STRING   ; break;
-    case 2: result = TypeNG.U16      ; break;
-    case 3: result = TypeNG.U32      ; break;
-    case 4: result = TypeNG.STRUCTURE; break;
-    case 5: result = TypeNG.ONE      ; break;
-    case 6: result = TypeNG.TWO      ; break;
+    case 0: result = TypeNG.U8    ; break;
+    case 1: result = TypeNG.STRING; break;
+    case 2: result = TypeNG.U16   ; break;
+    case 3: result = TypeNG.U32   ; break;
+    case 4: result = TypeNG.X8    ; break;
+    case 5: result = TypeNG.ONE   ; break;
+    case 6: result = TypeNG.TWO   ; break;
     default:
       throw new IOException("Unknown data type.");
     }

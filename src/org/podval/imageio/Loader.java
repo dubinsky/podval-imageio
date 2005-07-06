@@ -16,18 +16,16 @@ import java.io.IOException;
 
 public class Loader {
 
-  public static void load(String path,
-    MetaMetaDataNG metaMetaData) throws ParserConfigurationException,
-    SAXException, IOException {
+  public static void load(String path, MetaMetaDataNG metaMetaData)
+    throws ParserConfigurationException, SAXException, IOException
+  {
     new Loader(metaMetaData).load(path);
   }
-
 
 
   private Loader(MetaMetaDataNG metaMetaData) {
     this.metaMetaData = metaMetaData;
   }
-
 
 
   private void load(String path) throws ParserConfigurationException,
@@ -40,12 +38,10 @@ public class Loader {
       }
 
 
-
       public void startElement(String uri, String localName, String qName,
         Attributes attributes) throws SAXException {
         currentBuilder = currentBuilder.startElement(qName, attributes);
       }
-
 
 
       public void endElement(String uri, String localName,
@@ -54,7 +50,6 @@ public class Loader {
       }
     });
   }
-
 
 
   private final MetaMetaDataNG metaMetaData;
@@ -100,7 +95,7 @@ public class Loader {
     }
 
 
-   protected final TypeNG getType(Attributes attributes) throws SAXException {
+    protected final TypeNG getType(Attributes attributes) throws SAXException {
       TypeNG result;
 
       String typeName = attributes.getValue("type");
@@ -136,8 +131,9 @@ public class Loader {
     }
 
 
-    public Builder startElement(String name,
-      Attributes attributes) throws SAXException {
+    public Builder startElement(String name, Attributes attributes)
+      throws SAXException
+    {
       if (!"meta-metadata".equals(name)) {
         throw new SAXException();
       }
@@ -160,8 +156,9 @@ public class Loader {
     }
 
 
-    public Builder startElement(String name,
-      Attributes attributes) throws SAXException {
+    public Builder startElement(String name, Attributes attributes)
+      throws SAXException
+    {
       if (!"directory".equals(name)) {
         throw new SAXException();
       }
@@ -182,8 +179,9 @@ public class Loader {
     }
 
 
-    public Builder startElement(String name,
-      Attributes attributes) throws SAXException {
+    public Builder startElement(String name, Attributes attributes)
+      throws SAXException
+    {
       Builder result;
 
       int tag;
@@ -233,7 +231,18 @@ public class Loader {
     public Builder startElement(String name, Attributes attributes)
       throws SAXException
     {
-      return new NullBuilder(this);
+      if ("field".equals(name)) {
+        /** @todo  */
+        return new NullBuilder(this);
+      } else
+
+      if ("enumeration".equals(name)) {
+        /** @todo  */
+        return new NullBuilder(this);
+      } else {
+
+        throw new SAXException();
+      }
     }
 
 

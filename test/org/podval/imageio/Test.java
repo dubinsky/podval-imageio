@@ -47,7 +47,8 @@ public class Test {
 
   private static MetaMetaDataNG loadCiffMetaMetaData() throws Exception {
     MetaMetaDataNG result = new MetaMetaDataNG();
-    Loader.load("/home/dub/Projects/imageio/xml/ciff.xml", result);
+//    Loader.load("/home/dub/Projects/imageio/xml/ciff.xml", result);
+//    Loader.load("/home/dub/Projects/imageio/xml/canon-ciff.xml", result);
     return result;
   }
 
@@ -61,7 +62,7 @@ public class Test {
 
 
   public static void main(String[] args) throws Exception {
-    testExif();
+//    testExif();
     testCiff();
 
 //    extractCrwThumbnails("/mnt/extra/Photo/ORIGINALS/g2/2/2/2250.crw");
