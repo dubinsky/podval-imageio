@@ -16,14 +16,14 @@ import java.io.IOException;
 
 public class Loader {
 
-  public static void load(String path, MetaMetaDataNG metaMetaData)
+  public static void load(String path, MetaMetaData metaMetaData)
     throws ParserConfigurationException, SAXException, IOException
   {
     new Loader(metaMetaData).load(path);
   }
 
 
-  private Loader(MetaMetaDataNG metaMetaData) {
+  private Loader(MetaMetaData metaMetaData) {
     this.metaMetaData = metaMetaData;
   }
 
@@ -52,7 +52,7 @@ public class Loader {
   }
 
 
-  private final MetaMetaDataNG metaMetaData;
+  private final MetaMetaData metaMetaData;
 
 
   private Builder currentBuilder;
@@ -77,7 +77,7 @@ public class Loader {
     }
 
 
-    private MetaMetaDataNG getMetaMetaData() {
+    private MetaMetaData getMetaMetaData() {
       Builder candidate = this;
       while (!(candidate instanceof DocumentBuilder)) {
         candidate = candidate.previous;
@@ -125,7 +125,7 @@ public class Loader {
    */
   private static class DocumentBuilder extends Builder {
 
-    public DocumentBuilder(MetaMetaDataNG metaMetaData) {
+    public DocumentBuilder(MetaMetaData metaMetaData) {
       super(null);
       this.metaMetaData = metaMetaData;
     }
@@ -142,7 +142,7 @@ public class Loader {
     }
 
 
-    private final MetaMetaDataNG metaMetaData;
+    private final MetaMetaData metaMetaData;
   }
 
 

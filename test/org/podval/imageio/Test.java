@@ -10,7 +10,7 @@ import java.io.IOException;
 
 public class Test {
 
-  private static void dump(Reader reader, MetaMetaDataNG metametadata) throws Exception {
+  private static void dump(Reader reader, MetaMetaData metametadata) throws Exception {
 //    reader.read(new DumpingHandler());
     new SaxDumpingHandler(reader, metametadata).dump(System.out);
   }
@@ -39,14 +39,14 @@ public class Test {
 
   private static void testCiff() throws Exception {
     System.out.println("CIFF:");
-    MetaMetaDataNG metaMetaData = loadCiffMetaMetaData();
+    MetaMetaData metaMetaData = loadCiffMetaMetaData();
     dump(ciffReader("/mnt/extra/Photo/ORIGINALS/g2/2/2/2250.crw"), metaMetaData);
     System.out.println();
   }
 
 
-  private static MetaMetaDataNG loadCiffMetaMetaData() throws Exception {
-    MetaMetaDataNG result = new MetaMetaDataNG();
+  private static MetaMetaData loadCiffMetaMetaData() throws Exception {
+    MetaMetaData result = new MetaMetaData();
 //    Loader.load("/home/dub/Projects/imageio/xml/ciff.xml", result);
 //    Loader.load("/home/dub/Projects/imageio/xml/canon-ciff.xml", result);
     return result;
@@ -55,7 +55,7 @@ public class Test {
 
   private static void testExif() throws Exception {
     System.out.println("EXIF:");
-    MetaMetaDataNG metaMetaData = new MetaMetaDataNG();
+    MetaMetaData metaMetaData = new MetaMetaData();
     dump(exifReader("/mnt/extra/Photo/ORIGINALS/g2/2/2/2249.jpg"), metaMetaData);
     System.out.println();
   }

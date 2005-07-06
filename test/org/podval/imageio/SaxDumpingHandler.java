@@ -13,7 +13,7 @@ public class SaxDumpingHandler extends SaxDumper implements ReaderHandler {
   private static final int MAX_LENGTH = 64;
 
 
-  public SaxDumpingHandler(Reader reader, MetaMetaDataNG metaMetaData) {
+  public SaxDumpingHandler(Reader reader, MetaMetaData metaMetaData) {
     this.reader = reader;
     this.metaMetaData = metaMetaData;
   }
@@ -157,5 +157,5 @@ public class SaxDumpingHandler extends SaxDumper implements ReaderHandler {
   private final Reader reader;
 
 
-  private final MetaMetaDataNG metaMetaData;
+  private final MetaMetaData metaMetaData;
 }

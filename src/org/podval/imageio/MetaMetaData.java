@@ -8,9 +8,9 @@ import java.util.HashMap;
 /** @todo where is the right place to load xml files? */
 /** @todo should "learning" be disableable? */
 
-public final class MetaMetaDataNG {
+public final class MetaMetaData {
 
-  public MetaMetaDataNG() {
+  public MetaMetaData() {
   }
 
 

@@ -21,7 +21,10 @@ public class Heap extends Entry {
 
 
   public void addEntry(int tag, Entry entry) {
-    /** @todo add under all of the entry's types */
+    /** @todo add under all of the entry's types
+         for (Iterator i = entry.getType().getActualTypes().iterator(); i.hasNext();)
+           addEntry(tag, (Type) i.next(), entry);
+     */
     addEntry(tag, entry.getType(), entry);
   }
 
@@ -42,9 +45,17 @@ public class Heap extends Entry {
     Key key = new Key(tag, type);
     Entry result = entries.get(key);
 
-    /** @todo check point!!! */
+    if (result == null) {
+      boolean isRecordAllowed = true; /** @todo this depends on type... */
+      result = (isRecordAllowed) ?
+        new RecordNG("unknown-"+tag, type) :
+        new Heap("unknown-"+tag, type);
 
-    /** @todo learning point */
+      /** @todo mark as auto-learned */
+      addEntry(tag, result);
+    }
+
+    /** @todo check point!!! */
 
     return result;
   }
@@ -75,7 +86,6 @@ public class Heap extends Entry {
     Key key = new Key(tag, type);
     Entry result = entries.get(key);
 
-    /** @todo learning point */
     if (result == null) {
       result = new RecordNG("unknown-"+tag, type);
       /** @todo mark as auto-learned */

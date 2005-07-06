@@ -39,7 +39,7 @@ public abstract class Reader {
   }
 
 
-  public final void read(ReaderHandler handler, MetaMetaDataNG metaMetaData)
+  public final void read(ReaderHandler handler, MetaMetaData metaMetaData)
     throws IOException
   {
     readPrologue();
@@ -106,7 +106,7 @@ public abstract class Reader {
         currentHeap = metaMetaData.getInitialHeap();
       }
     } else {
-      currentHeap = currentHeap.getHeap(tag, type);
+      currentHeap = currentHeap.getHeap(tag, type); /** @todo do this through metametadata = controlled learning! */
     }
 
     level++;
@@ -280,7 +280,7 @@ public abstract class Reader {
   private ReaderHandler handler;
 
 
-  private MetaMetaDataNG metaMetaData;
+  private MetaMetaData metaMetaData;
 
 
   private Heap currentHeap;
