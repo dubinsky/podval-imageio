@@ -38,8 +38,9 @@ public class CiffReader extends Reader {
   }
 
 
-  protected void readHeap(long offset, int length, int tag, TypeNG type) throws IOException {
-    processHeap(offset, length, tag, type);
+  protected void readHeap(int tag) throws IOException {
+    /** @todo this is really unused in this class */
+//    processHeap(offset, length, tag, type);
   }
 
 
@@ -53,8 +54,13 @@ public class CiffReader extends Reader {
     long entriesOffset = in.getStreamPosition();
 
     for (int i = 0; i < numEntries; i++) {
-      readEntry(entriesOffset + 10*i, offset);
+      readEntry(entryOffset(entriesOffset, i), offset);
     }
+  }
+
+
+  private long entryOffset(long entriesOffset, int entryNumber) {
+    return entriesOffset + 10*entryNumber;
   }
 
 
@@ -88,6 +94,7 @@ public class CiffReader extends Reader {
       }
 
       boolean isHeap = ((type == TypeNG.ONE) || (type == TypeNG.TWO));
+
       if (isHeap) {
         processHeap(offset, length, idCode, type);
 

@@ -59,14 +59,8 @@ public class ExifReader extends Reader {
 
 
   private void readIfdInPlace(int tag) throws IOException {
+    /** @todo this method is factored out for use in maker notes? */
     processHeap(0, 0, tag, null);
-  }
-
-
-  protected void readHeap(long dummyOffset, int dummyLength, int tag, TypeNG type)
-    throws IOException
-  {
-    readIfd(tag);
   }
 
 
@@ -102,6 +96,13 @@ public class ExifReader extends Reader {
     }
 
     processEntry(offset, length, count, tag, type);
+  }
+
+
+  protected void readHeap(int tag)
+    throws IOException
+  {
+    readIfd(tag);
   }
 
 
