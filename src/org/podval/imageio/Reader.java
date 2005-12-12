@@ -20,7 +20,7 @@ public abstract class Reader {
   /**
    * Checks if the stream seems to be of the appropriate format.
    * Strem position is unchanged by this method, but other stream attributes
-   * might change (e.g., byte order)
+   * might change (e.g., byte order).
    * Attempts to read format-specific prolog and returns <code>true</code>
    * if succesfull and <code>false</code> if it fails.
 
@@ -44,19 +44,27 @@ public abstract class Reader {
 
 
   public final void read(ReaderHandler handler) throws IOException {
-    read(handler, null);
+    read(handler, new MetaMetaData());
   }
 
 
   public final void read(ReaderHandler handler, MetaMetaData metaMetaData)
     throws IOException
   {
-    readPrologue();
+    if (handler == null) {
+      throw new NullPointerException("handler");
+    }
+
+    if (metaMetaData == null) {
+      throw new NullPointerException("metaMetaData");
+    }
 
     this.handler = handler;
     this.metaMetaData = metaMetaData;
 
-    doRead();
+    readPrologue();
+
+    read();
   }
 
 
@@ -73,7 +81,7 @@ public abstract class Reader {
    *
    * @throws IOException
    */
-  protected abstract void doRead() throws IOException;
+  protected abstract void read() throws IOException;
 
 
   /**
@@ -118,7 +126,7 @@ public abstract class Reader {
 
   /**
    * .
-   * Called by the format-specific reader when it encounteres a heap.
+   * Called by the format-specific reader when it encounters a heap.
    * Parameters contain what is known about the heap at this point.
    * Metadata for the heap is obtained, a handler is notified - and is given an
    * opportunity to indicate that the heap should be skipped.
@@ -130,17 +138,17 @@ public abstract class Reader {
    * @param type TypeNG
    * @throws IOException
    */
-  protected final void processHeap(long offset, int length, int tag, TypeNG type)
+  protected final void foundHeap(long offset, int length, int tag, TypeNG type)
     throws IOException
   {
     Heap parentHeap = currentHeap;
 
     if (currentHeap == null) {
       if (level == 0) {
-        currentHeap = getInitialHeap();
+        currentHeap = metaMetaData.getInitialHeap();
       }
     } else {
-      currentHeap = getHeap(tag, type);
+      currentHeap = metaMetaData.getHeap(currentHeap, tag, type);
     }
 
     level++;
@@ -168,34 +176,9 @@ public abstract class Reader {
 
 
   /**
-   * Convenience method for reading of an entry at specified offset.
-   * Delegates (after a seek) to the format-specific entry reader.
-   *
-   * @param offset long
-   * @param offsetBase long
-   * @throws IOException
-   */
-  protected final void readEntry(long offset, long offsetBase)
-    throws IOException
-  {
-    in.seek(offset);
-    readEntry(offsetBase);
-  }
-
-
-  /**
-   * Format-specific entry reader.
-   *
-   * @param offsetBase long
-   * @throws IOException
-   */
-  protected abstract void readEntry(long offsetBase) throws IOException;
-
-
-  /**
    * .
    * When format-specific reader can determine the nature of the entry - is it a
-   * heap or a record - it delegates to either processHeap() or processRecord().
+   * heap or a record - it delegates to either foundHeap() or foundRecord().
    * When it can't, this method gets called, and finds out from the metadata!
    *
    * @param offset long
@@ -205,17 +188,17 @@ public abstract class Reader {
    * @param type TypeNG
    * @throws IOException
    */
-  protected final void processEntry(long offset, int length, int count, int tag, TypeNG type)
+  protected final void foundEntry(long offset, int length, int count, int tag, TypeNG type)
     throws IOException
   {
-    Entry entry = getEntry(tag, type, length, count);
+    Entry entry = metaMetaData.getEntry(currentHeap, tag, type, length, count);
 
     if (entry instanceof Heap) {
       readHeap(tag);
     } else
 
     if ((entry instanceof RecordNG) || (entry == null)) {
-      processRecord(offset, length, count, tag, type);
+      foundRecord(offset, length, count, tag, type);
     }
 
     /** @todo maker note... */
@@ -230,10 +213,10 @@ public abstract class Reader {
   protected abstract void readHeap(int tag) throws IOException;
 
 
-  protected final void processRecord(long offset, int length, int count, int tag, TypeNG type)
+  protected final void foundRecord(long offset, int length, int count, int tag, TypeNG type)
     throws IOException
   {
-    RecordNG record = getRecord(tag, type, length, count);
+    RecordNG record = metaMetaData.getRecord(currentHeap, tag, type, length, count);
 
     this.offset = offset;
 
@@ -242,7 +225,7 @@ public abstract class Reader {
     if (treatAsFolder) {
       int fieldLength = length / count;
       if (handler.startRecord(tag, record)) {
-        for (int index = 0; index<count; index++) {
+        for (int index = 0; index < count; index++) {
           handler.readRecord(index, type, fieldLength, 1, this, record);
           this.offset += fieldLength;
         }
@@ -255,33 +238,6 @@ public abstract class Reader {
        needed, the seek() would be wasted... */
       handler.readRecord(tag, type, length, count, this, record);
     }
-  }
-
-
-  private Heap getInitialHeap() {
-    return (metaMetaData == null) ? null : metaMetaData.getInitialHeap();
-  }
-
-
-  private Heap getHeap(int tag, TypeNG type) throws IOException {
-    /** @todo do this through metametadata = controlled learning! */
-    return currentHeap.getHeap(tag, type);
-  }
-
-
-  private RecordNG getRecord(int tag, TypeNG type, int length, int count)
-    throws IOException
-  {
-    /** @todo do this through metametadata = controlled learning! */
-    return (currentHeap == null) ? null : currentHeap.getRecord(tag, type, length, count);
-  }
-
-
-  private Entry getEntry(int tag, TypeNG type, int length, int count)
-    throws IOException
-  {
-    /** @todo do this through metametadata = controlled learning! */
-    return (currentHeap == null) ? null : currentHeap.getEntry(tag, type, length, count);
   }
 
 

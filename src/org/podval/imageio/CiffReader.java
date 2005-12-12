@@ -32,9 +32,9 @@ public class CiffReader extends Reader {
   }
 
 
-  protected void doRead() throws IOException {
+  protected void read() throws IOException {
     int heapLength = TypeNG.toInt(in.length() - headerLength);
-    processHeap(headerLength, heapLength, 0, null);
+    foundHeap(headerLength, heapLength, 0, null);
   }
 
 
@@ -54,7 +54,8 @@ public class CiffReader extends Reader {
     long entriesOffset = in.getStreamPosition();
 
     for (int i = 0; i < numEntries; i++) {
-      readEntry(entryOffset(entriesOffset, i), offset);
+      in.seek(entryOffset(entriesOffset, i));
+      readEntry(offset);
     }
   }
 
@@ -96,10 +97,10 @@ public class CiffReader extends Reader {
       boolean isHeap = ((type == TypeNG.ONE) || (type == TypeNG.TWO));
 
       if (isHeap) {
-        processHeap(offset, length, idCode, type);
+        foundHeap(offset, length, idCode, type);
 
       } else {
-        processRecord(offset, length, length / type.length, idCode, type);
+        foundRecord(offset, length, length / type.length, idCode, type);
       }
     }
   }

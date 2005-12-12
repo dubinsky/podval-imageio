@@ -32,7 +32,7 @@ public class ExifReader extends Reader {
   }
 
 
-  protected void doRead() throws IOException {
+  protected void read() throws IOException {
     readIfd(0);
 
     /*
@@ -60,7 +60,7 @@ public class ExifReader extends Reader {
 
   private void readIfdInPlace(int tag) throws IOException {
     /** @todo this method is factored out for use in maker notes? */
-    processHeap(0, 0, tag, null);
+    foundHeap(0, 0, tag, null);
   }
 
 
@@ -69,7 +69,8 @@ public class ExifReader extends Reader {
     long entriesOffset = in.getStreamPosition();
 
     for (int i = 0; i < numEntries; i++) {
-      readEntry(entryOffset(entriesOffset, i), offsetBase);
+      in.seek(entryOffset(entriesOffset, i));
+      readEntry(offsetBase);
     }
 
     in.seek(entryOffset(entriesOffset, numEntries));
@@ -95,7 +96,7 @@ public class ExifReader extends Reader {
       offset = in.getStreamPosition();
     }
 
-    processEntry(offset, length, count, tag, type);
+    foundEntry(offset, length, count, tag, type);
   }
 
 

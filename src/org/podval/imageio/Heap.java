@@ -41,66 +41,9 @@ public class Heap extends Entry {
   }
 
 
-  public Entry getEntry(int tag, TypeNG type, long length, int count) {
-    Key key = new Key(tag, type);
-    Entry result = entries.get(key);
-
-    if (result == null) {
-      boolean isRecordAllowed = true; /** @todo this depends on type... */
-      result = (isRecordAllowed) ?
-        new RecordNG("unknown-"+tag, type) :
-        new Heap("unknown-"+tag, type);
-
-      /** @todo mark as auto-learned */
-      addEntry(tag, result);
-    }
-
-    /** @todo check point!!! */
-
-    return result;
+  public Entry getEntry(int tag, TypeNG type) {
+    return entries.get(new Key(tag, type));
   }
-
-
-  public Heap getHeap(int tag, TypeNG type) throws IOException {
-    Key key = new Key(tag, type);
-
-    Entry result = entries.get(key);
-
-    if (result == null) {
-      result = new Heap("unknown-"+tag, type);
-      /** @todo mark as auto-learned */
-      addEntry(tag, result);
-    }
-
-    if ((result != null) &&!(result instanceof Heap)) {
-      throw new IOException("Not a heap: " + key);
-    }
-
-    return (Heap) result;
-  }
-
-
-  public RecordNG getRecord(int tag, TypeNG type, long length, int count)
-    throws IOException
-  {
-    Key key = new Key(tag, type);
-    Entry result = entries.get(key);
-
-    if (result == null) {
-      result = new RecordNG("unknown-"+tag, type);
-      /** @todo mark as auto-learned */
-      addEntry(tag, result);
-    }
-
-    /** @todo check point!!! */
-
-    if ((result != null) && !(result instanceof RecordNG)) {
-      throw new IOException("Not a record: " + key);
-    }
-
-    return (result instanceof RecordNG) ? (RecordNG) result : null;
-  }
-
 
 
   /**
