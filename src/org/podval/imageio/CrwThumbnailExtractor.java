@@ -26,23 +26,12 @@ public class CrwThumbnailExtractor {
   }
 
 
-  private static void extract(File original, int idCode, File file)
-    throws IOException
-  {
-    new CrwThumbnailExtractor(idCode, file).extract(original);
-  }
-
-
-  private CrwThumbnailExtractor(int idCode, File file) {
-    this.idCode = idCode;
-    this.file = file;
-  }
-
-
-  private void extract(File original) throws IOException {
+  private static void extract(File original, final int idCode, final File file) throws IOException {
     ImageInputStream in = new FileImageInputStream(original);
 
-    new CiffReader(in).read(new ReaderHandler() {
+    final IOException[] exception = new IOException[1];
+
+    new CiffReader().read(in, new ReaderHandler() {
 
       public boolean startHeap(int tag, Heap heap) {
         return (tag == 0);
@@ -67,7 +56,7 @@ public class CrwThumbnailExtractor {
           try {
             reader.stream(length, new FileOutputStream(file));
           } catch (IOException e) {
-            exception = e;
+            exception[0] = e;
           }
         }
       }
@@ -75,17 +64,8 @@ public class CrwThumbnailExtractor {
 
     in.close();
 
-    if (exception != null) {
-      throw exception;
+    if (exception[0] != null) {
+      throw exception[0];
     }
   }
-
-
-  private final int idCode;
-
-
-  private final File file;
-
-
-  private IOException exception;
 }

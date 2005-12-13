@@ -9,11 +9,6 @@ import java.io.IOException;
 
 public class CiffReader extends Reader {
 
-  public CiffReader(ImageInputStream in) {
-    super(in);
-  }
-
-
   private static final int[] CIFF_SIGNATURE = {'H', 'E', 'A', 'P', 'C', 'C', 'D', 'R'};
 
 
@@ -40,11 +35,12 @@ public class CiffReader extends Reader {
 
   protected void readHeap(int tag) throws IOException {
     /** @todo this is really unused in this class */
-//    processHeap(offset, length, tag, type);
   }
 
 
-  protected void readHeap(long offset, int length) throws IOException {
+  protected HeapInformation readHeapInformation(long offset, int length)
+    throws IOException
+  {
     in.seek(offset + length - 4);
 
     int offsetTblOffset = readUnsignedInt();
@@ -53,19 +49,20 @@ public class CiffReader extends Reader {
     int numEntries = in.readUnsignedShort();
     long entriesOffset = in.getStreamPosition();
 
-    for (int i = 0; i < numEntries; i++) {
-      in.seek(entryOffset(entriesOffset, i));
-      readEntry(offset);
-    }
+    return new HeapInformation(entriesOffset, numEntries);
   }
 
 
-  private long entryOffset(long entriesOffset, int entryNumber) {
-    return entriesOffset + 10*entryNumber;
+  protected int getEntryLength() {
+    return 10;
   }
 
 
-  protected void readEntry(long offsetBase) throws IOException {
+  protected EntryInformation readEntryInformation(long offsetBase)
+    throws IOException
+  {
+    EntryInformation result = null;
+
     int typeCode = in.readUnsignedShort();
 
     if ((typeCode != 0 /* Null entry. */) &&
@@ -95,14 +92,12 @@ public class CiffReader extends Reader {
       }
 
       boolean isHeap = ((type == TypeNG.ONE) || (type == TypeNG.TWO));
+      EntryKind kind = (isHeap ? EntryKind.HEAP : EntryKind.RECORD);
 
-      if (isHeap) {
-        foundHeap(offset, length, idCode, type);
-
-      } else {
-        foundRecord(offset, length, length / type.length, idCode, type);
-      }
+      result = new EntryInformation(kind, offset, length, idCode, type);
     }
+
+    return result;
   }
 
 

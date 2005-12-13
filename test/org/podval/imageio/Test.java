@@ -2,6 +2,7 @@
 
 package org.podval.imageio;
 
+import javax.imageio.stream.ImageInputStream;
 import javax.imageio.stream.FileImageInputStream;
 
 import java.io.File;
@@ -12,7 +13,8 @@ public class Test {
   private static void testCiff() throws Exception {
     System.out.println("CIFF:");
     MetaMetaData metaMetaData = loadCiffMetaMetaData();
-    dump(ciffReader("/mnt/extra/Photo/ORIGINALS/g2/2/2/2250.crw"), metaMetaData);
+    ImageInputStream in = fromPath("/mnt/extra/Photo/ORIGINALS/g2/2/2/2250.crw");
+    dump(new CiffReader(), in, metaMetaData);
     System.out.println();
   }
 
@@ -20,24 +22,19 @@ public class Test {
   private static void testExif() throws Exception {
     System.out.println("EXIF:");
     MetaMetaData metaMetaData = new MetaMetaData();
-    dump(exifReader("/mnt/extra/Photo/ORIGINALS/g2/2/2/2249.jpg"), metaMetaData);
+    ImageInputStream in = ExifStream.fromJpegStream(fromPath("/mnt/extra/Photo/ORIGINALS/g2/2/2/2249.jpg"));
+    dump(new ExifReader(), in, metaMetaData);
     System.out.println();
   }
 
 
-  private static void dump(Reader reader, MetaMetaData metaMetaData) throws Exception {
-//    reader.read(new DumpingHandler());
-    new SaxDumpingHandler(reader, metaMetaData).dump(System.out);
+  private static ImageInputStream fromPath(String path) throws Exception {
+    return new FileImageInputStream(new File(path));
   }
 
 
-  private static Reader ciffReader(String path) throws Exception {
-    return new CiffReader(new FileImageInputStream(new File(path)));
-  }
-
-
-  public static Reader exifReader(String path) throws Exception {
-    return new ExifReader(ExifStream.fromJpegStream(new FileImageInputStream(new File(path))));
+  private static void dump(Reader reader, ImageInputStream in, MetaMetaData metaMetaData) throws Exception {
+    new SaxDumpingHandler(reader, in, metaMetaData).dump(System.out);
   }
 
 
@@ -50,7 +47,7 @@ public class Test {
 
 
   public static void main(String[] args) throws Exception {
-//    testExif();
+    testExif();
     testCiff();
   }
 }

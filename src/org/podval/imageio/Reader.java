@@ -12,11 +12,6 @@ import java.nio.ByteOrder;
 
 public abstract class Reader {
 
-  protected Reader(ImageInputStream in) {
-    this.in = in;
-  }
-
-
   /**
    * Checks if the stream seems to be of the appropriate format.
    * Strem position is unchanged by this method, but other stream attributes
@@ -26,8 +21,15 @@ public abstract class Reader {
 
    * @return boolean
    */
-  public final boolean canRead() {
+  public final boolean canRead(ImageInputStream in) {
+    if (in == null) {
+      throw new NullPointerException("in");
+    }
+
+    this.in = in;
+
     boolean result = false;
+
     in.mark();
     try {
       readPrologue();
@@ -39,18 +41,23 @@ public abstract class Reader {
       } catch (IOException e) {
       }
     }
+
     return result;
   }
 
 
-  public final void read(ReaderHandler handler) throws IOException {
-    read(handler, new MetaMetaData());
+  public final void read(ImageInputStream in, ReaderHandler handler) throws IOException {
+    read(in, handler, new MetaMetaData());
   }
 
 
-  public final void read(ReaderHandler handler, MetaMetaData metaMetaData)
+  public final void read(ImageInputStream in, ReaderHandler handler, MetaMetaData metaMetaData)
     throws IOException
   {
+    if (in == null) {
+      throw new NullPointerException("in");
+    }
+
     if (handler == null) {
       throw new NullPointerException("handler");
     }
@@ -59,6 +66,7 @@ public abstract class Reader {
       throw new NullPointerException("metaMetaData");
     }
 
+    this.in = in;
     this.handler = handler;
     this.metaMetaData = metaMetaData;
 
@@ -166,13 +174,110 @@ public abstract class Reader {
 
 
   /**
-   * Format-specific heap reader.
    *
-   * @param offset long
-   * @param length int
-   * @throws IOException
    */
-  protected abstract void readHeap(long offset, int length) throws IOException;
+  protected static class HeapInformation {
+
+    public HeapInformation(long entriesOffset, int numEntries) {
+      this.entriesOffset = entriesOffset;
+      this.numEntries = numEntries;
+    }
+
+
+    public final long entriesOffset;
+
+
+    public final int numEntries;
+  }
+
+
+
+  private void readHeap(long offset, int length) throws IOException {
+    HeapInformation heapInformation = readHeapInformation(offset, length);
+    long entriesOffset = heapInformation.entriesOffset;
+    int numEntries = heapInformation.numEntries;
+
+    for (int i = 0; i < numEntries; i++) {
+      seekToEntry(entriesOffset, i);
+      readEntry(offset);
+    }
+
+    /** @todo for CIFF, we do not need this last seek, and can optimize it away... */
+    seekToEntry(entriesOffset, numEntries);
+    // At this point we are positioned at the offset of the linked IFD.
+  }
+
+
+  private void seekToEntry(long entriesOffset, int entryNumber)
+    throws IOException
+  {
+    in.seek(entriesOffset + getEntryLength()*entryNumber);
+  }
+
+
+  protected abstract HeapInformation readHeapInformation(long offset, int length)
+    throws IOException;
+
+
+  protected abstract int getEntryLength();
+
+
+  protected enum EntryKind { HEAP, RECORD, UNKNOWN }
+
+
+
+  /**
+   *
+   */
+  protected static class EntryInformation {
+
+    public EntryInformation(EntryKind kind, long offset, int length, int tag, TypeNG type) {
+      this.kind = kind;
+      this.offset = offset;
+      this.length = length;
+      this.tag = tag;
+      this.type = type;
+    }
+
+
+    public final EntryKind kind;
+
+
+    public final long offset;
+
+
+    public final int length;
+
+
+    public final int tag;
+
+
+    public final TypeNG type;
+  }
+
+
+
+  private void readEntry(long offsetBase) throws IOException {
+    EntryInformation entryInformation = readEntryInformation(offsetBase);
+
+    if (entryInformation != null) {
+      EntryKind kind = entryInformation.kind;
+      long offset = entryInformation.offset;
+      int length = entryInformation.length;
+      int tag = entryInformation.tag;
+      TypeNG type = entryInformation.type;
+
+      switch (kind) {
+      case HEAP   : foundHeap  (offset, length, tag, type); break;
+      case RECORD : foundRecord(offset, length, tag, type); break;
+      case UNKNOWN: foundEntry (offset, length, tag, type); break;
+      }
+    }
+  }
+
+
+  protected abstract EntryInformation readEntryInformation(long offsetBase)
+    throws IOException;
 
 
   /**
@@ -188,9 +293,10 @@ public abstract class Reader {
    * @param type TypeNG
    * @throws IOException
    */
-  protected final void foundEntry(long offset, int length, int count, int tag, TypeNG type)
+  private void foundEntry(long offset, int length, int tag, TypeNG type)
     throws IOException
   {
+    int count = length / type.getLength();
     Entry entry = metaMetaData.getEntry(currentHeap, tag, type, length, count);
 
     if (entry instanceof Heap) {
@@ -198,7 +304,7 @@ public abstract class Reader {
     } else
 
     if ((entry instanceof RecordNG) || (entry == null)) {
-      foundRecord(offset, length, count, tag, type);
+      foundRecord(offset, length, tag, type);
     }
 
     /** @todo maker note... */
@@ -213,9 +319,10 @@ public abstract class Reader {
   protected abstract void readHeap(int tag) throws IOException;
 
 
-  protected final void foundRecord(long offset, int length, int count, int tag, TypeNG type)
+  private void foundRecord(long offset, int length, int tag, TypeNG type)
     throws IOException
   {
+    int count = length / type.getLength();
     RecordNG record = metaMetaData.getRecord(currentHeap, tag, type, length, count);
 
     this.offset = offset;
@@ -241,7 +348,7 @@ public abstract class Reader {
   }
 
 
-  private final void seekToData() throws IOException {
+  private void seekToData() throws IOException {
     in.seek(offset);
   }
 
@@ -325,7 +432,7 @@ public abstract class Reader {
   }
 
 
-  protected final ImageInputStream in;
+  protected ImageInputStream in;
 
 
   private ReaderHandler handler;

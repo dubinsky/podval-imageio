@@ -9,11 +9,6 @@ import java.io.IOException;
 
 public class ExifReader extends Reader {
 
-  public ExifReader(ImageInputStream in) {
-    super(in);
-  }
-
-
   private static int[] EXIF_SIGNATURE = {'E', 'x', 'i', 'f', 0, 0};
 
 
@@ -33,57 +28,58 @@ public class ExifReader extends Reader {
 
 
   protected void read() throws IOException {
-    readIfd(0);
+    readIfdByReference(0);
 
     /*
      Since virtually all the tags (except 513 and 514) seem to be allowed
      both in IFD0 and IFD1 (including EXIF and GPS IFDs),
      the same directory descriptor can be used for IFD1 too.
-     At this point I do not read IFD1 at all, though, since none of the images I
-     have have it, and since I need one root for the resulting metadata.
-     This can be changed if need be.
-
     */
    /* If 0th ifd was skipped, the reader will not be properly positioned to read the 1st ifd!!! */
-   readIfd(1);
+   readIfdByReference(1);
   }
 
 
-  private void readIfd(int tag) throws IOException {
+  private void readIfdByReference(int tag) throws IOException {
     long offset = in.readUnsignedInt();
     if (offset != 0) {
       in.seek(offsetBase + offset);
-      readIfdInPlace(tag);
+      readIfd(tag);
     }
   }
 
 
-  private void readIfdInPlace(int tag) throws IOException {
+  private void readIfd(int tag) throws IOException {
     /** @todo this method is factored out for use in maker notes? */
     foundHeap(0, 0, tag, null);
   }
 
 
-  protected void readHeap(long dummyOffset, int dummyLength) throws IOException {
+  protected void readHeap(int tag) throws IOException {
+    readIfdByReference(tag);
+  }
+
+
+  protected HeapInformation readHeapInformation(long offset, int length)
+    throws IOException
+  {
     int numEntries = in.readUnsignedShort();
     long entriesOffset = in.getStreamPosition();
 
-    for (int i = 0; i < numEntries; i++) {
-      in.seek(entryOffset(entriesOffset, i));
-      readEntry(offsetBase);
-    }
-
-    in.seek(entryOffset(entriesOffset, numEntries));
-    // At this point we are positioned at the offset of the linked IFD.
+    return new HeapInformation(entriesOffset, numEntries);
   }
 
 
-  private long entryOffset(long entriesOffset, int entryNumber) {
-    return entriesOffset + 12*entryNumber;
+  protected int getEntryLength() {
+    return 12;
   }
 
 
-  protected void readEntry(long offsetBase) throws IOException {
+  protected EntryInformation readEntryInformation(long offsetBase)
+    throws IOException
+  {
+    offsetBase = this.offsetBase;
+
     int tag = in.readUnsignedShort();
     TypeNG type = decodeType(in.readUnsignedShort());
     int count = readUnsignedInt();
@@ -96,14 +92,7 @@ public class ExifReader extends Reader {
       offset = in.getStreamPosition();
     }
 
-    foundEntry(offset, length, count, tag, type);
-  }
-
-
-  protected void readHeap(int tag)
-    throws IOException
-  {
-    readIfd(tag);
+    return new EntryInformation(EntryKind.UNKNOWN, offset, length, tag, type);
   }
 
 

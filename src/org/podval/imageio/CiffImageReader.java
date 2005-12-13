@@ -25,7 +25,7 @@ public class CiffImageReader extends ImageReader {
 
 
   public static boolean canDecodeInput(ImageInputStream in) {
-    return new CiffReader(in).canRead();
+    return new CiffReader().canRead(in);
   }
 
 

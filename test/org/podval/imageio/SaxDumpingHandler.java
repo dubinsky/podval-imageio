@@ -7,20 +7,23 @@ import org.xml.sax.SAXException;
 
 import java.io.IOException;
 
+import javax.imageio.stream.ImageInputStream;
+
 
 public class SaxDumpingHandler extends SaxDumper implements ReaderHandler {
 
   private static final int MAX_LENGTH = 64;
 
 
-  public SaxDumpingHandler(Reader reader, MetaMetaData metaMetaData) {
+  public SaxDumpingHandler(Reader reader, ImageInputStream in, MetaMetaData metaMetaData) {
+    this.in = in;
     this.reader = reader;
     this.metaMetaData = metaMetaData;
   }
 
 
   protected void read() throws IOException {
-    reader.read(this, metaMetaData);
+    reader.read(in, this, metaMetaData);
   }
 
 
@@ -152,6 +155,9 @@ public class SaxDumpingHandler extends SaxDumper implements ReaderHandler {
   private void addAttribute(AttributesImpl attributes, String name, String value) {
     attributes.addAttribute(null, null, name, "string", value);
   }
+
+
+  private final ImageInputStream in;
 
 
   private final Reader reader;
