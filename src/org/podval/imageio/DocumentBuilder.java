@@ -17,11 +17,13 @@ public class DocumentBuilder extends Builder {
   public Builder startElement(String name, Attributes attributes)
     throws SAXException
   {
-    if (!"meta-metadata".equals(name)) {
-      throw new SAXException();
+    Builder result = null;
+
+    if ("meta-metadata".equals(name)) {
+      result = new RootBuilder(this);
     }
 
-    return new RootBuilder(this);
+    return result;
   }
 
 

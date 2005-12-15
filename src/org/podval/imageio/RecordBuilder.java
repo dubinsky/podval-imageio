@@ -17,18 +17,20 @@ public class RecordBuilder extends Builder {
   public Builder startElement(String name, Attributes attributes)
     throws SAXException
   {
+    Builder result = null;
+
+
     if ("field".equals(name)) {
-      /** @todo  */
-      return new NullBuilder(this);
+      FieldNG field = new FieldNG(getName(attributes), getType(attributes));
+      result = new FieldBuilder(this, field);
     } else
 
     if ("enumeration".equals(name)) {
       /** @todo  */
-      return new NullBuilder(this);
-    } else {
-
-      throw new SAXException();
+      result = new NullBuilder(this);
     }
+
+    return result;
   }
 
 

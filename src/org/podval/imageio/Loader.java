@@ -41,7 +41,11 @@ public class Loader {
       public void startElement(String uri, String localName, String qName, Attributes attributes)
         throws SAXException
       {
-        currentBuilder = currentBuilder.startElement(qName, attributes);
+        Builder nextBuilder = currentBuilder.startElement(qName, attributes);
+        if (nextBuilder == null) {
+          throw new SAXException("Unexpected element " + qName);
+        }
+        currentBuilder = nextBuilder;
       }
 
 

@@ -6,10 +6,11 @@ import org.xml.sax.SAXException;
 import org.xml.sax.Attributes;
 
 
-public class RootBuilder extends Builder {
+public class FieldBuilder extends Builder {
 
-  public RootBuilder(DocumentBuilder previous) {
+  public FieldBuilder(RecordBuilder previous, FieldNG field) {
     super(previous);
+    this.field = field;
   }
 
 
@@ -18,13 +19,11 @@ public class RootBuilder extends Builder {
   {
     Builder result = null;
 
-    if ("directory".equals(name)) {
-      result = new HeapBuilder(this, getHeap(attributes));
-    }
-
-    /** @todo record!!! */
-    /** @todo makerNote!!! */
+    /** @todo  */
 
     return result;
   }
+
+
+  private final FieldNG field;
 }

@@ -17,7 +17,7 @@ public class HeapBuilder extends Builder {
   public Builder startElement(String name, Attributes attributes)
     throws SAXException
   {
-    Builder result;
+    Builder result = null;
 
     int tag;
     try {
@@ -26,7 +26,8 @@ public class HeapBuilder extends Builder {
       throw new SAXException(e);
     }
 
-    Entry entry;
+    Entry entry = null;
+
     if ("directory".equals(name)) {
       Heap heap = getHeap(attributes);
       entry = heap;
@@ -37,12 +38,13 @@ public class HeapBuilder extends Builder {
       RecordNG record = new RecordNG(getName(attributes), getType(attributes));
       entry = record;
       result = new RecordBuilder(this, record);
-    } else {
-
-      throw new SAXException();
     }
 
-    heap.addEntry(tag, entry);
+    /** @todo makerNoteMarker!!! */
+
+    if (entry != null) {
+      heap.addEntry(tag, entry);
+    }
 
     return result;
   }
