@@ -21,7 +21,30 @@ public abstract class Builder {
   }
 
 
-  private MetaMetaData getMetaMetaData() {
+  protected final RecordNG getRecord(Attributes attributes) throws SAXException {
+    String name = getName(attributes);
+    RecordNG result = getMetaMetaData().getRecord(name);
+    if (result == null) {
+      TypeNG type = getType(attributes);
+      boolean isVector = getBooleanAttribute("vector", attributes);
+      boolean skip = getBooleanAttribute("skip", attributes);
+      /** @todo resolve conversion */
+      String conversion = attributes.getValue("conversion");
+      /** @todo handlers? */
+//      ... getAttribute("handler", attributes);
+      /** @todo handle tags the same way... */
+//      ... getIntegerAttribute("count", attributes);
+      result = new RecordNG(name, type, isVector, skip, conversion);
+      getMetaMetaData().registerRecord(result);
+    } else {
+      /** @todo check that there are no spurious attributes */
+    }
+
+    return result;
+  }
+
+
+  protected final MetaMetaData getMetaMetaData() {
     Builder candidate = this;
     while (!(candidate instanceof DocumentBuilder)) {
       candidate = candidate.previous;
@@ -31,11 +54,25 @@ public abstract class Builder {
 
 
   protected final String getName(Attributes attributes) throws SAXException {
-    String result = attributes.getValue("name");
+    return getAttribute("name", attributes);
+  }
+
+
+  protected final String getAttribute(String name, Attributes attributes)
+    throws SAXException
+  {
+    String result = attributes.getValue(name);
+
     if (result == null) {
       throw new SAXException();
     }
+
     return result;
+  }
+
+
+  protected final boolean getBooleanAttribute(String name, Attributes attributes) {
+    return Boolean.valueOf(attributes.getValue(name));
   }
 
 

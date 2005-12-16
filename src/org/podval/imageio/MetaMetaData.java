@@ -43,6 +43,24 @@ public final class MetaMetaData {
   }
 
 
+  public void registerRecord(RecordNG record) {
+    name2record.put(record.getName(), record);
+  }
+
+
+  public RecordNG getRecord(String name) {
+    return name2record.get(name);
+  }
+
+
+  public MakerNote getMakerNote(String name, String make, String signature) {
+    MakerNote result = new MakerNote(name, make, signature);
+    name2heap.put(name, result);
+    make2note.put(make, result);
+    return result;
+  }
+
+
   public Heap getHeap(Heap parent, int tag, TypeNG type) throws IOException {
     Entry result = parent.getEntry(tag, type);
 
@@ -65,7 +83,7 @@ public final class MetaMetaData {
     if (result == null) {
       boolean isRecordAllowed = true; /** @todo this depends on type... */
       result = (isRecordAllowed) ?
-        new RecordNG(unknown(tag), type) :
+        unknownRecord(tag, type) :
         new Heap(unknown(tag), type);
 
       learn(parent, tag, result);
@@ -81,7 +99,7 @@ public final class MetaMetaData {
     Entry result = parent.getEntry(tag, type);
 
     if (result == null) {
-      result = new RecordNG(unknown(tag), type);
+      result = unknownRecord(tag, type);
       learn(parent, tag, result);
     }
 
@@ -90,6 +108,11 @@ public final class MetaMetaData {
     }
 
     return (result instanceof RecordNG) ? (RecordNG) result : null;
+  }
+
+
+  private RecordNG unknownRecord(int tag, TypeNG type) {
+    return new RecordNG(unknown(tag), type);
   }
 
 
@@ -108,5 +131,11 @@ public final class MetaMetaData {
   private Heap initialHeap;
 
 
-  private final Map<String, Heap> name2heap = new HashMap<String,Heap>();
+  private final Map<String, Heap> name2heap = new HashMap<String, Heap>();
+
+
+  private final Map<String, RecordNG> name2record = new HashMap<String, RecordNG>();
+
+
+  private final Map<String, Heap> make2note = new HashMap<String, Heap>();
 }

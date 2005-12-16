@@ -20,11 +20,26 @@ public class RootBuilder extends Builder {
 
     if ("directory".equals(name)) {
       result = new HeapBuilder(this, getHeap(attributes));
+    } else
+
+    if ("record".equals(name)) {
+      result = new RecordBuilder(this, getRecord(attributes));
+    } else
+
+    if ("makerNote".equals(name)) {
+      Heap makerNote = getMetaMetaData().getMakerNote(
+        getName(attributes),
+        getAttribute("maker", attributes),
+        attributes.getValue("signature")
+      );
+      result = new HeapBuilder(this, makerNote);
     }
 
-    /** @todo record!!! */
-    /** @todo makerNote!!! */
-
     return result;
+  }
+
+
+  public String toString() {
+    return "<meta-metadata/>";
   }
 }

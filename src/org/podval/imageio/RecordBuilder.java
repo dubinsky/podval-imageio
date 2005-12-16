@@ -8,7 +8,7 @@ import org.xml.sax.Attributes;
 
 public class RecordBuilder extends Builder {
 
-  public RecordBuilder(HeapBuilder previous, RecordNG record) {
+  public RecordBuilder(Builder previous, RecordNG record) {
     super(previous);
     this.record = record;
   }
@@ -18,7 +18,6 @@ public class RecordBuilder extends Builder {
     throws SAXException
   {
     Builder result = null;
-
 
     if ("field".equals(name)) {
       FieldNG field = new FieldNG(getName(attributes), getType(attributes));
@@ -31,6 +30,11 @@ public class RecordBuilder extends Builder {
     }
 
     return result;
+  }
+
+
+  public String toString() {
+    return "<heap name=\"" + record.getName() + "\"/>";
   }
 
 

@@ -35,18 +35,27 @@ public class HeapBuilder extends Builder {
     } else
 
     if ("record".equals(name)) {
-      RecordNG record = new RecordNG(getName(attributes), getType(attributes));
+      RecordNG record = getRecord(attributes);
       entry = record;
       result = new RecordBuilder(this, record);
-    }
+    } else
 
-    /** @todo makerNoteMarker!!! */
+    if ("makerNoteMarker".equals(name)) {
+      MakerNoteMarker makerNoteMarker = new MakerNoteMarker(getType(attributes));
+      entry = makerNoteMarker;
+      result = new MakerNoteMarkerBuilder(this, makerNoteMarker);
+    }
 
     if (entry != null) {
       heap.addEntry(tag, entry);
     }
 
     return result;
+  }
+
+
+  public String toString() {
+    return "<heap name=\"" + heap.getName() + "\"/>";
   }
 
 

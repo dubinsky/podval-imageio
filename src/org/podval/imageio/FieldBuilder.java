@@ -20,8 +20,14 @@ public class FieldBuilder extends Builder {
     Builder result = null;
 
     /** @todo  */
+    result = new NullBuilder(this);
 
     return result;
+  }
+
+
+  public String toString() {
+    return "<field name=\"" + field.getName() + "\"/>";
   }
 
 

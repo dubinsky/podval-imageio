@@ -43,7 +43,7 @@ public class Loader {
       {
         Builder nextBuilder = currentBuilder.startElement(qName, attributes);
         if (nextBuilder == null) {
-          throw new SAXException("Unexpected element " + qName);
+          throw new SAXException("Unexpected element " + qName + " in " + currentBuilder);
         }
         currentBuilder = nextBuilder;
       }
