@@ -14,7 +14,7 @@ import java.io.File;
 import java.io.IOException;
 
 
-public class Loader {
+public final class Loader {
 
   public static void load(String path, MetaMetaData metaMetaData)
     throws ParserConfigurationException, SAXException, IOException
@@ -29,7 +29,8 @@ public class Loader {
 
 
   private void load(String path) throws ParserConfigurationException,
-    SAXException, IOException {
+    SAXException, IOException
+  {
     SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
     parser.parse(new File(path), new DefaultHandler() {
 
@@ -52,8 +53,8 @@ public class Loader {
       public void endElement(String uri, String localName, String qName)
         throws SAXException
       {
-        /** @todo currentbuilder.check() ? */
-        currentBuilder = currentBuilder.previous;
+        /** @todo currentBuilder.check() ? */
+        currentBuilder = currentBuilder.getPrevious();
       }
     });
   }

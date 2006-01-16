@@ -322,18 +322,24 @@ public abstract class Reader {
   private void foundRecord(long offset, int length, int tag, TypeNG type)
     throws IOException
   {
-    int count = length / type.getLength();
-    RecordNG record = metaMetaData.getRecord(currentHeap, tag, type, length, count);
+    RecordNG record = metaMetaData.getRecord(currentHeap, tag, type);
 
     this.offset = offset;
 
-    boolean treatAsFolder = ((count > 1) || ((record != null) /*&& (record.getCount() > 1)*/)) && !type.isVariableLength;
+    int count = length / type.getLength();
+    boolean treatAsFolder = ((count > 1) || (record.getCount() > 1) || record.isVector()) && !type.isVariableLength;
 
     if (treatAsFolder) {
-      int fieldLength = length / count;
       if (handler.startRecord(tag, record)) {
         for (int index = 0; index < count; index++) {
-          handler.readRecord(index, type, fieldLength, 1, this, record);
+          RecordNG field = metaMetaData.getField(record, index);
+          TypeNG fieldType = field.getType();
+          int fieldLength = fieldType.getLength();
+          if (!record.isVector() || (index != 0)) {
+            handleRecord(index, fieldType, fieldLength, 1, field);
+          } else {
+            /** @todo check vector length */
+          }
           this.offset += fieldLength;
         }
       }
@@ -343,8 +349,15 @@ public abstract class Reader {
     } else {
       /* It is much simpler to just do seek right here, but if the data is not
        needed, the seek() would be wasted... */
-      handler.readRecord(tag, type, length, count, this, record);
+      handleRecord(tag, type, length, count, record);
     }
+  }
+
+
+  private void handleRecord(int tag, TypeNG type, int length, int count, RecordNG record) {
+    this.record = record;
+    handler.readRecord(tag, type, length, count, this, record);
+    this.record = null;
   }
 
 
@@ -353,7 +366,8 @@ public abstract class Reader {
   }
 
 
-  /** @todo this belongs in a separate interface for value retrieval */
+  /** @todo this belongs in a separate interface for value retrieval
+   * current record should also be available through it, not passed in. */
   public Object readValue(int length, int count, TypeNG type) throws IOException {
     /** @todo type/length/count sanity checks... */
     Object result = null;
@@ -364,6 +378,12 @@ public abstract class Reader {
     } else {
       if (count == 1) {
         result = type.read(in);
+        Enumeration enumeration = record.getEnumeration();
+        if (enumeration != null) {
+          if (result instanceof Integer) {
+            result = enumeration.getValue((Integer) result);
+          }
+        }
       } else {
         if ((type == TypeNG.U8) || (type == TypeNG.X8)) {
           result = doReadBytes(count);
@@ -448,4 +468,7 @@ public abstract class Reader {
 
 
   private long offset;
+
+
+  private RecordNG record;
 }

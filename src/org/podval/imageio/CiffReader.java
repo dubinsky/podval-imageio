@@ -61,43 +61,47 @@ public class CiffReader extends Reader {
   protected EntryInformation readEntryInformation(long offsetBase)
     throws IOException
   {
-    EntryInformation result = null;
-
     int typeCode = in.readUnsignedShort();
 
-    if ((typeCode != 0 /* Null entry. */) &&
-        (typeCode != 1 /* Free entry. */))
-    {
-      int storageMethod = (typeCode & 0xC000) >> 14;
-      int dataType      = (typeCode & 0x3800) >> 11;
-      int idCode        =  typeCode & 0x07FF;
+    boolean empty =
+      (typeCode == 0 /* Null entry. */) ||
+      (typeCode == 1 /* Free entry. */);
 
-      if ((storageMethod & 0x02) != 0) {
-        throw new IOException("Unknown storage method.");
-      }
+    return empty ? null : readEntryInformation(typeCode, offsetBase);
+  }
 
-      boolean inHeapSpace = ((storageMethod & 0x01) == 0);
 
-      TypeNG type = decodeType(dataType);
+  private EntryInformation readEntryInformation(int typeCode, long offsetBase)
+    throws IOException
+  {
+    int storageMethod = (typeCode & 0xC000) >> 14;
+    int dataType      = (typeCode & 0x3800) >> 11;
+    int idCode        =  typeCode & 0x07FF;
 
-      long offset;
-      int length;
-
-      if (inHeapSpace) {
-        length = readUnsignedInt();
-        offset = offsetBase + readUnsignedInt();
-      } else {
-        length = 8;
-        offset = in.getStreamPosition();
-      }
-
-      boolean isHeap = ((type == TypeNG.ONE) || (type == TypeNG.TWO));
-      EntryKind kind = (isHeap ? EntryKind.HEAP : EntryKind.RECORD);
-
-      result = new EntryInformation(kind, offset, length, idCode, type);
+    if ((storageMethod & 0x02) != 0) {
+      throw new IOException("Unknown storage method.");
     }
 
-    return result;
+    boolean inHeapSpace = ((storageMethod & 0x01) == 0);
+
+    long offset;
+    int length;
+
+    if (inHeapSpace) {
+      length = readUnsignedInt();
+      offset = offsetBase + readUnsignedInt();
+    } else {
+      length = 8;
+      offset = in.getStreamPosition();
+    }
+
+    TypeNG type = decodeType(dataType);
+
+    boolean isHeap = ((type == TypeNG.ONE) || (type == TypeNG.TWO));
+
+    EntryKind kind = (isHeap ? EntryKind.HEAP : EntryKind.RECORD);
+
+    return new EntryInformation(kind, offset, length, idCode, type);
   }
 
 

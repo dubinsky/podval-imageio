@@ -84,16 +84,21 @@ public class SaxDumpingHandler extends SaxDumper implements ReaderHandler {
         addAttribute(attributes, "count", Integer.toString(count));
       }
 
-      Object value = null;
-      try {
-        value = (length <= MAX_LENGTH) ?
-          reader.readValue(length, count, type) :
-          reader.readBytes(MAX_LENGTH);
-      } catch (IOException e) {
-        System.out.println(e);
+      if ((type == TypeNG.X8) && (count != 1)) {
+
+      } else {
+        Object value = null;
+        try {
+          value = (length <= MAX_LENGTH) ?
+            reader.readValue(length, count, type) :
+            reader.readBytes(MAX_LENGTH);
+        } catch (IOException e) {
+          System.out.println(e);
+        }
+
+        addAttribute(attributes, "value", valueToString(value));
       }
 
-      addAttribute(attributes, "value", valueToString(value));
 
       contentHandler.startElement(null, null, "record", attributes);
       contentHandler.endElement(null, null, "record");

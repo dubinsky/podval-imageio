@@ -21,7 +21,7 @@ public class Test {
 
   private static void testExif() throws Exception {
     System.out.println("EXIF:");
-    MetaMetaData metaMetaData = new MetaMetaData();
+    MetaMetaData metaMetaData = loadExifMetaMetaData();
     ImageInputStream in = ExifStream.fromJpegStream(fromPath("/mnt/extra/Photo/ORIGINALS/g2/2/2/2249.jpg"));
     dump(new ExifReader(), in, metaMetaData);
     System.out.println();
@@ -41,13 +41,28 @@ public class Test {
   private static MetaMetaData loadCiffMetaMetaData() throws Exception {
     MetaMetaData result = new MetaMetaData();
     Loader.load("/home/dub/Projects/imageio/xml/ciff.xml", result);
-//    Loader.load("/home/dub/Projects/imageio/xml/canon-ciff.xml", result);
+    Loader.load("/home/dub/Projects/imageio/xml/canon-ciff.xml", result);
+    Loader.load("/home/dub/Projects/imageio/xml/canon-maker-note.xml", result);
+    Loader.load("/home/dub/Projects/imageio/xml/canon-maker-note-1.xml", result);
+    Loader.load("/home/dub/Projects/imageio/xml/canon-maker-note-4.xml", result);
+    return result;
+  }
+
+
+  private static MetaMetaData loadExifMetaMetaData() throws Exception {
+    MetaMetaData result = new MetaMetaData();
+    result.setDefaultRecordType(TypeNG.U16);
+    Loader.load("/home/dub/Projects/imageio/xml/exif-root.xml", result);
+    Loader.load("/home/dub/Projects/imageio/xml/exif.xml", result);
+    Loader.load("/home/dub/Projects/imageio/xml/canon-maker-note.xml", result);
+    Loader.load("/home/dub/Projects/imageio/xml/canon-maker-note-1.xml", result);
+    Loader.load("/home/dub/Projects/imageio/xml/canon-maker-note-4.xml", result);
     return result;
   }
 
 
   public static void main(String[] args) throws Exception {
     testExif();
-    testCiff();
+/////    testCiff();
   }
 }

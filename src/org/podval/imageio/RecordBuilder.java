@@ -20,13 +20,21 @@ public class RecordBuilder extends Builder {
     Builder result = null;
 
     if ("field".equals(name)) {
-      FieldNG field = new FieldNG(getName(attributes), getType(attributes));
-      result = new FieldBuilder(this, field);
+      RecordNG field = getField(attributes, record.getType());
+      /** @todo count and indexes are allowed only for the top-most fields */
+      /** @todo there can not be one subfield in a field */
+      if (attributes.getValue("index") != null) {
+        int index = getIntegerAttribute("index", attributes);
+      }
+      record.addField(index, field);
+      index++;
+      result = new RecordBuilder(this, field);
     } else
 
     if ("enumeration".equals(name)) {
-      /** @todo  */
-      result = new NullBuilder(this);
+      Enumeration enumeration = getEnumeration(attributes);
+      record.setEnumeration(enumeration);
+      result = new EnumerationBuilder(this, enumeration);
     }
 
     return result;
@@ -34,9 +42,12 @@ public class RecordBuilder extends Builder {
 
 
   public String toString() {
-    return "<heap name=\"" + record.getName() + "\"/>";
+    return "<record name=\"" + record.getName() + "\"/>";
   }
 
 
   private final RecordNG record;
+
+
+  private int index;
 }

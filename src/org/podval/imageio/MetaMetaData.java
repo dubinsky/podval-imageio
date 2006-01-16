@@ -16,6 +16,16 @@ public final class MetaMetaData {
   }
 
 
+  public void setDefaultRecordType(TypeNG value) {
+    defaultRecordType = value;
+  }
+
+
+  public TypeNG getDefaultRecordType() {
+    return defaultRecordType;
+  }
+
+
   public Heap getInitialHeap() {
     if (initialHeap == null) {
       initialHeap = new Heap("initialHeap", null);
@@ -93,7 +103,7 @@ public final class MetaMetaData {
   }
 
 
-  public RecordNG getRecord(Heap parent, int tag, TypeNG type, long length, int count)
+  public RecordNG getRecord(Heap parent, int tag, TypeNG type)
     throws IOException
   {
     Entry result = parent.getEntry(tag, type);
@@ -108,6 +118,18 @@ public final class MetaMetaData {
     }
 
     return (result instanceof RecordNG) ? (RecordNG) result : null;
+  }
+
+
+  public RecordNG getField(RecordNG record, int index) {
+    RecordNG result = record.getField(index);
+
+    if (result == null) {
+      result = unknownRecord(index, record.getType());
+      learn(record, index, result);
+    }
+
+    return result;
   }
 
 
@@ -126,6 +148,14 @@ public final class MetaMetaData {
     /** @todo mark as auto-learned */
     parent.addEntry(tag, entry);
   }
+
+
+  private void learn(RecordNG record, int index, RecordNG field) {
+    record.addField(index, field);
+  }
+
+
+  private TypeNG defaultRecordType;
 
 
   private Heap initialHeap;

@@ -6,6 +6,10 @@ package org.podval.imageio;
 public class Entry {
 
   protected Entry(String name, TypeNG type) {
+//    if (type == null) {
+//      throw new NullPointerException("null type for " + name);
+//    }
+
     this.name = name;
     this.type = type;
   }

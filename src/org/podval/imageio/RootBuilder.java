@@ -27,12 +27,7 @@ public class RootBuilder extends Builder {
     } else
 
     if ("makerNote".equals(name)) {
-      Heap makerNote = getMetaMetaData().getMakerNote(
-        getName(attributes),
-        getAttribute("maker", attributes),
-        attributes.getValue("signature")
-      );
-      result = new HeapBuilder(this, makerNote);
+      result = new HeapBuilder(this, getMakerNote(attributes));
     }
 
     return result;

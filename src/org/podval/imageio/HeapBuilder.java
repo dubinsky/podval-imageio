@@ -19,13 +19,6 @@ public class HeapBuilder extends Builder {
   {
     Builder result = null;
 
-    int tag;
-    try {
-      tag = Integer.valueOf(attributes.getValue("tag"));
-    } catch (NumberFormatException e) {
-      throw new SAXException(e);
-    }
-
     Entry entry = null;
 
     if ("directory".equals(name)) {
@@ -47,7 +40,7 @@ public class HeapBuilder extends Builder {
     }
 
     if (entry != null) {
-      heap.addEntry(tag, entry);
+      heap.addEntry(getIntegerAttribute("tag", attributes), entry);
     }
 
     return result;

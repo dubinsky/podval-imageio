@@ -2,7 +2,6 @@ package org.podval.imageio;
 
 import java.util.Map;
 import java.util.HashMap;
-import java.util.Iterator;
 
 import java.lang.NoSuchFieldException;
 
@@ -35,8 +34,7 @@ public class Enumeration {
       }
     }
 
-
-    values.put(new Integer(tag), value);
+    values.put(tag, value);
   }
 
 
@@ -61,5 +59,5 @@ public class Enumeration {
   private final Class enumClass;
 
 
-  private final Map values = new HashMap();
+  private final Map<Integer, Object> values = new HashMap<Integer, Object>();
 }

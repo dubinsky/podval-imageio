@@ -34,9 +34,9 @@ public class ExifReader extends Reader {
      Since virtually all the tags (except 513 and 514) seem to be allowed
      both in IFD0 and IFD1 (including EXIF and GPS IFDs),
      the same directory descriptor can be used for IFD1 too.
-    */
-   /* If 0th ifd was skipped, the reader will not be properly positioned to read the 1st ifd!!! */
-   readIfdByReference(1);
+     */
+    /* If 0th ifd was skipped, the reader will not be properly positioned to read the 1st ifd!!! */
+    readIfdByReference(1);
   }
 
 
@@ -84,13 +84,10 @@ public class ExifReader extends Reader {
     TypeNG type = decodeType(in.readUnsignedShort());
     int count = readUnsignedInt();
     int length = count * type.getLength();
-    long offset;
 
-    if (length > 4) {
-      offset = offsetBase + in.readUnsignedInt();
-    } else {
-      offset = in.getStreamPosition();
-    }
+    long offset = (length > 4) ?
+      offsetBase + in.readUnsignedInt() :
+      in.getStreamPosition();
 
     return new EntryInformation(EntryKind.UNKNOWN, offset, length, tag, type);
   }

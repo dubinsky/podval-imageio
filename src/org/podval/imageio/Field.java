@@ -8,9 +8,6 @@ import java.util.Iterator;
 
 import javax.imageio.stream.ImageInputStream;
 
-/** @todo yakyak! Dependency on IIOMetadataNode here?! OTOH, why not... */
-import javax.imageio.metadata.IIOMetadataNode;
-
 import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
 

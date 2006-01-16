@@ -47,7 +47,11 @@ public enum TypeNG {
     }
   },
 
-  F32(4),
+  F32(4) {
+    public Object read(ImageInputStream in) throws IOException {
+      return in.readFloat();
+    }
+  },
 
   RATIONAL(8) {
     public Object read(ImageInputStream in) throws IOException {
