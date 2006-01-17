@@ -34,7 +34,7 @@ public class HeapBuilder extends Builder {
     } else
 
     if ("makerNoteMarker".equals(name)) {
-      MakerNoteMarker makerNoteMarker = new MakerNoteMarker(getType(attributes));
+      MakerNoteMarker makerNoteMarker = new MakerNoteMarker(getType(attributes, null));
       entry = makerNoteMarker;
       result = new MakerNoteMarkerBuilder(this, makerNoteMarker);
     }

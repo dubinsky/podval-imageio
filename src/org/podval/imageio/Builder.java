@@ -22,7 +22,7 @@ public abstract class Builder {
 
 
   protected final Heap getHeap(Attributes attributes) throws SAXException {
-    TypeNG type = getType(attributes);
+    TypeNG type = getType(attributes, getMetaMetaData().getDefaultHeapType());
     return getMetaMetaData().getHeap(getName(attributes), type);
   }
 
@@ -41,7 +41,7 @@ public abstract class Builder {
     RecordNG result = getMetaMetaData().getRecord(name);
 
     if (result == null) {
-      TypeNG type = getType(attributes);
+      TypeNG type = getType(attributes, getMetaMetaData().getDefaultRecordType());
       result = new RecordNG(name, type);
       getMetaMetaData().registerRecord(result);
     } else {
@@ -127,13 +127,6 @@ public abstract class Builder {
     } catch (NumberFormatException e) {
       throw new SAXException(e);
     }
-  }
-
-
-  protected final TypeNG getType(Attributes attributes)
-    throws SAXException
-  {
-    return getType(attributes, getMetaMetaData().getDefaultRecordType());
   }
 
 

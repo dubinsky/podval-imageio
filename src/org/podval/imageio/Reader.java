@@ -12,7 +12,7 @@ import java.nio.ByteOrder;
 
 public abstract class Reader {
 
-  private static final int DEFAULT_MAX_COUNTER = 64;
+  private static final int DEFAULT_MAX_COUNT = 64;
 
 
   public final void setMaxCount(int value) {
@@ -20,7 +20,7 @@ public abstract class Reader {
   }
 
 
-  public final int getMaxCounter() {
+  public final int getMaxCount() {
     return maxCount;
   }
 
@@ -312,8 +312,8 @@ public abstract class Reader {
   private void foundEntry(long offset, int length, int tag, TypeNG type)
     throws IOException
   {
-    int count = length / type.getLength();
-    Entry entry = metaMetaData.getEntry(currentHeap, tag, type, length, count);
+/////    int count = length / type.getLength();
+    Entry entry = metaMetaData.getEntry(currentHeap, tag, type);
 
     if (entry instanceof Heap) {
       readHeap(tag);
@@ -374,11 +374,9 @@ public abstract class Reader {
     throws IOException
   {
     if (count < maxCount) {
-      handler.handleValue(tag, readValue(length, count, type), type, record);
+      handler.handleShortValue(tag, type, count, record, readValue(type, count, record));
     } else {
-      this.record = record;
-      handler.handleLongValue(tag, count, type, record, this);
-      this.record = null;
+      handler.handleLongValue(tag, type, count, record, this);
     }
   }
 
@@ -390,13 +388,13 @@ public abstract class Reader {
 
   /** @todo this belongs in a separate interface for value retrieval
    * current record should also be available through it, not passed in. */
-  public Object readValue(int length, int count, TypeNG type) throws IOException {
+  public Object readValue(TypeNG type, int count, RecordNG record) throws IOException {
     /** @todo type/length/count sanity checks... */
     Object result = null;
     seekToData();
 
     if (type == TypeNG.STRING) {
-      result = readString(length);
+      result = readString(count);
     } else {
       if (count == 1) {
         result = type.read(in);
@@ -443,9 +441,9 @@ public abstract class Reader {
 
 
   /** @todo this belongs in a separate interface for value retrieval */
-  public byte[] readBytes(int length) throws IOException {
+  public byte[] readBytes(int count) throws IOException {
     seekToData();
-    return doReadBytes(length);
+    return doReadBytes(count);
   }
 
 
@@ -474,7 +472,7 @@ public abstract class Reader {
   }
 
 
-  private int maxCount;
+  private int maxCount = DEFAULT_MAX_COUNT;
 
 
   protected ImageInputStream in;
@@ -495,8 +493,5 @@ public abstract class Reader {
   private long offset;
 
 
-  private RecordNG record;
-
-
-  private int length;
+  private int length; /** @todo careful - this is kinda global... */
 }

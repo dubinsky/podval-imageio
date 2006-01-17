@@ -66,41 +66,21 @@ public class SaxDumpingHandler extends SaxDumper implements ReaderHandler {
   }
 
 
-  public void handleValue(int tag, Object value, TypeNG type, RecordNG record) {
-    AttributesImpl attributes = createAttributes(tag, type, record);
-    signal(attributes, value);
-  }
+  public void handleShortValue(int tag, TypeNG type, int count, RecordNG record, Object value) {
+    AttributesImpl attributes = new AttributesImpl();
 
+    addAttribute(attributes, "tag", Integer.toString(tag));
 
-  public void handleLongValue(int tag, int count, TypeNG type, RecordNG record, Reader reader) {
-    AttributesImpl attributes = createAttributes(tag, type, record);
+    addNameAttribute(attributes, record);
+
+    addAttribute(attributes, "type", type.toString());
+
     if (count != 1) {
       addAttribute(attributes, "count", Integer.toString(count));
     }
 
-    Object value = null;
-    try {
-      value = reader.readBytes(reader.getMaxCounter());
-    } catch (IOException e) {
-      System.out.println(e);
-    }
+    /** @todo vector... */
 
-    signal(attributes, value);
-  }
-
-
-  private AttributesImpl createAttributes(int tag, TypeNG type, RecordNG record) {
-    AttributesImpl result = new AttributesImpl();
-
-    addAttribute(result, "tag", Integer.toString(tag));
-    addNameAttribute(result, record);
-    addAttribute(result, "type", type.toString());
-
-    return result;
-  }
-
-
-  private void signal(AttributesImpl attributes, Object value) {
     if (value != null) {
       addAttribute(attributes, "value", valueToString(value));
     }
@@ -110,6 +90,18 @@ public class SaxDumpingHandler extends SaxDumper implements ReaderHandler {
       contentHandler.endElement(null, null, "record");
     } catch (SAXException e) {
     }
+  }
+
+
+  public void handleLongValue(int tag, TypeNG type, int count, RecordNG record, Reader reader) {
+    Object value = null;
+    try {
+      value = reader.readBytes(reader.getMaxCount());
+    } catch (IOException e) {
+      System.out.println(e);
+    }
+
+    handleShortValue(tag, type, count, record, value);
   }
 
 

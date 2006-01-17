@@ -26,8 +26,8 @@ public interface ReaderHandler {
   public void endRecord();
 
 
-  public void handleValue(int tag, Object value, TypeNG type, RecordNG record);
+  public void handleShortValue(int tag, TypeNG type, int count, RecordNG record, Object value);
 
 
-  public void handleLongValue(int tag, int count, TypeNG type, RecordNG record, Reader reader);
+  public void handleLongValue (int tag, TypeNG type, int count, RecordNG record, Reader reader);
 }

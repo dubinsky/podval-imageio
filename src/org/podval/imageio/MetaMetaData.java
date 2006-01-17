@@ -16,6 +16,16 @@ public final class MetaMetaData {
   }
 
 
+  public void setDefaultHeapType(TypeNG value) {
+    defaultHeapType = value;
+  }
+
+
+  public TypeNG getDefaultHeapType() {
+    return defaultHeapType;
+  }
+
+
   public void setDefaultRecordType(TypeNG value) {
     defaultRecordType = value;
   }
@@ -87,7 +97,7 @@ public final class MetaMetaData {
   }
 
 
-  public Entry getEntry(Heap parent, int tag, TypeNG type, long length, int count) {
+  public Entry getEntry(Heap parent, int tag, TypeNG type) {
     Entry result = parent.getEntry(tag, type);
 
     if (result == null) {
@@ -153,6 +163,9 @@ public final class MetaMetaData {
   private void learn(RecordNG record, int index, RecordNG field) {
     record.addField(index, field);
   }
+
+
+  private TypeNG defaultHeapType;
 
 
   private TypeNG defaultRecordType;
