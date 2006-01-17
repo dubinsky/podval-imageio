@@ -26,6 +26,8 @@ public interface ReaderHandler {
   public void endRecord();
 
 
-  /** @todo rename (to entry?) */
-  public void readRecord(int tag, TypeNG type, int length, int count, Reader reader, RecordNG record);
+  public void handleValue(int tag, Object value, TypeNG type, RecordNG record);
+
+
+  public void handleLongValue(int tag, int count, TypeNG type, RecordNG record, Reader reader);
 }

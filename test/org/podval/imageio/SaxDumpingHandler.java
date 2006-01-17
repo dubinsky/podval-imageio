@@ -12,9 +12,6 @@ import javax.imageio.stream.ImageInputStream;
 
 public class SaxDumpingHandler extends SaxDumper implements ReaderHandler {
 
-  private static final int MAX_LENGTH = 64;
-
-
   public SaxDumpingHandler(Reader reader, ImageInputStream in, MetaMetaData metaMetaData) {
     this.in = in;
     this.reader = reader;
@@ -69,37 +66,46 @@ public class SaxDumpingHandler extends SaxDumper implements ReaderHandler {
   }
 
 
-  public void readRecord(int tag, TypeNG type, int length, int count, Reader reader, RecordNG record) {
+  public void handleValue(int tag, Object value, TypeNG type, RecordNG record) {
+    AttributesImpl attributes = createAttributes(tag, type, record);
+    signal(attributes, value);
+  }
+
+
+  public void handleLongValue(int tag, int count, TypeNG type, RecordNG record, Reader reader) {
+    AttributesImpl attributes = createAttributes(tag, type, record);
+    if (count != 1) {
+      addAttribute(attributes, "count", Integer.toString(count));
+    }
+
+    Object value = null;
     try {
-      AttributesImpl attributes = new AttributesImpl();
-      addAttribute(attributes, "tag", Integer.toString(tag));
-      addNameAttribute(attributes, record);
-      addAttribute(attributes, "type", type.toString());
+      value = reader.readBytes(reader.getMaxCounter());
+    } catch (IOException e) {
+      System.out.println(e);
+    }
 
-      if (type.isVariableLength) {
-        addAttribute(attributes, "length", Long.toString(length));
-      }
-
-      if ((count != 1) && (count != length)) {
-        addAttribute(attributes, "count", Integer.toString(count));
-      }
-
-      if ((type == TypeNG.X8) && (count != 1)) {
-
-      } else {
-        Object value = null;
-        try {
-          value = (length <= MAX_LENGTH) ?
-            reader.readValue(length, count, type) :
-            reader.readBytes(MAX_LENGTH);
-        } catch (IOException e) {
-          System.out.println(e);
-        }
-
-        addAttribute(attributes, "value", valueToString(value));
-      }
+    signal(attributes, value);
+  }
 
 
+  private AttributesImpl createAttributes(int tag, TypeNG type, RecordNG record) {
+    AttributesImpl result = new AttributesImpl();
+
+    addAttribute(result, "tag", Integer.toString(tag));
+    addNameAttribute(result, record);
+    addAttribute(result, "type", type.toString());
+
+    return result;
+  }
+
+
+  private void signal(AttributesImpl attributes, Object value) {
+    if (value != null) {
+      addAttribute(attributes, "value", valueToString(value));
+    }
+
+    try {
       contentHandler.startElement(null, null, "record", attributes);
       contentHandler.endElement(null, null, "record");
     } catch (SAXException e) {

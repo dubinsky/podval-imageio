@@ -51,10 +51,14 @@ public class CrwThumbnailExtractor {
       }
 
 
-      public void readRecord(int tag, TypeNG type, int length, int count, Reader reader, RecordNG record) {
+      public void handleValue(int tag, Object value, TypeNG type, RecordNG record) {
+      }
+
+
+      public void handleLongValue(int tag, int count, TypeNG type, RecordNG record, Reader reader) {
         if (tag == idCode) {
           try {
-            reader.stream(length, new FileOutputStream(file));
+            reader.stream(new FileOutputStream(file));
           } catch (IOException e) {
             exception[0] = e;
           }

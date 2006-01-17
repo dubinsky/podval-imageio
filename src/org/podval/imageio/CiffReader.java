@@ -58,6 +58,11 @@ public class CiffReader extends Reader {
   }
 
 
+  protected boolean seekAfterHeap() {
+    return false;
+  }
+
+
   protected EntryInformation readEntryInformation(long offsetBase)
     throws IOException
   {

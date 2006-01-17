@@ -75,6 +75,12 @@ public class ExifReader extends Reader {
   }
 
 
+  protected boolean seekAfterHeap() {
+    // After reading an IFD, we'll be positioned at the offset of the linked IFD.
+    return true;
+  }
+
+
   protected EntryInformation readEntryInformation(long offsetBase)
     throws IOException
   {

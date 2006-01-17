@@ -12,6 +12,19 @@ import java.nio.ByteOrder;
 
 public abstract class Reader {
 
+  private static final int DEFAULT_MAX_COUNTER = 64;
+
+
+  public final void setMaxCount(int value) {
+    maxCount = value;
+  }
+
+
+  public final int getMaxCounter() {
+    return maxCount;
+  }
+
+
   /**
    * Checks if the stream seems to be of the appropriate format.
    * Strem position is unchanged by this method, but other stream attributes
@@ -202,9 +215,9 @@ public abstract class Reader {
       readEntry(offset);
     }
 
-    /** @todo for CIFF, we do not need this last seek, and can optimize it away... */
-    seekToEntry(entriesOffset, numEntries);
-    // At this point we are positioned at the offset of the linked IFD.
+    if (seekAfterHeap()) {
+      seekToEntry(entriesOffset, numEntries);
+    }
   }
 
 
@@ -213,6 +226,9 @@ public abstract class Reader {
   {
     in.seek(entriesOffset + getEntryLength()*entryNumber);
   }
+
+
+  protected abstract boolean seekAfterHeap();
 
 
   protected abstract HeapInformation readHeapInformation(long offset, int length)
@@ -354,10 +370,16 @@ public abstract class Reader {
   }
 
 
-  private void handleRecord(int tag, TypeNG type, int length, int count, RecordNG record) {
-    this.record = record;
-    handler.readRecord(tag, type, length, count, this, record);
-    this.record = null;
+  private void handleRecord(int tag, TypeNG type, int length, int count, RecordNG record)
+    throws IOException
+  {
+    if (count < maxCount) {
+      handler.handleValue(tag, readValue(length, count, type), type, record);
+    } else {
+      this.record = record;
+      handler.handleLongValue(tag, count, type, record, this);
+      this.record = null;
+    }
   }
 
 
@@ -435,7 +457,7 @@ public abstract class Reader {
 
 
   /** @todo this belongs in a separate interface for value retrieval */
-  public void stream(int length, OutputStream os) throws IOException {
+  public void stream(OutputStream os) throws IOException {
     seekToData();
 
     for (long i = 0; i < length; i++) {
@@ -450,6 +472,9 @@ public abstract class Reader {
   protected int readUnsignedInt() throws IOException {
     return TypeNG.readUnsignedInt(in);
   }
+
+
+  private int maxCount;
 
 
   protected ImageInputStream in;
@@ -471,4 +496,7 @@ public abstract class Reader {
 
 
   private RecordNG record;
+
+
+  private int length;
 }
