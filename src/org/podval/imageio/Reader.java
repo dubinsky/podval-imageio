@@ -145,6 +145,13 @@ public abstract class Reader {
   }
 
 
+//  protected final void readHeap(long offset, int length, int tag)
+//    throws IOException
+//  {
+//    currentHeap = metaMetaData.getInitialHeap();
+//  }
+
+
   /**
    * .
    * Called by the format-specific reader when it encounters a heap.
@@ -162,6 +169,10 @@ public abstract class Reader {
   protected final void foundHeap(long offset, int length, int tag, TypeNG type)
     throws IOException
   {
+    if (!seekToHeap()) {
+      return;
+    }
+
     Heap parentHeap = currentHeap;
 
     if (currentHeap == null) {
@@ -283,10 +294,30 @@ public abstract class Reader {
       int tag = entryInformation.tag;
       TypeNG type = entryInformation.type;
 
+      if (kind == EntryKind.UNKNOWN) {
+        Entry entry = metaMetaData.getEntry(currentHeap, tag, type);
+
+        if (entry instanceof Heap) {
+          offset = 0;
+          length = 0;
+          kind = EntryKind.HEAP;
+        } else
+
+        if ((entry instanceof RecordNG) || (entry == null)) {
+          kind = EntryKind.RECORD;
+        }
+      }
+
       switch (kind) {
-      case HEAP   : foundHeap  (offset, length, tag, type); break;
+      case HEAP   : //seekToHeap();
+                    foundHeap  (offset, length, tag, type); break;
       case RECORD : foundRecord(offset, length, tag, type); break;
-      case UNKNOWN: foundEntry (offset, length, tag, type); break;
+        /** @todo maker note... */
+//      if (entry == MakerNote.MARKER) {
+//        MakerNote makerNote = handler.getMakerNote();
+//        readIfdInPlace(makerNote.getDirectory(), in, offsetBase, handler);
+//      } else
+//        assert false : "Unknown IFD entry " + entry;
       }
     }
   }
@@ -296,43 +327,7 @@ public abstract class Reader {
     throws IOException;
 
 
-  /**
-   * .
-   * When format-specific reader can determine the nature of the entry - is it a
-   * heap or a record - it delegates to either foundHeap() or foundRecord().
-   * When it can't, this method gets called, and finds out from the metadata!
-   *
-   * @param offset long
-   * @param length int
-   * @param count int
-   * @param tag int
-   * @param type TypeNG
-   * @throws IOException
-   */
-  private void foundEntry(long offset, int length, int tag, TypeNG type)
-    throws IOException
-  {
-/////    int count = length / type.getLength();
-    Entry entry = metaMetaData.getEntry(currentHeap, tag, type);
-
-    if (entry instanceof Heap) {
-      readHeap(tag);
-    } else
-
-    if ((entry instanceof RecordNG) || (entry == null)) {
-      foundRecord(offset, length, tag, type);
-    }
-
-    /** @todo maker note... */
-//      if (entry == MakerNote.MARKER) {
-//        MakerNote makerNote = handler.getMakerNote();
-//        readIfdInPlace(makerNote.getDirectory(), in, offsetBase, handler);
-//      } else
-//        assert false : "Unknown IFD entry " + entry;
-  }
-
-
-  protected abstract void readHeap(int tag) throws IOException;
+  protected abstract boolean seekToHeap() throws IOException;
 
 
   private void foundRecord(long offset, int length, int tag, TypeNG type)

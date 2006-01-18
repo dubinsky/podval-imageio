@@ -33,8 +33,8 @@ public class CiffReader extends Reader {
   }
 
 
-  protected void readHeap(int tag) throws IOException {
-    /** @todo this is really unused in this class */
+  protected boolean seekToHeap() throws IOException {
+    return true;
   }
 
 

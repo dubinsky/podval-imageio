@@ -41,22 +41,17 @@ public class ExifReader extends Reader {
 
 
   private void readIfdByReference(int tag) throws IOException {
+      foundHeap(0, 0, tag, null);
+  }
+
+
+  protected boolean seekToHeap() throws IOException {
     long offset = in.readUnsignedInt();
-    if (offset != 0) {
+    boolean result = (offset != 0);
+    if (result) {
       in.seek(offsetBase + offset);
-      readIfd(tag);
     }
-  }
-
-
-  private void readIfd(int tag) throws IOException {
-    /** @todo this method is factored out for use in maker notes? */
-    foundHeap(0, 0, tag, null);
-  }
-
-
-  protected void readHeap(int tag) throws IOException {
-    readIfdByReference(tag);
+    return result;
   }
 
 
@@ -76,7 +71,6 @@ public class ExifReader extends Reader {
 
 
   protected boolean seekAfterHeap() {
-    // After reading an IFD, we'll be positioned at the offset of the linked IFD.
     return true;
   }
 
