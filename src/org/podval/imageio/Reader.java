@@ -12,19 +12,6 @@ import java.nio.ByteOrder;
 
 public abstract class Reader {
 
-  private static final int DEFAULT_MAX_COUNT = 64;
-
-
-  public final void setMaxCount(int value) {
-    maxCount = value;
-  }
-
-
-  public final int getMaxCount() {
-    return maxCount;
-  }
-
-
   /**
    * Checks if the stream seems to be of the appropriate format.
    * Strem position is unchanged by this method, but other stream attributes
@@ -145,55 +132,49 @@ public abstract class Reader {
   }
 
 
-//  protected final void readHeap(long offset, int length, int tag)
-//    throws IOException
-//  {
-//    currentHeap = metaMetaData.getInitialHeap();
-//  }
-
-
-  /**
-   * .
-   * Called by the format-specific reader when it encounters a heap.
-   * Parameters contain what is known about the heap at this point.
-   * Metadata for the heap is obtained, a handler is notified - and is given an
-   * opportunity to indicate that the heap should be skipped.
-   * Actual reading of the heap is delegated to a format-specific heap reader.
-   *
-   * @param offset long
-   * @param length int
-   * @param tag int
-   * @param type TypeNG
-   * @throws IOException
-   */
-  protected final void foundHeap(long offset, int length, int tag, TypeNG type)
+  public final void readInitialHeap(int tag, boolean seekAfter)
     throws IOException
   {
-    if (!seekToHeap()) {
-      return;
-    }
+    readInitialHeap(0, 0, tag, seekAfter);
+  }
 
-    Heap parentHeap = currentHeap;
 
-    if (currentHeap == null) {
-      if (level == 0) {
-        currentHeap = metaMetaData.getInitialHeap();
+  public final void readInitialHeap(long offset, int length, int tag, boolean seekAfter)
+    throws IOException
+  {
+    readHeap(offset, length, tag, metaMetaData.getInitialHeap(), seekAfter);
+  }
+
+
+  private void readHeap(long offset, int length, int tag, Heap heap, boolean seekAfter)
+    throws IOException
+  {
+    if (seekToHeap() && handler.startHeap(tag, heap.getName())) {
+      HeapInformation heapInformation = readHeapInformation(offset, length);
+      long entriesOffset = heapInformation.entriesOffset;
+      int numEntries = heapInformation.numEntries;
+
+      for (int i = 0; i < numEntries; i++) {
+        seekToEntry(entriesOffset, i);
+        EntryInformation entryInformation = readEntryInformation(offset);
+        if (entryInformation != null) {
+          readEntry(
+            heap,
+            entryInformation.kind,
+            entryInformation.offset,
+            entryInformation.length,
+            entryInformation.tag,
+            entryInformation.type
+          );
+        }
       }
-    } else {
-      currentHeap = metaMetaData.getHeap(currentHeap, tag, type);
+
+      if (seekAfter) {
+        seekToEntry(entriesOffset, numEntries);
+      }
+
+      handler.endHeap();
     }
-
-    level++;
-
-    if (handler.startHeap(tag, currentHeap)) {
-      readHeap(offset, length);
-    }
-
-    handler.endHeap();
-
-    currentHeap = parentHeap;
-
-    level--;
   }
 
 
@@ -215,21 +196,9 @@ public abstract class Reader {
   }
 
 
+  protected abstract HeapInformation readHeapInformation(long offset, int length)
+    throws IOException;
 
-  private void readHeap(long offset, int length) throws IOException {
-    HeapInformation heapInformation = readHeapInformation(offset, length);
-    long entriesOffset = heapInformation.entriesOffset;
-    int numEntries = heapInformation.numEntries;
-
-    for (int i = 0; i < numEntries; i++) {
-      seekToEntry(entriesOffset, i);
-      readEntry(offset);
-    }
-
-    if (seekAfterHeap()) {
-      seekToEntry(entriesOffset, numEntries);
-    }
-  }
 
 
   private void seekToEntry(long entriesOffset, int entryNumber)
@@ -239,18 +208,11 @@ public abstract class Reader {
   }
 
 
-  protected abstract boolean seekAfterHeap();
-
-
-  protected abstract HeapInformation readHeapInformation(long offset, int length)
-    throws IOException;
-
-
   protected abstract int getEntryLength();
 
 
-  protected enum EntryKind { HEAP, RECORD, UNKNOWN }
 
+  protected enum EntryKind { HEAP, RECORD, UNKNOWN }
 
 
   /**
@@ -283,71 +245,62 @@ public abstract class Reader {
   }
 
 
-
-  private void readEntry(long offsetBase) throws IOException {
-    EntryInformation entryInformation = readEntryInformation(offsetBase);
-
-    if (entryInformation != null) {
-      EntryKind kind = entryInformation.kind;
-      long offset = entryInformation.offset;
-      int length = entryInformation.length;
-      int tag = entryInformation.tag;
-      TypeNG type = entryInformation.type;
-
-      if (kind == EntryKind.UNKNOWN) {
-        Entry entry = metaMetaData.getEntry(currentHeap, tag, type);
-
-        if (entry instanceof Heap) {
-          offset = 0;
-          length = 0;
-          kind = EntryKind.HEAP;
-        } else
-
-        if ((entry instanceof RecordNG) || (entry == null)) {
-          kind = EntryKind.RECORD;
-        }
-      }
-
-      switch (kind) {
-      case HEAP   : //seekToHeap();
-                    foundHeap  (offset, length, tag, type); break;
-      case RECORD : foundRecord(offset, length, tag, type); break;
-        /** @todo maker note... */
-//      if (entry == MakerNote.MARKER) {
-//        MakerNote makerNote = handler.getMakerNote();
-//        readIfdInPlace(makerNote.getDirectory(), in, offsetBase, handler);
-//      } else
-//        assert false : "Unknown IFD entry " + entry;
-      }
-    }
-  }
-
-
   protected abstract EntryInformation readEntryInformation(long offsetBase)
     throws IOException;
+
+
+
+  private void readEntry(Heap heap, EntryKind kind, long offset, int length, int tag, TypeNG type) throws IOException {
+    Entry entry = null;
+    switch (kind) {
+    case HEAP   : entry = metaMetaData.getHeap  (heap, tag, type); break;
+    case RECORD : entry = metaMetaData.getRecord(heap, tag, type); break;
+    case UNKNOWN: entry = metaMetaData.getEntry (heap, tag, type);
+      if (entry instanceof Heap) {
+        offset = 0;
+        length = 0;
+        kind = EntryKind.HEAP;
+      } else
+
+      if (entry instanceof RecordNG) {
+        kind = EntryKind.RECORD;
+      }
+
+      break;
+    }
+
+    switch (kind) {
+    case HEAP   : readHeap  (offset, length, tag,       (Heap)     entry, false); break;
+    case RECORD : readRecord(offset, length, tag, type, (RecordNG) entry       ); break;
+      /** @todo maker note... */
+//    if (entry == MakerNote.MARKER) {
+//      MakerNote makerNote = handler.getMakerNote();
+//      readIfdInPlace(makerNote.getDirectory(), in, offsetBase, handler);
+//    } else
+//      assert false : "Unknown IFD entry " + entry;
+    }
+  }
 
 
   protected abstract boolean seekToHeap() throws IOException;
 
 
-  private void foundRecord(long offset, int length, int tag, TypeNG type)
+  private void readRecord(long offset, int length, int tag, TypeNG type, RecordNG record)
     throws IOException
   {
-    RecordNG record = metaMetaData.getRecord(currentHeap, tag, type);
-
     this.offset = offset;
 
     int count = length / type.getLength();
     boolean treatAsFolder = ((count > 1) || (record.getCount() > 1) || record.isVector()) && !type.isVariableLength;
 
     if (treatAsFolder) {
-      if (handler.startRecord(tag, record)) {
+      if (handler.startRecord(tag, record.getName())) {
         for (int index = 0; index < count; index++) {
           RecordNG field = metaMetaData.getField(record, index);
           TypeNG fieldType = field.getType();
           int fieldLength = fieldType.getLength();
           if (!record.isVector() || (index != 0)) {
-            handleRecord(index, fieldType, fieldLength, 1, field);
+            handleRecord(index, fieldType, 1, field);
           } else {
             /** @todo check vector length */
           }
@@ -360,33 +313,38 @@ public abstract class Reader {
     } else {
       /* It is much simpler to just do seek right here, but if the data is not
        needed, the seek() would be wasted... */
-      handleRecord(tag, type, length, count, record);
+      handleRecord(tag, type, count, record);
     }
   }
 
 
-  private void handleRecord(int tag, TypeNG type, int length, int count, RecordNG record)
+  private void handleRecord(int tag, TypeNG type, int count, RecordNG record)
     throws IOException
   {
-    if (count < maxCount) {
-      handler.handleShortValue(tag, type, count, record, readValue(type, count, record));
-    } else {
-      handler.handleLongValue(tag, type, count, record, this);
+    Object action = handler.atValue(tag, record.getName(), type, count);
+    if (action != null) {
+      in.seek(offset);
+      if (action instanceof OutputStream) {
+        stream((OutputStream) action);
+      } else {
+
+        Object value = null;
+        if (action == Boolean.TRUE) {
+          value = readValue(type, count, record);
+        } else
+        if (action instanceof Integer) {
+          value = readBytes(Math.min((Integer) action, count));
+        }
+
+        handler.handleValue(tag, record.getName(), type, count, value);
+      }
     }
   }
 
 
-  private void seekToData() throws IOException {
-    in.seek(offset);
-  }
-
-
-  /** @todo this belongs in a separate interface for value retrieval
-   * current record should also be available through it, not passed in. */
   public Object readValue(TypeNG type, int count, RecordNG record) throws IOException {
     /** @todo type/length/count sanity checks... */
     Object result = null;
-    seekToData();
 
     if (type == TypeNG.STRING) {
       result = readString(count);
@@ -401,7 +359,7 @@ public abstract class Reader {
         }
       } else {
         if ((type == TypeNG.U8) || (type == TypeNG.X8)) {
-          result = doReadBytes(count);
+          result = readBytes(count);
         } else {
           Object[] objects = new Object[count];
           for (int i = 0; i<count; i++) {
@@ -419,7 +377,7 @@ public abstract class Reader {
   private String readString(int length) throws IOException {
     // Length of 0 indicates 'indefinite'. We limit 'em here... - ???
 
-    byte[] bytes = doReadBytes(length);
+    byte[] bytes = readBytes(length);
     int l = 0;
     for (; l<length; l++) {
       if (bytes[l] == 0) {
@@ -435,14 +393,7 @@ public abstract class Reader {
   }
 
 
-  /** @todo this belongs in a separate interface for value retrieval */
-  public byte[] readBytes(int count) throws IOException {
-    seekToData();
-    return doReadBytes(count);
-  }
-
-
-  private byte[] doReadBytes(int length) throws IOException {
+  private byte[] readBytes(int length) throws IOException {
     byte[] result = new byte[(int) length]; /** @todo cast */
     in.readFully(result);
     return result;
@@ -451,8 +402,6 @@ public abstract class Reader {
 
   /** @todo this belongs in a separate interface for value retrieval */
   public void stream(OutputStream os) throws IOException {
-    seekToData();
-
     for (long i = 0; i < length; i++) {
       int b = in.read();
       os.write(b);
@@ -467,9 +416,6 @@ public abstract class Reader {
   }
 
 
-  private int maxCount = DEFAULT_MAX_COUNT;
-
-
   protected ImageInputStream in;
 
 
@@ -477,12 +423,6 @@ public abstract class Reader {
 
 
   private MetaMetaData metaMetaData;
-
-
-  private Heap currentHeap;
-
-
-  private int level;
 
 
   private long offset;

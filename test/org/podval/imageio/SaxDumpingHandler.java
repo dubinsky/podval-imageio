@@ -12,6 +12,9 @@ import javax.imageio.stream.ImageInputStream;
 
 public class SaxDumpingHandler extends SaxDumper implements ReaderHandler {
 
+  private static final int MAX_COUNT = 64;
+
+
   public SaxDumpingHandler(Reader reader, ImageInputStream in, MetaMetaData metaMetaData) {
     this.in = in;
     this.reader = reader;
@@ -24,8 +27,8 @@ public class SaxDumpingHandler extends SaxDumper implements ReaderHandler {
   }
 
 
-  public boolean startHeap(int tag, Heap heap) {
-    startFolder(tag, heap, "directory");
+  public boolean startHeap(int tag, String name) {
+    startFolder(tag, name, "directory");
     return true;
   }
 
@@ -35,8 +38,8 @@ public class SaxDumpingHandler extends SaxDumper implements ReaderHandler {
   }
 
 
-  public boolean startRecord(int tag, RecordNG record) {
-    startFolder(tag, record, "record");
+  public boolean startRecord(int tag, String name) {
+    startFolder(tag, name, "record");
     return true;
   }
 
@@ -46,12 +49,11 @@ public class SaxDumpingHandler extends SaxDumper implements ReaderHandler {
   }
 
 
-  private void startFolder(int tag, Entry entry, String kind) {
+  private void startFolder(int tag, String name, String kind) {
     try {
       AttributesImpl attributes = new AttributesImpl();
       addAttribute(attributes, "tag", Integer.toString(tag));
-      addNameAttribute(attributes, entry);
-
+      addNameAttribute(attributes, name);
       contentHandler.startElement(null, null, kind, attributes);
     } catch (SAXException e) {
     }
@@ -66,12 +68,19 @@ public class SaxDumpingHandler extends SaxDumper implements ReaderHandler {
   }
 
 
-  public void handleShortValue(int tag, TypeNG type, int count, RecordNG record, Object value) {
+  public Object atValue(int tag, String name, TypeNG type, int count)
+    throws IOException
+  {
+    return (count <= MAX_COUNT) ? Boolean.TRUE : MAX_COUNT;
+  }
+
+
+  public void handleValue(int tag, String name, TypeNG type, int count, Object value) {
     AttributesImpl attributes = new AttributesImpl();
 
     addAttribute(attributes, "tag", Integer.toString(tag));
 
-    addNameAttribute(attributes, record);
+    addNameAttribute(attributes, name);
 
     addAttribute(attributes, "type", type.toString());
 
@@ -90,18 +99,6 @@ public class SaxDumpingHandler extends SaxDumper implements ReaderHandler {
       contentHandler.endElement(null, null, "record");
     } catch (SAXException e) {
     }
-  }
-
-
-  public void handleLongValue(int tag, TypeNG type, int count, RecordNG record, Reader reader) {
-    Object value = null;
-    try {
-      value = reader.readBytes(reader.getMaxCount());
-    } catch (IOException e) {
-      System.out.println(e);
-    }
-
-    handleShortValue(tag, type, count, record, value);
   }
 
 
@@ -145,12 +142,9 @@ public class SaxDumpingHandler extends SaxDumper implements ReaderHandler {
   }
 
 
-  private void addNameAttribute(AttributesImpl attributes, Entry entry) {
-    if (entry != null) {
-      String name = entry.getName();
-      if (name != null) {
-        addAttribute(attributes, "name", name);
-      }
+  private void addNameAttribute(AttributesImpl attributes, String name) {
+    if (name != null) {
+      addAttribute(attributes, "name", name);
     }
   }
 

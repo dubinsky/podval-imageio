@@ -2,6 +2,8 @@
 
 package org.podval.imageio;
 
+import java.io.IOException;
+
 
 public interface ReaderHandler {
 
@@ -9,7 +11,7 @@ public interface ReaderHandler {
    *
    * @return boolean true if the heap should be processed; false if it should be skipped
    */
-  public boolean startHeap(int tag, Heap heap);
+  public boolean startHeap(int tag, String name);
 
 
   /** @todo rename (to directory?) */
@@ -20,14 +22,18 @@ public interface ReaderHandler {
    *
    * @return boolean true if the record should be processed; false if it should be skipped
    */
-  public boolean startRecord(int tag, RecordNG record);
+  public boolean startRecord(int tag, String name);
 
 
   public void endRecord();
 
 
-  public void handleShortValue(int tag, TypeNG type, int count, RecordNG record, Object value);
+  /**
+   * @return Object null, TRUE, Integer or OutputStream
+   */
+  public Object atValue(int tag, String name, TypeNG type, int count)
+    throws IOException;
 
 
-  public void handleLongValue (int tag, TypeNG type, int count, RecordNG record, Reader reader);
+  public void handleValue(int tag, String name, TypeNG type, int count, Object value);
 }

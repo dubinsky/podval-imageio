@@ -28,7 +28,7 @@ public class ExifReader extends Reader {
 
 
   protected void read() throws IOException {
-    readIfdByReference(0);
+    readInitialHeap(0, true);
 
     /*
      Since virtually all the tags (except 513 and 514) seem to be allowed
@@ -36,12 +36,7 @@ public class ExifReader extends Reader {
      the same directory descriptor can be used for IFD1 too.
      */
     /* If 0th ifd was skipped, the reader will not be properly positioned to read the 1st ifd!!! */
-    readIfdByReference(1);
-  }
-
-
-  private void readIfdByReference(int tag) throws IOException {
-      foundHeap(0, 0, tag, null);
+    readInitialHeap(1, false);
   }
 
 
@@ -67,11 +62,6 @@ public class ExifReader extends Reader {
 
   protected int getEntryLength() {
     return 12;
-  }
-
-
-  protected boolean seekAfterHeap() {
-    return true;
   }
 
 

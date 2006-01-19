@@ -4,6 +4,7 @@ package org.podval.imageio;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import javax.imageio.stream.ImageInputStream;
@@ -33,7 +34,7 @@ public class CrwThumbnailExtractor {
 
     new CiffReader().read(in, new ReaderHandler() {
 
-      public boolean startHeap(int tag, Heap heap) {
+      public boolean startHeap(int tag, String name) {
         return (tag == 0);
       }
 
@@ -42,7 +43,7 @@ public class CrwThumbnailExtractor {
       }
 
 
-      public boolean startRecord(int tag, RecordNG record) {
+      public boolean startRecord(int tag, String name) {
         return false;
       }
 
@@ -51,25 +52,17 @@ public class CrwThumbnailExtractor {
       }
 
 
-      public void handleShortValue(int tag, TypeNG type, int count, RecordNG record, Object value) {
+      public Object atValue(int tag, String name, TypeNG type, int count)
+        throws FileNotFoundException
+      {
+        return (tag == idCode) ? new FileOutputStream(file) : null;
       }
 
 
-      public void handleLongValue(int tag, TypeNG type, int count, RecordNG record, Reader reader) {
-        if (tag == idCode) {
-          try {
-            reader.stream(new FileOutputStream(file));
-          } catch (IOException e) {
-            exception[0] = e;
-          }
-        }
+      public void handleValue(int tag, String name, TypeNG type, int count, Object value) {
       }
     });
 
     in.close();
-
-    if (exception[0] != null) {
-      throw exception[0];
-    }
   }
 }

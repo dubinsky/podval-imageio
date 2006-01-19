@@ -29,7 +29,7 @@ public class CiffReader extends Reader {
 
   protected void read() throws IOException {
     int heapLength = TypeNG.toInt(in.length() - headerLength);
-    foundHeap(headerLength, heapLength, 0, null);
+    readInitialHeap(headerLength, heapLength, 0, false);
   }
 
 
@@ -55,11 +55,6 @@ public class CiffReader extends Reader {
 
   protected int getEntryLength() {
     return 10;
-  }
-
-
-  protected boolean seekAfterHeap() {
-    return false;
   }
 
 
