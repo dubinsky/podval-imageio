@@ -132,49 +132,55 @@ public abstract class Reader {
   }
 
 
-  public final void readInitialHeap(int tag, boolean seekAfter)
+  public final boolean readInitialHeap(int tag, boolean seekAfter)
     throws IOException
   {
-    readInitialHeap(0, 0, tag, seekAfter);
+    return readInitialHeap(0, 0, tag, seekAfter);
   }
 
 
-  public final void readInitialHeap(long offset, int length, int tag, boolean seekAfter)
+  public final boolean readInitialHeap(long offset, int length, int tag, boolean seekAfter)
     throws IOException
   {
-    readHeap(offset, length, tag, metaMetaData.getInitialHeap(), seekAfter);
+    return readHeap(offset, length, tag, metaMetaData.getInitialHeap(), seekAfter);
   }
 
 
-  private void readHeap(long offset, int length, int tag, Heap heap, boolean seekAfter)
+  private boolean readHeap(long offset, int length, int tag, Heap heap, boolean seekAfter)
     throws IOException
   {
-    if (seekToHeap() && handler.startHeap(tag, heap.getName())) {
-      HeapInformation heapInformation = readHeapInformation(offset, length);
-      long entriesOffset = heapInformation.entriesOffset;
-      int numEntries = heapInformation.numEntries;
+    boolean result = seekToHeap();
 
-      for (int i = 0; i < numEntries; i++) {
-        seekToEntry(entriesOffset, i);
-        EntryInformation entryInformation = readEntryInformation(offset);
-        if (entryInformation != null) {
-          readEntry(
-            heap,
-            entryInformation.kind,
-            entryInformation.offset,
-            entryInformation.length,
-            entryInformation.tag,
-            entryInformation.type
-          );
+    if (result) {
+      if (handler.startHeap(tag, heap.getName())) {
+        HeapInformation heapInformation = readHeapInformation(offset, length);
+        long entriesOffset = heapInformation.entriesOffset;
+        int numEntries = heapInformation.numEntries;
+
+        for (int i = 0; i < numEntries; i++) {
+          seekToEntry(entriesOffset, i);
+          EntryInformation entryInformation = readEntryInformation(offset);
+          if (entryInformation != null) {
+            readEntry(
+              heap,
+              entryInformation.kind,
+              entryInformation.offset,
+              entryInformation.length,
+              entryInformation.tag,
+              entryInformation.type
+            );
+          }
         }
-      }
 
-      if (seekAfter) {
-        seekToEntry(entriesOffset, numEntries);
+        if (seekAfter) {
+          seekToEntry(entriesOffset, numEntries);
+        }
       }
 
       handler.endHeap();
     }
+
+    return result;
   }
 
 
@@ -288,8 +294,6 @@ public abstract class Reader {
   private void readRecord(long offset, int length, int tag, TypeNG type, RecordNG record)
     throws IOException
   {
-    this.offset = offset;
-
     int count = length / type.getLength();
     boolean treatAsFolder = ((count > 1) || (record.getCount() > 1) || record.isVector()) && !type.isVariableLength;
 
@@ -300,11 +304,11 @@ public abstract class Reader {
           TypeNG fieldType = field.getType();
           int fieldLength = fieldType.getLength();
           if (!record.isVector() || (index != 0)) {
-            handleRecord(index, fieldType, 1, field);
+            handleRecord(offset, index, fieldType, 1, field);
           } else {
             /** @todo check vector length */
           }
-          this.offset += fieldLength;
+          offset += fieldLength;
         }
       }
 
@@ -313,19 +317,19 @@ public abstract class Reader {
     } else {
       /* It is much simpler to just do seek right here, but if the data is not
        needed, the seek() would be wasted... */
-      handleRecord(tag, type, count, record);
+      handleRecord(offset, tag, type, count, record);
     }
   }
 
 
-  private void handleRecord(int tag, TypeNG type, int count, RecordNG record)
+  private void handleRecord(long offset, int tag, TypeNG type, int count, RecordNG record)
     throws IOException
   {
     Object action = handler.atValue(tag, record.getName(), type, count);
     if (action != null) {
       in.seek(offset);
       if (action instanceof OutputStream) {
-        stream((OutputStream) action);
+        stream((OutputStream) action, count);
       } else {
 
         Object value = null;
@@ -400,8 +404,7 @@ public abstract class Reader {
   }
 
 
-  /** @todo this belongs in a separate interface for value retrieval */
-  public void stream(OutputStream os) throws IOException {
+  public void stream(OutputStream os, int length) throws IOException {
     for (long i = 0; i < length; i++) {
       int b = in.read();
       os.write(b);
@@ -423,10 +426,4 @@ public abstract class Reader {
 
 
   private MetaMetaData metaMetaData;
-
-
-  private long offset;
-
-
-  private int length; /** @todo careful - this is kinda global... */
 }

@@ -28,15 +28,12 @@ public class ExifReader extends Reader {
 
 
   protected void read() throws IOException {
-    readInitialHeap(0, true);
-
-    /*
-     Since virtually all the tags (except 513 and 514) seem to be allowed
-     both in IFD0 and IFD1 (including EXIF and GPS IFDs),
-     the same directory descriptor can be used for IFD1 too.
-     */
-    /* If 0th ifd was skipped, the reader will not be properly positioned to read the 1st ifd!!! */
-    readInitialHeap(1, false);
+    // Since virtually all the tags (except 513 and 514) seem to be allowed
+    // both in IFD0 and IFD1 (including EXIF and GPS IFDs),
+    // the same directory descriptor can be used for IFD1 too.
+    if (readInitialHeap(0, true)) {
+      readInitialHeap(1, false);
+    }
   }
 
 
