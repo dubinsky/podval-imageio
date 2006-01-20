@@ -40,11 +40,11 @@ public class Test {
 
   private static MetaMetaData loadCiffMetaMetaData() throws Exception {
     MetaMetaData result = new MetaMetaData();
-    Loader.load("/home/dub/Projects/imageio/xml/ciff.xml", result);
-    Loader.load("/home/dub/Projects/imageio/xml/canon-ciff.xml", result);
-    Loader.load("/home/dub/Projects/imageio/xml/canon-maker-note.xml", result);
-    Loader.load("/home/dub/Projects/imageio/xml/canon-maker-note-1.xml", result);
-    Loader.load("/home/dub/Projects/imageio/xml/canon-maker-note-4.xml", result);
+//    Loader.load("/home/dub/Projects/imageio/xml/ciff.xml", result);
+//    Loader.load("/home/dub/Projects/imageio/xml/canon-ciff.xml", result);
+//    Loader.load("/home/dub/Projects/imageio/xml/canon-maker-note.xml", result);
+//    Loader.load("/home/dub/Projects/imageio/xml/canon-maker-note-1.xml", result);
+//    Loader.load("/home/dub/Projects/imageio/xml/canon-maker-note-4.xml", result);
     return result;
   }
 
@@ -52,11 +52,11 @@ public class Test {
   private static MetaMetaData loadExifMetaMetaData() throws Exception {
     MetaMetaData result = new MetaMetaData();
     result.setDefaultRecordType(TypeNG.U16);
-    Loader.load("/home/dub/Projects/imageio/xml/exif-root.xml", result);
     Loader.load("/home/dub/Projects/imageio/xml/exif.xml", result);
     Loader.load("/home/dub/Projects/imageio/xml/canon-maker-note.xml", result);
     Loader.load("/home/dub/Projects/imageio/xml/canon-maker-note-1.xml", result);
     Loader.load("/home/dub/Projects/imageio/xml/canon-maker-note-4.xml", result);
+    Loader.load("/home/dub/Projects/imageio/xml/exif-root.xml", result);
     return result;
   }
 

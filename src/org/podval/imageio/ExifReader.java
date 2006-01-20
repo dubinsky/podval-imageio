@@ -31,8 +31,9 @@ public class ExifReader extends Reader {
     // Since virtually all the tags (except 513 and 514) seem to be allowed
     // both in IFD0 and IFD1 (including EXIF and GPS IFDs),
     // the same directory descriptor can be used for IFD1 too.
-    if (readInitialHeap(0, true)) {
-      readInitialHeap(1, false);
+    String heapName = "org_podval_imageio_exif_1.0";
+    if (readInitialHeap(heapName, 0, true)) {
+      readInitialHeap(heapName, 1, false);
     }
   }
 
@@ -76,7 +77,7 @@ public class ExifReader extends Reader {
       offsetBase + in.readUnsignedInt() :
       in.getStreamPosition();
 
-    return new EntryInformation(EntryKind.UNKNOWN, offset, length, tag, type);
+    return new EntryInformation(Entry.Kind.UNKNOWN, offset, length, tag, type);
   }
 
 
@@ -89,13 +90,13 @@ public class ExifReader extends Reader {
     case  3: result = TypeNG.U16      ; break; // "short"
     case  4: result = TypeNG.U32      ; break; // "long"
     case  5: result = TypeNG.RATIONAL ; break; // "rational" (two longs)
-    //case  6: result = Type.S8       ; break;
+    case  6: result = TypeNG.S8       ; break;
     case  7: result = TypeNG.X8       ; break; // "undefined"
-    //case 8: result = Type.S16       ; break;
+    case  8: result = TypeNG.S16      ; break;
     case  9: result = TypeNG.S32      ; break; // "slong"
     case 10: result = TypeNG.SRATIONAL; break; // "srational"
-    //case 11: result = TypeNG.F32; break; // "single float"
-    //case 12: result = TypeNG.F64; break; // "double float"
+    case 11: result = TypeNG.F32      ; break; // "single float"
+    case 12: result = TypeNG.F64      ; break; // "double float"
 
     default:
       throw new IOException("Unknown data type " + code);

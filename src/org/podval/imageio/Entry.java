@@ -2,8 +2,13 @@
 
 package org.podval.imageio;
 
+import java.io.IOException;
 
-public class Entry {
+
+public abstract class Entry {
+
+  public enum Kind { HEAP, RECORD, UNKNOWN }
+
 
   protected Entry(String name, TypeNG type) {
 //    if (type == null) {
@@ -23,6 +28,10 @@ public class Entry {
   public final TypeNG getType() {
     return type;
   }
+
+
+  public abstract void read(Reader reader, long offset, int length, int tag, TypeNG type)
+    throws IOException;
 
 
   private final String name;

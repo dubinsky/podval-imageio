@@ -112,10 +112,10 @@
     <field name="primaryChromaticity2Channel3"/>
   </record>
 
-	<!-- Offset to JPEG SOI; not used for primary image. -->
+  <!-- Offset to JPEG SOI; not used for primary image. -->
   <record tag="513" name="jpegInterchangeFormat" type="U32" skip="true"/>
 
-	<!-- Bytes of JPEG data; not used for primary image. -->
+  <!-- Bytes of JPEG data; not used for primary image. -->
   <record tag="514" name="jpegInterchangeFormatLength" type="U32" skip="true"/>
 
   <!-- Color space transformation matrix coefficients RGB -> YCbCr. -->

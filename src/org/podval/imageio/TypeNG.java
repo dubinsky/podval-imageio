@@ -15,6 +15,12 @@ public enum TypeNG {
     }
   },
 
+  S8(1) {
+    public Object read(ImageInputStream in) throws IOException {
+      return in.readByte();
+    }
+  },
+
   X8(1, true) {  // structure
     public Object read(ImageInputStream in) throws IOException {
       return in.readUnsignedByte();
@@ -65,8 +71,13 @@ public enum TypeNG {
     }
   },
 
-  U16_OR_U32(0), /** @todo actual types */
+  F64(8) {
+    public Object read(ImageInputStream in) throws IOException {
+      return in.readDouble();
+    }
+  },
 
+  U16_OR_U32(0), /** @todo actual types */
 
   ONE(0),
 

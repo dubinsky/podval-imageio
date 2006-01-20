@@ -76,6 +76,16 @@ public abstract class Reader {
   }
 
 
+  public final ReaderHandler getHandler() {
+    return handler;
+  }
+
+
+  public final MetaMetaData getMetaMetaData() {
+    return metaMetaData;
+  }
+
+
   /**
    * Reads format-specific prolog.
    *
@@ -132,73 +142,17 @@ public abstract class Reader {
   }
 
 
-  public final boolean readInitialHeap(int tag, boolean seekAfter)
+  public final boolean readInitialHeap(String name, int tag, boolean seekAfter)
     throws IOException
   {
-    return readInitialHeap(0, 0, tag, seekAfter);
+    return readInitialHeap(name, 0, 0, tag, seekAfter);
   }
 
 
-  public final boolean readInitialHeap(long offset, int length, int tag, boolean seekAfter)
+  public final boolean readInitialHeap(String name, long offset, int length, int tag, boolean seekAfter)
     throws IOException
   {
-    return readHeap(offset, length, tag, metaMetaData.getInitialHeap(), seekAfter);
-  }
-
-
-  private boolean readHeap(long offset, int length, int tag, Heap heap, boolean seekAfter)
-    throws IOException
-  {
-    boolean result = seekToHeap();
-
-    if (result) {
-      if (handler.startHeap(tag, heap.getName())) {
-        HeapInformation heapInformation = readHeapInformation(offset, length);
-        long entriesOffset = heapInformation.entriesOffset;
-        int numEntries = heapInformation.numEntries;
-
-        for (int i = 0; i < numEntries; i++) {
-          seekToEntry(entriesOffset, i);
-          EntryInformation entryInformation = readEntryInformation(offset);
-          if (entryInformation != null) {
-            readEntry(
-              heap,
-              entryInformation.kind,
-              entryInformation.offset,
-              entryInformation.length,
-              entryInformation.tag,
-              entryInformation.type
-            );
-          }
-        }
-
-        if (seekAfter) {
-          seekToEntry(entriesOffset, numEntries);
-        }
-      }
-
-      handler.endHeap();
-    }
-
-    return result;
-  }
-
-
-  /**
-   *
-   */
-  protected static class HeapInformation {
-
-    public HeapInformation(long entriesOffset, int numEntries) {
-      this.entriesOffset = entriesOffset;
-      this.numEntries = numEntries;
-    }
-
-
-    public final long entriesOffset;
-
-
-    public final int numEntries;
+    return metaMetaData.getHeap(name, null).read(this, offset, length, tag, seekAfter);
   }
 
 
@@ -206,138 +160,43 @@ public abstract class Reader {
     throws IOException;
 
 
-
-  private void seekToEntry(long entriesOffset, int entryNumber)
-    throws IOException
-  {
-    in.seek(entriesOffset + getEntryLength()*entryNumber);
+  public final void seek(long offset) throws IOException {
+    in.seek(offset);
   }
 
 
   protected abstract int getEntryLength();
 
 
-
-  protected enum EntryKind { HEAP, RECORD, UNKNOWN }
-
-
-  /**
-   *
-   */
-  protected static class EntryInformation {
-
-    public EntryInformation(EntryKind kind, long offset, int length, int tag, TypeNG type) {
-      this.kind = kind;
-      this.offset = offset;
-      this.length = length;
-      this.tag = tag;
-      this.type = type;
-    }
-
-
-    public final EntryKind kind;
-
-
-    public final long offset;
-
-
-    public final int length;
-
-
-    public final int tag;
-
-
-    public final TypeNG type;
-  }
-
-
   protected abstract EntryInformation readEntryInformation(long offsetBase)
     throws IOException;
-
-
-
-  private void readEntry(Heap heap, EntryKind kind, long offset, int length, int tag, TypeNG type) throws IOException {
-    Entry entry = null;
-    switch (kind) {
-    case HEAP   : entry = metaMetaData.getHeap  (heap, tag, type); break;
-    case RECORD : entry = metaMetaData.getRecord(heap, tag, type); break;
-    case UNKNOWN: entry = metaMetaData.getEntry (heap, tag, type);
-      if (entry instanceof Heap) {
-        offset = 0;
-        length = 0;
-        kind = EntryKind.HEAP;
-      } else
-
-      if (entry instanceof RecordNG) {
-        kind = EntryKind.RECORD;
-      }
-
-      break;
-    }
-
-    switch (kind) {
-    case HEAP   : readHeap  (offset, length, tag,       (Heap)     entry, false); break;
-    case RECORD : readRecord(offset, length, tag, type, (RecordNG) entry       ); break;
-      /** @todo maker note... */
-//    if (entry == MakerNote.MARKER) {
-//      MakerNote makerNote = handler.getMakerNote();
-//      readIfdInPlace(makerNote.getDirectory(), in, offsetBase, handler);
-//    } else
-//      assert false : "Unknown IFD entry " + entry;
-    }
-  }
 
 
   protected abstract boolean seekToHeap() throws IOException;
 
 
-  private void readRecord(long offset, int length, int tag, TypeNG type, RecordNG record)
+  public final void handleRecord(long offset, int tag, TypeNG type, int count, RecordNG record)
     throws IOException
   {
-    int count = length / type.getLength();
-    boolean treatAsFolder = ((count > 1) || (record.getCount() > 1) || record.isVector()) && !type.isVariableLength;
-
-    if (treatAsFolder) {
-      if (handler.startRecord(tag, record.getName())) {
-        for (int index = 0; index < count; index++) {
-          RecordNG field = metaMetaData.getField(record, index);
-          TypeNG fieldType = field.getType();
-          int fieldLength = fieldType.getLength();
-          if (!record.isVector() || (index != 0)) {
-            handleRecord(offset, index, fieldType, 1, field);
-          } else {
-            /** @todo check vector length */
-          }
-          offset += fieldLength;
-        }
-      }
-
-      handler.endRecord();
-
-    } else {
-      /* It is much simpler to just do seek right here, but if the data is not
-       needed, the seek() would be wasted... */
-      handleRecord(offset, tag, type, count, record);
-    }
-  }
-
-
-  private void handleRecord(long offset, int tag, TypeNG type, int count, RecordNG record)
-    throws IOException
-  {
-    Object action = handler.atValue(tag, record.getName(), type, count);
-    if (action != null) {
+    ValueDisposition action = handler.atValue(tag, record.getName(), type, count);
+    if ((action != null) && (action != ValueDisposition.SKIP)) {
       in.seek(offset);
-      if (action instanceof OutputStream) {
-        stream((OutputStream) action, count);
+
+      if (action instanceof ValueDisposition.Stream) {
+        stream(((ValueDisposition.Stream) action).os, count);
+      } else
+
+      if (action == ValueDisposition.RAW) {
+        handler.handleRawValue(tag, record.getName(), type, count, in);
       } else {
 
         Object value = null;
-        if (action == Boolean.TRUE) {
+        if (action == ValueDisposition.VALUE) {
           value = readValue(type, count, record);
         } else
-        if (action instanceof Integer) {
-          value = readBytes(Math.min((Integer) action, count));
+
+        if (action instanceof ValueDisposition.Bytes) {
+          value = readBytes(Math.min(((ValueDisposition.Bytes) action).number, count));
         }
 
         handler.handleValue(tag, record.getName(), type, count, value);
@@ -347,7 +206,7 @@ public abstract class Reader {
 
 
   public Object readValue(TypeNG type, int count, RecordNG record) throws IOException {
-    /** @todo type/length/count sanity checks... */
+    /** @todo type/count sanity checks... */
     Object result = null;
 
     if (type == TypeNG.STRING) {

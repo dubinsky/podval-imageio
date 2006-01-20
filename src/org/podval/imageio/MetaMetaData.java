@@ -36,20 +36,8 @@ public final class MetaMetaData {
   }
 
 
-  public Heap getInitialHeap() {
-    if (initialHeap == null) {
-      initialHeap = new Heap("initialHeap", null);
-    }
-
-    return initialHeap;
-  }
-
-
   public void registerHeap(Heap heap) {
     name2heap.put(heap.getName(), heap);
-    if (initialHeap == null) {
-      initialHeap = heap;
-    }
   }
 
 
@@ -65,6 +53,27 @@ public final class MetaMetaData {
 
   public void registerRecord(RecordNG record) {
     name2record.put(record.getName(), record);
+  }
+
+
+  public Entry getEntry(Entry.Kind kind, Heap heap, int tag, TypeNG type)
+    throws IOException
+  {
+    Entry result = null;
+
+    switch (kind) {
+    case HEAP   : result = getHeap  (heap, tag, type); break;
+    case RECORD : result = getRecord(heap, tag, type); break;
+    case UNKNOWN: result = getEntry (heap, tag, type); break;
+      /** @todo maker note... */
+//    if (entry == MakerNote.MARKER) {
+//      MakerNote makerNote = handler.getMakerNote();
+//      readIfdInPlace(makerNote.getDirectory(), in, offsetBase, handler);
+//    } else
+//      assert false : "Unknown IFD entry " + entry;
+    }
+
+    return result;
   }
 
 
@@ -169,9 +178,6 @@ public final class MetaMetaData {
 
 
   private TypeNG defaultRecordType;
-
-
-  private Heap initialHeap;
 
 
   private final Map<String, Heap> name2heap = new HashMap<String, Heap>();

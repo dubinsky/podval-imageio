@@ -68,10 +68,10 @@ public class SaxDumpingHandler extends SaxDumper implements ReaderHandler {
   }
 
 
-  public Object atValue(int tag, String name, TypeNG type, int count)
+  public ValueDisposition atValue(int tag, String name, TypeNG type, int count)
     throws IOException
   {
-    return (count <= MAX_COUNT) ? Boolean.TRUE : MAX_COUNT;
+    return (count <= MAX_COUNT) ? ValueDisposition.VALUE : ValueDisposition.bytes(MAX_COUNT);
   }
 
 
@@ -99,6 +99,10 @@ public class SaxDumpingHandler extends SaxDumper implements ReaderHandler {
       contentHandler.endElement(null, null, "record");
     } catch (SAXException e) {
     }
+  }
+
+
+  public void handleRawValue(int tag, String name, TypeNG type, int count, ImageInputStream is) {
   }
 
 

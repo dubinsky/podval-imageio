@@ -10,7 +10,7 @@ public class ValueDisposition {
   public static final ValueDisposition SKIP = new ValueDisposition();
 
 
-  public static final ValueDisposition COOKED = new ValueDisposition();
+  public static final ValueDisposition VALUE = new ValueDisposition();
 
 
   public static final ValueDisposition RAW = new ValueDisposition();
@@ -52,7 +52,7 @@ public class ValueDisposition {
     }
 
 
-    private final int number;
+    public final int number;
   }
 
 

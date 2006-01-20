@@ -29,7 +29,7 @@ public class CiffReader extends Reader {
 
   protected void read() throws IOException {
     int heapLength = TypeNG.toInt(in.length() - headerLength);
-    readInitialHeap(headerLength, heapLength, 0, false);
+    readInitialHeap("org_podval_imageio_ciff_1.0", headerLength, heapLength, 0, false);
   }
 
 
@@ -99,7 +99,7 @@ public class CiffReader extends Reader {
 
     boolean isHeap = ((type == TypeNG.ONE) || (type == TypeNG.TWO));
 
-    EntryKind kind = (isHeap ? EntryKind.HEAP : EntryKind.RECORD);
+    Entry.Kind kind = (isHeap ? Entry.Kind.HEAP : Entry.Kind.RECORD);
 
     return new EntryInformation(kind, offset, length, idCode, type);
   }

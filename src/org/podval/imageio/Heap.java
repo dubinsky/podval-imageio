@@ -46,6 +46,63 @@ public class Heap extends Entry {
   }
 
 
+  public void read(Reader reader, long offset, int length, int tag, TypeNG type)
+    throws IOException
+  {
+    read(reader, offset, length, tag, false);
+  }
+
+
+  public boolean read(Reader reader, long offset, int length, int tag, boolean seekAfter)
+    throws IOException
+  {
+    boolean result = reader.seekToHeap();
+
+    if (result) {
+      if (reader.getHandler().startHeap(tag, getName())) {
+        HeapInformation heapInformation = reader.readHeapInformation(offset, length);
+        long entriesOffset = heapInformation.entriesOffset;
+        int numEntries = heapInformation.numEntries;
+
+        for (int i = 0; i < numEntries; i++) {
+          seekToEntry(reader, entriesOffset, i);
+          EntryInformation entryInformation = reader.readEntryInformation(offset);
+          if (entryInformation != null) {
+            reader.getMetaMetaData().getEntry(
+              entryInformation.kind,
+              this,
+              entryInformation.tag,
+              entryInformation.type
+            ).read(
+              reader,
+              entryInformation.offset,
+              entryInformation.length,
+              entryInformation.tag,
+              entryInformation.type
+            );
+          }
+        }
+
+        if (seekAfter) {
+          seekToEntry(reader, entriesOffset, numEntries);
+        }
+
+        reader.getHandler().endHeap();
+      }
+    }
+
+    return result;
+  }
+
+
+  private void seekToEntry(Reader reader, long entriesOffset, int entryNumber)
+    throws IOException
+  {
+    reader.seek(entriesOffset + reader.getEntryLength()*entryNumber);
+  }
+
+
+
   /**
    */
   private static class Key {

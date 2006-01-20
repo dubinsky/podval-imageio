@@ -30,8 +30,6 @@ public class CrwThumbnailExtractor {
   private static void extract(File original, final int idCode, final File file) throws IOException {
     ImageInputStream in = new FileImageInputStream(original);
 
-    final IOException[] exception = new IOException[1];
-
     new CiffReader().read(in, new ReaderHandler() {
 
       public boolean startHeap(int tag, String name) {
@@ -52,14 +50,20 @@ public class CrwThumbnailExtractor {
       }
 
 
-      public Object atValue(int tag, String name, TypeNG type, int count)
+      public ValueDisposition atValue(int tag, String name, TypeNG type, int count)
         throws FileNotFoundException
       {
-        return (tag == idCode) ? new FileOutputStream(file) : null;
+        return (tag == idCode) ?
+          ValueDisposition.stream(new FileOutputStream(file)) :
+          ValueDisposition.SKIP;
       }
 
 
       public void handleValue(int tag, String name, TypeNG type, int count, Object value) {
+      }
+
+
+      public void handleRawValue(int tag, String name, TypeNG type, int count, ImageInputStream is) {
       }
     });
 

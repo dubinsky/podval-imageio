@@ -4,6 +4,8 @@ package org.podval.imageio;
 
 import java.io.IOException;
 
+import javax.imageio.stream.ImageInputStream;
+
 
 public interface ReaderHandler {
 
@@ -28,12 +30,12 @@ public interface ReaderHandler {
   public void endRecord();
 
 
-  /**
-   * @return Object null, TRUE, Integer or OutputStream
-   */
-  public Object atValue(int tag, String name, TypeNG type, int count)
+  public ValueDisposition atValue(int tag, String name, TypeNG type, int count)
     throws IOException;
 
 
   public void handleValue(int tag, String name, TypeNG type, int count, Object value);
+
+
+  public void handleRawValue(int tag, String name, TypeNG type, int count, ImageInputStream is);
 }

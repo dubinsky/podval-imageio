@@ -4,6 +4,8 @@ package org.podval.imageio;
 
 import java.util.ArrayList;
 
+import java.io.IOException;
+
 
 public final class RecordNG extends Entry {
 
@@ -81,6 +83,37 @@ public final class RecordNG extends Entry {
 
   public Enumeration getEnumeration() {
     return enumeration;
+  }
+
+
+  public void read(Reader reader, long offset, int length, int tag, TypeNG type)
+    throws IOException
+  {
+    int count = length / type.getLength();
+    boolean treatAsFolder = ((count > 1) || (getCount() > 1) || isVector()) && !type.isVariableLength;
+
+    if (treatAsFolder) {
+      if (reader.getHandler().startRecord(tag, getName())) {
+        for (int index = 0; index < count; index++) {
+          RecordNG field = reader.getMetaMetaData().getField(this, index);
+          TypeNG fieldType = field.getType();
+          int fieldLength = fieldType.getLength();
+          if (!isVector() || (index != 0)) {
+            reader.handleRecord(offset, index, fieldType, 1, field);
+          } else {
+            /** @todo check vector length */
+          }
+          offset += fieldLength;
+        }
+      }
+
+      reader.getHandler().endRecord();
+
+    } else {
+      /* It is much simpler to just do seek right here, but if the data is not
+       needed, the seek() would be wasted... */
+      reader.handleRecord(offset, tag, type, count, this);
+    }
   }
 
 
