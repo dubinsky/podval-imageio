@@ -5,9 +5,14 @@ package org.podval.imageio;
 import org.xml.sax.helpers.AttributesImpl;
 import org.xml.sax.SAXException;
 
+import java.io.File;
+import java.io.OutputStream;
 import java.io.IOException;
 
 import javax.imageio.stream.ImageInputStream;
+
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactoryConfigurationError;
 
 
 public class SaxDumpingHandler extends SaxDumper implements ReaderHandler {
@@ -15,7 +20,18 @@ public class SaxDumpingHandler extends SaxDumper implements ReaderHandler {
   private static final int MAX_COUNT = 64;
 
 
-  public SaxDumpingHandler(Reader reader, ImageInputStream in, MetaMetaData metaMetaData) {
+  public static void dump(Reader reader, ImageInputStream in, MetaMetaData metaMetaData, OutputStream os)
+    throws
+    IOException,
+    TransformerFactoryConfigurationError,
+    TransformerException,
+    IllegalArgumentException
+  {
+    new SaxDumpingHandler(reader, in, metaMetaData).dump(os);
+  }
+
+
+  private SaxDumpingHandler(Reader reader, ImageInputStream in, MetaMetaData metaMetaData) {
     this.in = in;
     this.reader = reader;
     this.metaMetaData = metaMetaData;
@@ -68,10 +84,10 @@ public class SaxDumpingHandler extends SaxDumper implements ReaderHandler {
   }
 
 
-  public ValueDisposition atValue(int tag, String name, TypeNG type, int count)
+  public ValueAction atValue(int tag, String name, TypeNG type, int count)
     throws IOException
   {
-    return (count <= MAX_COUNT) ? ValueDisposition.VALUE : ValueDisposition.bytes(MAX_COUNT);
+    return (count <= MAX_COUNT) ? ValueAction.VALUE : ValueAction.RAW;
   }
 
 
@@ -102,7 +118,12 @@ public class SaxDumpingHandler extends SaxDumper implements ReaderHandler {
   }
 
 
-  public void handleRawValue(int tag, String name, TypeNG type, int count, ImageInputStream is) {
+  public void handleRawValue(int tag, String name, TypeNG type, int count, ImageInputStream is)
+    throws IOException
+  {
+    byte[] value = new byte[MAX_COUNT];
+    in.readFully(value);
+    handleValue(tag, name, type, count, value);
   }
 
 

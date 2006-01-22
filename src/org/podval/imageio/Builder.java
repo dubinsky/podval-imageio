@@ -16,8 +16,13 @@ public abstract class Builder {
   public abstract Builder startElement(String name, Attributes attributes) throws SAXException;
 
 
-  public final Builder getPrevious() {
+  public final Builder endElement() {
+    check();
     return previous;
+  }
+
+
+  protected void check() {
   }
 
 

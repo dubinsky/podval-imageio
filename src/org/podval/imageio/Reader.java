@@ -178,28 +178,14 @@ public abstract class Reader {
   public final void handleRecord(long offset, int tag, TypeNG type, int count, RecordNG record)
     throws IOException
   {
-    ValueDisposition action = handler.atValue(tag, record.getName(), type, count);
-    if ((action != null) && (action != ValueDisposition.SKIP)) {
+    ReaderHandler.ValueAction action = handler.atValue(tag, record.getName(), type, count);
+
+    if ((action != null) && (action != ReaderHandler.ValueAction.SKIP.SKIP)) {
       in.seek(offset);
 
-      if (action instanceof ValueDisposition.Stream) {
-        stream(((ValueDisposition.Stream) action).os, count);
-      } else
-
-      if (action == ValueDisposition.RAW) {
-        handler.handleRawValue(tag, record.getName(), type, count, in);
-      } else {
-
-        Object value = null;
-        if (action == ValueDisposition.VALUE) {
-          value = readValue(type, count, record);
-        } else
-
-        if (action instanceof ValueDisposition.Bytes) {
-          value = readBytes(Math.min(((ValueDisposition.Bytes) action).number, count));
-        }
-
-        handler.handleValue(tag, record.getName(), type, count, value);
+      switch (action) {
+      case RAW  : handler.handleRawValue(tag, record.getName(), type, count, in); break;
+      case VALUE: handler.handleValue(tag, record.getName(), type, count, readValue(type, count, record)); break;
       }
     }
   }
@@ -257,19 +243,9 @@ public abstract class Reader {
 
 
   private byte[] readBytes(int length) throws IOException {
-    byte[] result = new byte[(int) length]; /** @todo cast */
+    byte[] result = new byte[length];
     in.readFully(result);
     return result;
-  }
-
-
-  public void stream(OutputStream os, int length) throws IOException {
-    for (long i = 0; i < length; i++) {
-      int b = in.read();
-      os.write(b);
-    }
-
-    os.close();
   }
 
 

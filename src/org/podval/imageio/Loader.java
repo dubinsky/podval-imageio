@@ -10,16 +10,38 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import java.io.File;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.BufferedReader;
 import java.io.IOException;
+
+import java.util.Map;
+import java.util.HashMap;
 
 
 public final class Loader {
 
-  public static void load(String path, MetaMetaData metaMetaData)
+  public static MetaMetaData get(String name)
     throws ParserConfigurationException, SAXException, IOException
   {
-    new Loader(metaMetaData).load(path);
+    MetaMetaData result = name2data.get(name);
+    if (result == null) {
+      result = load(name + ".list");
+      name2data.put(name, result);
+    }
+    return result;
+  }
+
+
+  private static Map<String, MetaMetaData> name2data = new HashMap<String,MetaMetaData>();
+
+
+  public static MetaMetaData load(String resourceName)
+    throws ParserConfigurationException, SAXException, IOException
+  {
+    MetaMetaData result = new MetaMetaData();
+    new Loader(result).loadResource(resourceName);
+    return result;
   }
 
 
@@ -28,11 +50,48 @@ public final class Loader {
   }
 
 
-  private void load(String path) throws ParserConfigurationException,
+  private void loadResource(String resourceName)
+    throws ParserConfigurationException, SAXException, IOException
+  {
+    InputStream is = getClass().getClassLoader().getResourceAsStream(resourceName);
+    if (is == null) {
+      throw new IOException("Can't find resource " + resourceName);
+    }
+
+    if (resourceName.endsWith(".xml")) {
+      loadXml(is);
+
+    } else {
+      loadList(is);
+    }
+
+    is.close();
+  }
+
+
+  private void loadList(InputStream is) throws ParserConfigurationException,
+    SAXException, IOException
+  {
+    BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+    while (true) {
+      String line = reader.readLine();
+      if (line == null) {
+        break;
+      }
+      line = line.trim();
+      if ((line.length() > 0) && !line.startsWith("#")) {
+        loadResource(line);
+      }
+    }
+  }
+
+
+  private void loadXml(InputStream is) throws ParserConfigurationException,
     SAXException, IOException
   {
     SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
-    parser.parse(new File(path), new DefaultHandler() {
+
+    parser.parse(is, new DefaultHandler() {
 
       public void startDocument() throws SAXException {
         currentBuilder = new DocumentBuilder(metaMetaData);
@@ -53,8 +112,7 @@ public final class Loader {
       public void endElement(String uri, String localName, String qName)
         throws SAXException
       {
-        /** @todo currentBuilder.check() ? */
-        currentBuilder = currentBuilder.getPrevious();
+        currentBuilder = currentBuilder.endElement();
       }
     });
   }
