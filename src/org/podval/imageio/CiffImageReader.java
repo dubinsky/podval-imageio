@@ -59,19 +59,19 @@ public class CiffImageReader extends ImageReader {
     if ((thumbnailIndex < 0) || (thumbnailIndex > 1))
       throw new ArrayIndexOutOfBoundsException("Thumbnail index out of bounds: " + thumbnailIndex);
 
-    Metadata metadata = (Metadata) getImageMetadata(imageIndex);
-    Field.PointerValue pointer = null;
+    long offset = 0;
 
-    if (thumbnailIndex == 0)
-      pointer = (Field.PointerValue) metadata.find("jpegThumbnail");
-    else
-      pointer = (Field.PointerValue) metadata.find("bigJpegThumbnail");
+    /** @todo  */
+//    if (thumbnailIndex == 0)
+//      offset = ... "jpegThumbnail"
+//    else
+//      offset = ... "bigJpegThumbnail"
 
     BufferedImage result = null;
 
-    if (pointer != null) {
+    if (offset != 0) {
       ImageInputStream in = getInputStream();
-      in.seek(pointer.getOffset());
+      in.seek(offset);
 
       Iterator readers = ImageIO.getImageReaders(in);
       ImageReader reader = (readers.hasNext()) ? (ImageReader) readers.next() : null;
@@ -89,15 +89,14 @@ public class CiffImageReader extends ImageReader {
 
 
   public IIOMetadata getStreamMetadata() throws IOException {
-    readMetadata();
     return null;
   }
 
 
   public IIOMetadata getImageMetadata(int imageIndex) throws IOException {
     checkImageIndex(imageIndex);
-    readMetadata();
-    return metadata;
+    /** @todo  */
+    return null;
   }
 
 
@@ -109,23 +108,12 @@ public class CiffImageReader extends ImageReader {
 
 
   public int getHeight(int imageIndex) throws IOException {
-    return ((Metadata) getImageMetadata(imageIndex)).getIntValue("imageHeight");
+    return 0; /** @todo */ // "imageHeight"
   }
 
 
   public int getWidth(int imageIndex) throws IOException {
-    return ((Metadata) getImageMetadata(imageIndex)).getIntValue("imageWidth");
-  }
-
-
-  private void readMetadata() throws IOException {
-    if (metadata == null) {
-/////      DefaultMetadataHandler handler =
-/////        new DefaultMetadataHandler(NATIVE_FORMAT_NAME);
-      /** @todo !!! */
-//      CiffDecoder.read(getInputStream(), NATIVE_FORMAT_NAME, handler);
-/////      metadata = handler.getResult();
-    }
+    return 0; /** @todo */ // "imageWidth"
   }
 
 
@@ -143,7 +131,4 @@ public class CiffImageReader extends ImageReader {
     result.seek(0); /** @todo use marl/reset instead!!! */
     return result;
   }
-
-
-  private Metadata metadata;
 }

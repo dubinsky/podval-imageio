@@ -36,16 +36,11 @@ public final class MetaMetaData {
   }
 
 
-  public void registerHeap(Heap heap) {
-    name2heap.put(heap.getName(), heap);
-  }
-
-
   public Heap getHeap(String name, TypeNG type) {
     Heap result = name2heap.get(name);
     if (result == null) {
       result = new Heap(name, type);
-      registerHeap(result);
+      name2heap.put(name, result);
     }
     return result;
   }
