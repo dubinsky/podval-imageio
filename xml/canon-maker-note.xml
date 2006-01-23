@@ -2,27 +2,15 @@
 
 <meta-metadata>
 
-<record name="canon-maker-note-2" type="U16" count="4" skip="true"/>
-
-<record name="canon-maker-note-3-focalLength" type="U16" skip="true">
-  <field type="U16" name="typeOrScale"/>
-  <field type="U16" name="focalLengthInMillimeters"/>
-  <field type="U16" name="sensorXinMilliinches"/>
-  <field type="U16" name="sensorYinMilliInches"/>
-</record>
-
-<record name="canon-maker-note-13" type="U16" vector="true" count="20" skip="true"/>
-
-
 <makerNote make="Canon" name="canon-maker-note">
 
   <!-- XXXX: I see this twice, with different values (and count)! WTF? -->
   <record tag="0" name="canonMakerNote-0-justZeroes" type="U16" count="6"/>
 
-  <record tag="1" name="canon-maker-note-1"/>
-  <record tag="2" name="canon-maker-note-2"/>
-  <record tag="3" name="canon-maker-note-3-focalLength"/>
-  <record tag="4" name="canon-maker-note-4"/>
+  <record tag="1" name="canon-maker-note-1" type="U16"/>
+  <record tag="2" name="canon-maker-note-2" type="U16"/>
+  <record tag="3" name="canon-maker-note-3-focalLength" type="U16"/>
+  <record tag="4" name="canon-maker-note-4" type="U16"/>
 
   <record tag="6" name="imageType" type="string" count="32"/>
 
@@ -33,18 +21,29 @@
 
   <record tag="9" name="ownerName" type="string" count="32"/>
 
-  <record tag="10" name="canonMakerNote-10"/>
+  <record tag="10" name="canonMakerNote-10" type="U16"/>
 
   <record tag="12" name="cameraSerialNumber" type="U32"
     conversion="org.podval.imageio.Conversions.decodeCanonCameraSerialNumber"/>
 
-  <record tag="13" name="canon-maker-note-13"/>
+  <record tag="13" name="canon-maker-note-13" type="U16"/>
 
-  <record tag="15" name="customFunctions" vector="true"/>
+  <record tag="15" name="customFunctions" type="U16" vector="true"/>
 <!--
   <record tag="16" name="canonMakerNote-16"/>
 -->
 
 </makerNote>
+
+<record name="canon-maker-note-2" type="U16" count="4" skip="true"/>
+
+<record name="canon-maker-note-3-focalLength" type="U16" skip="true">
+  <field type="U16" name="typeOrScale"/>
+  <field type="U16" name="focalLengthInMillimeters"/>
+  <field type="U16" name="sensorXinMilliInches"/>
+  <field type="U16" name="sensorYinMilliInches"/>
+</record>
+
+<record name="canon-maker-note-13" type="U16" vector="true" count="20" skip="true"/>
 
 </meta-metadata>

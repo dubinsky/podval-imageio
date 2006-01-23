@@ -8,20 +8,20 @@
 
   <record tag="257" name="imageHeight" type="U16_or_U32"/>
 
-  <record tag="258" name="bitsPerSample" skip="true"> <!-- value 8 8 8 -->
+  <record tag="258" name="bitsPerSample" type="U16" skip="true"> <!-- value 8 8 8 -->
     <field name="bitsPerSampleChannel1"/>
     <field name="bitsPerSampleChannel2"/>
     <field name="bitsPerSampleChannel3"/>
   </record>
 
-  <record tag="259" name="compression" skip="true">
+  <record tag="259" name="compression" type="U16" skip="true">
     <enumeration>
       <item tag="1" value="Uncompressed"/>
       <item tag="6" value="JPEG compression"/>
     </enumeration>
   </record>
 
-  <record tag="262" name="photometricInterpretation" skip="true">
+  <record tag="262" name="photometricInterpretation" type="U16" skip="true">
     <enumeration>
       <!-- XXXX: <item tag="1" value="Monochrome"/>-->
       <item tag="2" value="RGB"/>
@@ -44,7 +44,7 @@
        I use objects that signify what transposition to apply to the
        image to bring it into normal position.
   -->
-  <record tag="274" name="orientation"> <!-- orientation -->
+  <record tag="274" name="orientation" type="U16"> <!-- orientation -->
     <enumeration enumClass="org.podval.imageio.Orientation">
       <item tag="1" value="TOP_LEFT"    />
       <item tag="2" value="TOP_RIGHT"   />
@@ -57,7 +57,7 @@
     </enumeration>
   </record>
 
-  <record tag="277" name="samplesPerPixel" skip="true"/> <!-- value 3 -->
+  <record tag="277" name="samplesPerPixel" type="U16" skip="true"/> <!-- value 3 -->
 
   <record tag="278" name="rowsPerStrip" type="U16_or_U32" skip="true"/>
 
@@ -68,7 +68,7 @@
 
   <record tag="283" name="yResolution" type="rational"/> <!-- default 72 dpi -->
 
-  <record tag="284" name="planarConfiguration" skip="true"> <!-- default 1 -->
+  <record tag="284" name="planarConfiguration" type="U16" skip="true"> <!-- default 1 -->
     <enumeration>
       <item tag="1" value="Chunky"/>
       <item tag="2" value="Planar"/>
@@ -76,7 +76,7 @@
   </record>
 
   <!-- see also exif/41488 -->
-  <record tag="296" name="resolutionUnit"> <!-- default 2 -->
+  <record tag="296" name="resolutionUnit" type="U16"> <!-- default 2 -->
     <enumeration>
       <!--<item tag="1" value="Undefined"/>-->
       <item tag="2" value="Inch"/>
@@ -86,7 +86,7 @@
 
 
   <!-- Not used; colorspace is used instead. -->
-  <record tag="301" name="transferFunction" count="768" skip="true"/> <!-- 3*256 -->
+  <record tag="301" name="transferFunction" type="U16" count="768" skip="true"/> <!-- 3*256 -->
 
   <record tag="305" name="software" type="string"/>  <!-- Missing in G2's .THM file. -->
 
@@ -121,7 +121,7 @@
   <!-- Color space transformation matrix coefficients RGB -> YCbCr. -->
   <record tag="529" name="YCbCrCoefficients" type="rational" count="3" skip="true"/>
 
-  <record tag="530" name="YCbCrSubSampling" skip="true">
+  <record tag="530" name="YCbCrSubSampling" type="U16" skip="true">
     <field name="YCbCrSubsampling1"/> <!-- value 2 -->
     <field name="YCbCrSubsampling">
       <enumeration>
@@ -131,7 +131,7 @@
     </field>
   </record>
 
-  <record tag="531" name="YCbCrPositioning" skip="true"> <!-- default 1 -->
+  <record tag="531" name="YCbCrPositioning" type="U16" skip="true"> <!-- default 1 -->
     <enumeration>
       <item tag="1" value="Centered"/>
       <item tag="2" value="Co-sited"/>

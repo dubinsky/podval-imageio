@@ -27,7 +27,7 @@ public class Heap extends Entry {
 
   public void addEntry(int tag, Entry entry) {
     if (entry.getType() == null) {
-//      throw new IllegalArgumentException("Attempt to add an entry " + entry.getName() + " without type");
+      throw new IllegalArgumentException("Attempt to add an entry " + this.getName() + "." + entry.getName() + " without type");
     }
 
     /** @todo add under all of the entry's types

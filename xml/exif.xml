@@ -8,7 +8,7 @@
 
   <record tag="33437" name="fNumber" type="rational"/>
 
-  <record tag="34850" name="exposureProgram"> <!-- G2 does not put this into .THM file. -->
+  <record tag="34850" name="exposureProgram" type="U16"> <!-- G2 does not put this into .THM file. -->
     <enumeration> <!-- Names from EXIF 2.2 specification are given in comments: -->
      <item tag="0" value="Undefined"/> <!-- Not definied -->
       <item tag="1" value="Manual"/>
@@ -26,7 +26,7 @@
   <record tag="34852" name="spectralSensitivity" type="string" skip="true"/>
 
   <!-- Indicates the ISO Speed and ISO Latitude of the camera or input device as specified in ISO 12232. -->
-  <record tag="34855" name="isoSpeedRatings"/> <!-- G2 does not put this into .THM file. -->
+  <record tag="34855" name="isoSpeedRatings" type="U16" count="2"/> <!-- G2 does not put this into .THM file. -->
   <!-- if (result<50) result *= 200 -->
 
   <!-- Indicates the Opto-Electric Conversion Function (OECF) specified in ISO 14524.
@@ -125,7 +125,7 @@
   <record tag="37382" name="subjectDistance" type="rational"/>
   <!-- When numerator is 0xFFFFFFFF, treat as infinity; when 0 - as unknown. -->
 
-  <record tag="37383" name="meteringMode">
+  <record tag="37383" name="meteringMode" type="U16">
     <enumeration>   <!-- default 0 -->
       <item tag="0" value="Unknown"/>
       <item tag="1" value="Average"/>
@@ -138,7 +138,7 @@
     </enumeration>
   </record>
 
-  <record tag="37384" name="lightSource"> <!-- G2 does not put this into .THM file. -->
+  <record tag="37384" name="lightSource" type="U16"> <!-- G2 does not put this into .THM file. -->
     <enumeration> <!-- default 0 -->
       <item tag="0" value="Unknown"/>
       <item tag="1" value="Daylight"/>
@@ -164,7 +164,7 @@
     </enumeration>
   </record>
 
-  <record tag="37385" name="flash"
+  <record tag="37385" name="flash" type="U16"
     conversion="org.podval.imageio.Conversions.decodeExifFlashStatus"/>
     <!-- XXXX: Format: eummrrf
       f: flsh fired: 0/1
@@ -212,7 +212,7 @@
   <record tag="40960" name="flashpixVersion" type="X8" count="4"
     conversion="org.podval.imageio.Conversions.extractStringFromBinary"/>
 
-  <record tag="40961" name="colorSpace">
+  <record tag="40961" name="colorSpace" type="U16">
     <enumeration>
       <item tag="1" value="sRGB"/>
       <item tag="65535" value="Uncalibrated"/> <!-- 0xFFFF -->
@@ -250,7 +250,7 @@
 
   <record tag="41487" name="focalPlaneYResolution" type="rational"/> <!-- Pixels per unit -->
 
-  <record tag="41488" name="focalPlaneResolutionUnit"> <!-- same value as resolutionUnit -->
+  <record tag="41488" name="focalPlaneResolutionUnit" type="U16"> <!-- same value as resolutionUnit -->
     <enumeration> <!-- XXXX: Only 2 and 3 are mentioned in EXIF specification -->
       <item tag="1" value="Inch"/> <!-- 25.4f -->
       <item tag="2" value="Inch"/> <!-- 25.4f -->
@@ -261,14 +261,14 @@
     </enumeration>
   </record>
 
-  <record tag="41492" name="subjectLocation" skip="true">
+  <record tag="41492" name="subjectLocation" type="U16" skip="true">
     <field name="subjectCenterX"/>
     <field name="subjectCenterY"/>
   </record>
 
   <record tag="41493" name="exposureIndex" type="rational"/>
 
-  <record tag="41495" name="sensingMethod" skip="true">
+  <record tag="41495" name="sensingMethod" type="U16" skip="true">
     <enumeration>
       <item tag="1" value="Unknown"/>
       <item tag="2" value="One-chip color area sensor"/>
@@ -308,14 +308,14 @@
   -->
   <record tag="41730" name="cfaPattern" type="X8"/>
 
-  <record tag="41985" name="customRendered" skip="true">
+  <record tag="41985" name="customRendered" type="U16" skip="true">
     <enumeration> <!-- default 0 -->
       <item tag="0" value="Normal process"/>
       <item tag="1" value="Custom process"/>
     </enumeration>
   </record>
 
-  <record tag="41986" name="exposureMode">
+  <record tag="41986" name="exposureMode" type="U16">
     <enumeration>
       <item tag="0" value="Auto"/>
       <item tag="1" value="Manual"/>
@@ -323,7 +323,7 @@
     </enumeration>
   </record>
 
-  <record tag="41987" name="whiteBalance">
+  <record tag="41987" name="whiteBalance" type="U16">
     <enumeration>
       <item tag="0" value="Auto"/>
       <item tag="1" value="Manual"/>
@@ -332,9 +332,9 @@
 
   <record tag="41988" name="digitalZoomRatio" type="rational"/>
 
-  <record tag="41989" name="focalLengthIn35mmFilm"/>
+  <record tag="41989" name="focalLengthIn35mmFilm" type="U16"/>
 
-  <record tag="41990" name="sceneCapturedType">
+  <record tag="41990" name="sceneCapturedType" type="U16">
     <enumeration>
       <item tag="0" value="Standard"/>
       <item tag="1" value="Landscape"/>
@@ -343,7 +343,7 @@
     </enumeration>
   </record>
 
-  <record tag="41991" name="gainControl">
+  <record tag="41991" name="gainControl" type="U16">
     <enumeration>
       <item tag="0" value="None"/>
       <item tag="1" value="Low gain up"/>
@@ -353,7 +353,7 @@
     </enumeration>
   </record>
 
-  <record tag="41992" name="contrast">
+  <record tag="41992" name="contrast" type="U16">
     <enumeration> <!-- Default 0 -->
       <item tag="0" value="Normal"/>
       <item tag="1" value="Soft"/>
@@ -361,7 +361,7 @@
     </enumeration>
   </record>
 
-  <record tag="41993" name="saturation">
+  <record tag="41993" name="saturation" type="U16">
     <enumeration> <!-- Default 0 -->
       <item tag="0" value="Normal"/>
       <item tag="1" value="Low"/>
@@ -369,7 +369,7 @@
     </enumeration>
   </record>
 
-  <record tag="41994" name="sharpness">
+  <record tag="41994" name="sharpness" type="U16">
     <enumeration> <!-- Default 0 -->
       <item tag="0" value="Normal"/>
       <item tag="1" value="Soft"/>
@@ -380,7 +380,7 @@
   <!-- XXXX -->
   <record tag="41995" name="deviceSettingConditions" type="X8"/>
 
-  <record tag="41996" name="subjectDistanceRange">
+  <record tag="41996" name="subjectDistanceRange" type="U16">
     <enumeration>
       <item tag="0" value="Unknown"/>
       <item tag="1" value="Macro"/>
