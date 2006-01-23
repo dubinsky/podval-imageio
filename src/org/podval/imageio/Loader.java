@@ -15,26 +15,8 @@ import java.io.InputStreamReader;
 import java.io.BufferedReader;
 import java.io.IOException;
 
-import java.util.Map;
-import java.util.HashMap;
-
 
 public final class Loader {
-
-  public static MetaMetaData get(String name)
-    throws ParserConfigurationException, SAXException, IOException
-  {
-    MetaMetaData result = name2data.get(name);
-    if (result == null) {
-      result = load(name + ".list");
-      name2data.put(name, result);
-    }
-    return result;
-  }
-
-
-  private static Map<String, MetaMetaData> name2data = new HashMap<String,MetaMetaData>();
-
 
   public static MetaMetaData load(String resourceName)
     throws ParserConfigurationException, SAXException, IOException

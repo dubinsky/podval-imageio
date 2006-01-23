@@ -32,32 +32,22 @@ public final class Cli {
     } else
 
     if (command.equals("thumbnails")) {
-      for (int i=1; i<args.length; i++) {
+      for (int i = 1; i<args.length; i++) {
         extractThumbnails(args[i]);
       }
     } else
 
-    if (command.equals("decomress")) {
-//      "width"         // imageProperties/canonRawProperties/sensor/width
-//      "height"        // imageProperties/canonRawProperties/sensor/height
-//      "decodeTable-1" // imageProperties/canonRawProperties/decodeTable/decodeTable-1 (table number: 0..2)
-//
-//      ImageInputStream in = new FileImageInputStream(file);
-//
-//      System.err.print("decompressing...");
-//      BufferedImage result = CrwDecompressor.decompress(in, decodeTableNumber, width, height);
-//
-//      System.err.print("bilinearily interpolating...");
-//      Demosaicker.bilinear(result.getRaster());
-//
-//      System.err.print("writing...");
-//      write(result, file, name, "tiff");
-//
-//      System.err.print("done!");
+    if (command.equals("decompress")) {
+      for (int i = 1; i<args.length; i++) {
+        String path = args[i];
+        if (path.endsWith(".crw")) {
+          decompress(path);
+        }
+      }
     } else
 
     if (command.equals("dump")) {
-      for (int i=1; i<args.length; i++) {
+      for (int i = 1; i<args.length; i++) {
         dump(args[i]);
       }
 
@@ -69,19 +59,10 @@ public final class Cli {
 
 
   private static void extractThumbnails(String path) throws IOException {
-    int dot = path.lastIndexOf(".");
-    String name;
-    String extension;
-    if (dot == -1) {
-      name = path;
-      extension = "";
-    } else {
-      name = path.substring(0, dot);
-      extension = path.substring(dot);
-    }
+    String name = getPathName(path);
 
     CrwThumbnailExtractor.extract(
-      new File(name + extension),
+      new File(name + getPathExtension(path)),
       new File(name + ".thumb.jpg"),
       new File(name + ".proof.jpg")
     );
@@ -96,9 +77,23 @@ public final class Cli {
     SaxDumpingHandler.dump(
       crw ? new CiffReader() : new ExifReader(),
       crw ? is : ExifStream.fromJpegStream(is),
-      Loader.get(crw ? "ciff" : "exif"),
+      MetaMetaData.get(crw ? "ciff" : "exif"),
       System.out
     );
+  }
+
+
+  private static void decompress(String path) throws IOException {
+    System.err.print("decompressing...");
+    BufferedImage result = CrwDecompressor.decompress(path);
+//
+//      System.err.print("bilinearily interpolating...");
+//      Demosaicker.bilinear(result.getRaster());
+//
+//      System.err.print("writing...");
+//      write(result, file, name, "tiff");
+
+    System.err.print("done!");
   }
 
 
@@ -116,6 +111,18 @@ public final class Cli {
 //    out.close();
 //    writer.dispose();
 //  }
+
+
+  private static String getPathName(String path) {
+    int dot = path.lastIndexOf(".");
+    return (dot == -1) ? path : path.substring(0, dot);
+  }
+
+
+  private static String getPathExtension(String path) {
+    int dot = path.lastIndexOf(".");
+    return (dot == -1) ? "" : path.substring(dot);
+  }
 
 
   private Cli() {

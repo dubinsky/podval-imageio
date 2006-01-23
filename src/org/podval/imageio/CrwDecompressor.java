@@ -1,9 +1,13 @@
+/* $Id$ */
+
 package org.podval.imageio;
 
+import java.io.File;
 import java.io.IOException;
 
 import javax.imageio.stream.ImageInputStream;
 import javax.imageio.stream.ImageOutputStream;
+import javax.imageio.stream.FileImageInputStream;
 
 import java.awt.Rectangle;
 
@@ -13,20 +17,22 @@ import java.awt.image.WritableRaster;
 import java.awt.color.ColorSpace;
 
 
+
 /**
  */
 public class CrwDecompressor {
 
-  public static BufferedImage decompress(
-    ImageInputStream in,
-    int decodeTableNumber,
-    int rawWidth,
-    int rawHeight
-  ) throws IOException
-  {
-    CrwDecompressor decompressor =
-      new CrwDecompressor(in, decodeTableNumber, rawWidth, rawHeight);
-    return decompressor.decompress();
+  public static BufferedImage decompress(String path) throws IOException {
+    ImageInputStream is = new FileImageInputStream(new File(path));
+
+    CrwInformationExtractor crwInformation = new CrwInformationExtractor(is);
+
+    return new CrwDecompressor(
+      is,
+      crwInformation.decodeTableNumber,
+      crwInformation.width,
+      crwInformation.height
+    ).decompress();
   }
 
 
@@ -70,6 +76,83 @@ public class CrwDecompressor {
   }
 
 
+
+//  void CLASS canon_compressed_load_raw()
+//  {
+//    ushort *pixel, *prow;
+//    int lowbits, i, row, r, col, save, val;
+//    unsigned irow, icol;
+//    struct decode *decode, *dindex;
+//    int block, diffbuf[64], leaf, len, diff, carry=0, pnum=0, base[2];
+//    uchar c;
+//
+//    pixel = calloc (raw_width*8, sizeof *pixel);
+//    merror (pixel, "canon_compressed_load_raw()");
+//    lowbits = canon_has_lowbits();
+//    if (!lowbits) maximum = 0x3ff;
+//    fseek (ifp, 540 + lowbits*raw_height*raw_width/4, SEEK_SET);
+//    zero_after_ff = 1;
+//    getbits(-1);
+//    for (row = 0; row < raw_height; row += 8) {
+//      for (block=0; block < raw_width >> 3; block++) {
+//        memset (diffbuf, 0, sizeof diffbuf);
+//        decode = first_decode;
+//        for (i=0; i < 64; i++ ) {
+//          for (dindex=decode; dindex->branch[0]; )
+//            dindex = dindex->branch[getbits(1)];
+//          leaf = dindex->leaf;
+//          decode = second_decode;
+//          if (leaf == 0 && i) break;
+//          if (leaf == 0xff) continue;
+//          i  += leaf >> 4;
+//          len = leaf & 15;
+//          if (len == 0) continue;
+//          diff = getbits(len);
+//          if ((diff & (1 << (len-1))) == 0)
+//            diff -= (1 << len) - 1;
+//          if (i < 64) diffbuf[i] = diff;
+//        }
+//        diffbuf[0] += carry;
+//        carry = diffbuf[0];
+//        for (i=0; i < 64; i++ ) {
+//          if (pnum++ % raw_width == 0)
+//            base[0] = base[1] = 512;
+//          pixel[(block << 6) + i] = ( base[i & 1] += diffbuf[i] );
+//        }
+//      }
+//      if (lowbits) {
+//        save = ftell(ifp);
+//        fseek (ifp, 26 + row*raw_width/4, SEEK_SET);
+//        for (prow=pixel, i=0; i < raw_width*2; i++) {
+//          c = fgetc(ifp);
+//          for (r=0; r < 8; r+=2, prow++) {
+//            val = (*prow << 2) + ((c >> r) & 3);
+//            if (raw_width == 2672 && val < 512) val += 2;
+//            *prow = val;
+//          }
+//        }
+//        fseek (ifp, save, SEEK_SET);
+//      }
+//      for (r=0; r < 8; r++) {
+//        irow = row - top_margin + r;
+//        if (irow >= height) continue;
+//        for (col = 0; col < raw_width; col++) {
+//          icol = col - left_margin;
+//          if (icol < width)
+//            BAYER(irow,icol) = pixel[r*raw_width+col];
+//          else
+//            black += pixel[r*raw_width+col];
+//        }
+//      }
+//    }
+//    free (pixel);
+//    if (raw_width > width)
+//      black /= (raw_width - width) * height;
+//  }
+
+
+
+
   private void decompressBlock() throws IOException {
     clearBlock();
     readBlock();
@@ -82,8 +165,9 @@ public class CrwDecompressor {
 
 
   private void clearBlock() {
-    for (int i = 0; i<BLOCK_LENGTH; i++)
+    for (int i = 0; i<BLOCK_LENGTH; i++) {
       block[i] = 0;
+    }
   }
 
 

@@ -42,4 +42,7 @@ public interface ReaderHandler {
 
   public void handleRawValue(int tag, String name, TypeNG type, int count, ImageInputStream is)
     throws IOException;
+
+
+  public String getMake();
 }

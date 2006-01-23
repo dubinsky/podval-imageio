@@ -10,7 +10,7 @@
 
   <record tag="34850" name="exposureProgram"> <!-- G2 does not put this into .THM file. -->
     <enumeration> <!-- Names from EXIF 2.2 specification are given in comments: -->
-      <item tag="0" value="Undefined"/> <!-- Not definied -->
+     <item tag="0" value="Undefined"/> <!-- Not definied -->
       <item tag="1" value="Manual"/>
       <item tag="2" value="Auto"/> <!-- Normal program -->
       <item tag="3" value="Aperture priority"/>

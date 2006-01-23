@@ -92,29 +92,10 @@ public class SaxDumpingHandler extends SaxDumper implements ReaderHandler {
 
 
   public void handleValue(int tag, String name, TypeNG type, int count, Object value) {
-    AttributesImpl attributes = new AttributesImpl();
-
-    addAttribute(attributes, "tag", Integer.toString(tag));
-
-    addNameAttribute(attributes, name);
-
-    addAttribute(attributes, "type", type.toString());
-
-    if (count != 1) {
-      addAttribute(attributes, "count", Integer.toString(count));
+    if ("make".equals(name) && (type == TypeNG.STRING)) {
+      make = (String) value;
     }
-
-    /** @todo vector... */
-
-    if (value != null) {
-      addAttribute(attributes, "value", valueToString(value));
-    }
-
-    try {
-      contentHandler.startElement(null, null, "record", attributes);
-      contentHandler.endElement(null, null, "record");
-    } catch (SAXException e) {
-    }
+    handleRecord(getAttributes(tag, name, type, count, value));
   }
 
 
@@ -122,8 +103,44 @@ public class SaxDumpingHandler extends SaxDumper implements ReaderHandler {
     throws IOException
   {
     byte[] value = new byte[MAX_COUNT];
+    long offset = is.getStreamPosition();
     in.readFully(value);
-    handleValue(tag, name, type, count, value);
+
+    AttributesImpl attributes = getAttributes(tag, name, type, count, value);
+    addAttribute(attributes, "offset", Long.toString(offset));
+    handleRecord(attributes);
+  }
+
+
+  private AttributesImpl getAttributes(int tag, String name, TypeNG type, int count, Object value) {
+    AttributesImpl result = new AttributesImpl();
+
+    addAttribute(result, "tag", Integer.toString(tag));
+
+    addNameAttribute(result, name);
+
+    addAttribute(result, "type", type.toString());
+
+    if (count != 1) {
+      addAttribute(result, "count", Integer.toString(count));
+    }
+
+    /** @todo vector... */
+
+    if (value != null) {
+      addAttribute(result, "value", valueToString(value));
+    }
+
+    return result;
+  }
+
+
+  private void handleRecord(AttributesImpl attributes) {
+    try {
+      contentHandler.startElement(null, null, "record", attributes);
+      contentHandler.endElement(null, null, "record");
+    } catch (SAXException e) {
+    }
   }
 
 
@@ -159,6 +176,12 @@ public class SaxDumpingHandler extends SaxDumper implements ReaderHandler {
   }
 
 
+  public String getMake() {
+//    return make;
+    return null;
+  }
+
+
   private static final String[] HEX = new String[] { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F" };
 
 
@@ -186,4 +209,7 @@ public class SaxDumpingHandler extends SaxDumper implements ReaderHandler {
 
 
   private final MetaMetaData metaMetaData;
+
+
+  private String make;
 }

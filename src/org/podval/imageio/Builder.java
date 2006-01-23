@@ -27,8 +27,10 @@ public abstract class Builder {
 
 
   protected final Heap getHeap(Attributes attributes) throws SAXException {
-    TypeNG type = getType(attributes, getMetaMetaData().getDefaultHeapType());
-    return getMetaMetaData().getHeap(getName(attributes), type);
+    return getMetaMetaData().getHeap(
+      getName(attributes),
+      getType(attributes)
+    );
   }
 
 
@@ -42,19 +44,11 @@ public abstract class Builder {
 
 
   protected final RecordNG getRecord(Attributes attributes) throws SAXException {
-    String name = getName(attributes);
-    RecordNG result = getMetaMetaData().getRecord(name);
-
-    if (result == null) {
-      TypeNG type = getType(attributes, getMetaMetaData().getDefaultRecordType());
-      result = new RecordNG(name, type);
-      getMetaMetaData().registerRecord(result);
-    } else {
-      /** @todo check that there are no spurious attributes */
-    }
-
+    RecordNG result = getMetaMetaData().getRecord(
+      getName(attributes),
+      getType(attributes)
+    );
     addAttributes(result, attributes);
-
     return result;
   }
 
@@ -63,7 +57,11 @@ public abstract class Builder {
     throws SAXException
   {
     String name = getName(attributes);
-    TypeNG type = getType(attributes, defaultType);
+    TypeNG type = getType(attributes);
+
+    if (type == null) {
+      type = defaultType;
+    }
 
     RecordNG result = new RecordNG(name, type);
 
@@ -135,16 +133,14 @@ public abstract class Builder {
   }
 
 
-  protected final TypeNG getType(Attributes attributes, TypeNG defaultType)
+  protected final TypeNG getType(Attributes attributes)
     throws SAXException
   {
-    TypeNG result;
+    TypeNG result =  null;
 
     String typeName = attributes.getValue("type");
 
-    if (typeName == null) {
-      result = defaultType;
-    } else {
+    if (typeName != null) {
       try {
         /** @todo check that typeName is in lower case */
         typeName = typeName.toUpperCase();

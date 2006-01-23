@@ -15,6 +15,11 @@ public class Heap extends Entry {
 //  }
 
 
+  public Heap(String name) {
+    super(name);
+  }
+
+
   public Heap(String name, TypeNG type) {
     super(name, type);
   }

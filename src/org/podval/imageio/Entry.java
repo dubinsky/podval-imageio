@@ -10,18 +10,30 @@ public abstract class Entry {
   public enum Kind { HEAP, RECORD, UNKNOWN }
 
 
-  protected Entry(String name, TypeNG type) {
-//    if (type == null) {
-//      throw new NullPointerException("null type for " + name);
-//    }
+  protected Entry(String name) {
+    this(name, null);
+  }
 
+
+  protected Entry(String name, TypeNG type) {
     this.name = name;
-    this.type = type;
+    setType(type);
   }
 
 
   public final String getName() {
     return name;
+  }
+
+
+  public final void setType(TypeNG value) {
+    if (value != null) {
+      if ((type != null) && (type != value)) {
+        throw new IllegalStateException("Attempt to change the type");
+      }
+
+      type = value;
+    }
   }
 
 
@@ -37,5 +49,5 @@ public abstract class Entry {
   private final String name;
 
 
-  private final TypeNG type;
+  private TypeNG type;
 }

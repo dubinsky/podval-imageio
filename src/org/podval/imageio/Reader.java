@@ -180,7 +180,7 @@ public abstract class Reader {
   {
     ReaderHandler.ValueAction action = handler.atValue(tag, record.getName(), type, count);
 
-    if ((action != null) && (action != ReaderHandler.ValueAction.SKIP.SKIP)) {
+    if ((action != null) && (action != ReaderHandler.ValueAction.SKIP)) {
       in.seek(offset);
 
       switch (action) {

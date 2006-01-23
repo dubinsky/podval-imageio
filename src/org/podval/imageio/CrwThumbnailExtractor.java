@@ -66,6 +66,11 @@ public class CrwThumbnailExtractor {
         File file = (tag == THUMB_TAG) ? thumb : proof;
         stream(is, new FileOutputStream(file), count);
       }
+
+
+      public String getMake() {
+        return null;
+      }
     });
 
     in.close();

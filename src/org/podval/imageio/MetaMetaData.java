@@ -7,73 +7,51 @@ import java.util.HashMap;
 
 import java.io.IOException;
 
+import org.xml.sax.SAXException;
 
-/** @todo where is the right place to load xml files? */
+import javax.xml.parsers.ParserConfigurationException;
+
 
 public final class MetaMetaData {
 
+  public static MetaMetaData get(String name)
+    throws ParserConfigurationException, SAXException, IOException
+  {
+    MetaMetaData result = name2data.get(name);
+    if (result == null) {
+      result = Loader.load(name + ".list");
+      name2data.put(name, result);
+    }
+    return result;
+  }
+
+
+  private static Map<String, MetaMetaData> name2data = new HashMap<String,MetaMetaData>();
+
+
   public MetaMetaData() {
-  }
-
-
-  public void setDefaultHeapType(TypeNG value) {
-    defaultHeapType = value;
-  }
-
-
-  public TypeNG getDefaultHeapType() {
-    return defaultHeapType;
-  }
-
-
-  public void setDefaultRecordType(TypeNG value) {
-    defaultRecordType = value;
-  }
-
-
-  public TypeNG getDefaultRecordType() {
-    return defaultRecordType;
   }
 
 
   public Heap getHeap(String name, TypeNG type) {
     Heap result = name2heap.get(name);
     if (result == null) {
-      result = new Heap(name, type);
+      result = new Heap(name);
       name2heap.put(name, result);
     }
+    result.setType(type);
     return result;
   }
 
 
-  public void registerRecord(RecordNG record) {
-    name2record.put(record.getName(), record);
-  }
-
-
-  public Entry getEntry(Entry.Kind kind, Heap heap, int tag, TypeNG type)
-    throws IOException
-  {
-    Entry result = null;
-
-    switch (kind) {
-    case HEAP   : result = getHeap  (heap, tag, type); break;
-    case RECORD : result = getRecord(heap, tag, type); break;
-    case UNKNOWN: result = getEntry (heap, tag, type); break;
-      /** @todo maker note... */
-//    if (entry == MakerNote.MARKER) {
-//      MakerNote makerNote = handler.getMakerNote();
-//      readIfdInPlace(makerNote.getDirectory(), in, offsetBase, handler);
-//    } else
-//      assert false : "Unknown IFD entry " + entry;
+  public RecordNG getRecord(String name, TypeNG type) {
+    RecordNG result = name2record.get(name);
+    if (result == null) {
+      result = new RecordNG(name);
+      name2record.put(name, result);
     }
-
+    result.setType(type);
     return result;
-  }
-
-
-  public RecordNG getRecord(String name) {
-    return name2record.get(name);
   }
 
 
@@ -85,53 +63,40 @@ public final class MetaMetaData {
   }
 
 
-  public Heap getHeap(Heap parent, int tag, TypeNG type) throws IOException {
-    Entry result = parent.getEntry(tag, type);
+  public MakerNote getMakerNote(String make) {
+    return make2note.get(make);
+  }
+
+
+  public Entry getEntry(Entry.Kind kind, Heap heap, int tag, TypeNG type)
+    throws IOException
+  {
+    Entry result = heap.getEntry(tag, type);
 
     if (result == null) {
-      result = new Heap(unknown(tag), type);
-      learn(parent, tag, result);
+      switch (kind) {
+      case HEAP   : result = new Heap(unknown(tag), type); break;
+      case RECORD : result = unknownRecord(tag, type); break;
+      case UNKNOWN:
+        boolean isRecordAllowed = true; /** @todo this depends on type... */
+        result = (isRecordAllowed) ?
+          unknownRecord(tag, type) :
+          new Heap(unknown(tag), type);
+        break;
+      }
+
+      learn(heap, tag, result);
     }
 
-    if ((result != null) &&!(result instanceof Heap)) {
+    if ((kind == Entry.Kind.HEAP) && (result != null) &&!(result instanceof Heap)) {
       throw new IOException("Not a heap: " + tag + "-" + type);
     }
 
-    return (Heap) result;
-  }
-
-
-  public Entry getEntry(Heap parent, int tag, TypeNG type) {
-    Entry result = parent.getEntry(tag, type);
-
-    if (result == null) {
-      boolean isRecordAllowed = true; /** @todo this depends on type... */
-      result = (isRecordAllowed) ?
-        unknownRecord(tag, type) :
-        new Heap(unknown(tag), type);
-
-      learn(parent, tag, result);
-    }
-
-    return result;
-  }
-
-
-  public RecordNG getRecord(Heap parent, int tag, TypeNG type)
-    throws IOException
-  {
-    Entry result = parent.getEntry(tag, type);
-
-    if (result == null) {
-      result = unknownRecord(tag, type);
-      learn(parent, tag, result);
-    }
-
-    if ((result != null) && !(result instanceof RecordNG)) {
+    if ((kind == Entry.Kind.RECORD) && (result != null) && !(result instanceof RecordNG)) {
       throw new IOException("Not a record: " + tag + "-" + type);
     }
 
-    return (result instanceof RecordNG) ? (RecordNG) result : null;
+    return result;
   }
 
 
@@ -169,17 +134,11 @@ public final class MetaMetaData {
   }
 
 
-  private TypeNG defaultHeapType;
-
-
-  private TypeNG defaultRecordType;
-
-
   private final Map<String, Heap> name2heap = new HashMap<String, Heap>();
 
 
   private final Map<String, RecordNG> name2record = new HashMap<String, RecordNG>();
 
 
-  private final Map<String, Heap> make2note = new HashMap<String, Heap>();
+  private final Map<String, MakerNote> make2note = new HashMap<String, MakerNote>();
 }

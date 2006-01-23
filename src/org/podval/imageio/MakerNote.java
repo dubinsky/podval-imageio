@@ -2,6 +2,8 @@
 
 package org.podval.imageio;
 
+import java.io.IOException;
+
 
 public class MakerNote extends Heap {
 
@@ -9,6 +11,14 @@ public class MakerNote extends Heap {
     super(name, null);
     this.maker = maker;
     this.signature = signature;
+  }
+
+
+  public void read(Reader reader, long offset, int length, int tag, TypeNG type)
+    throws IOException
+  {
+    /** @todo read signature */
+    read(reader, offset, length, tag, false);
   }
 
 
