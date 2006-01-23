@@ -17,8 +17,9 @@ public class MakerNote extends Heap {
   public void read(Reader reader, long offset, int length, int tag, TypeNG type)
     throws IOException
   {
+    reader.seek(offset);
     /** @todo read signature */
-    read(reader, offset, length, tag, false);
+    readInPlace(reader, offset, length, tag, false);
   }
 
 

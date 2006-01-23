@@ -29,7 +29,7 @@ public class MakerNoteMarker extends Entry {
       makerNote = new MakerNote("unknown-maker-note", "unknown", null);
     }
 
-//    makerNote.read(reader, offset, length, tag, type);
+    makerNote.read(reader, offset, length, tag, type);
 //    new RecordNG("unknown-maker-note", type).read(reader, offset, length, tag, type);
   }
 }

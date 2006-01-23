@@ -177,8 +177,8 @@ public class SaxDumpingHandler extends SaxDumper implements ReaderHandler {
 
 
   public String getMake() {
-//    return make;
-    return null;
+    return make;
+//    return null;
   }
 
 

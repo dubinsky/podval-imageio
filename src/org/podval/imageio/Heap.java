@@ -26,6 +26,10 @@ public class Heap extends Entry {
 
 
   public void addEntry(int tag, Entry entry) {
+    if (entry.getType() == null) {
+//      throw new IllegalArgumentException("Attempt to add an entry " + entry.getName() + " without type");
+    }
+
     /** @todo add under all of the entry's types
          for (Iterator i = entry.getType().getActualTypes().iterator(); i.hasNext();)
            addEntry(tag, (Type) i.next(), entry);
@@ -64,39 +68,46 @@ public class Heap extends Entry {
     boolean result = reader.seekToHeap();
 
     if (result) {
-      if (reader.getHandler().startHeap(tag, getName())) {
-        HeapInformation heapInformation = reader.readHeapInformation(offset, length);
-        long entriesOffset = heapInformation.entriesOffset;
-        int numEntries = heapInformation.numEntries;
-
-        for (int i = 0; i < numEntries; i++) {
-          seekToEntry(reader, entriesOffset, i);
-          EntryInformation entryInformation = reader.readEntryInformation(offset);
-          if (entryInformation != null) {
-            reader.getMetaMetaData().getEntry(
-              entryInformation.kind,
-              this,
-              entryInformation.tag,
-              entryInformation.type
-            ).read(
-              reader,
-              entryInformation.offset,
-              entryInformation.length,
-              entryInformation.tag,
-              entryInformation.type
-            );
-          }
-        }
-
-        if (seekAfter) {
-          seekToEntry(reader, entriesOffset, numEntries);
-        }
-
-        reader.getHandler().endHeap();
-      }
+      readInPlace(reader, offset, length, tag, seekAfter);
     }
 
     return result;
+  }
+
+
+  protected void readInPlace(Reader reader, long offset, int length, int tag, boolean seekAfter)
+    throws IOException
+  {
+    if (reader.getHandler().startHeap(tag, getName())) {
+      HeapInformation heapInformation = reader.readHeapInformation(offset, length);
+      long entriesOffset = heapInformation.entriesOffset;
+      int numEntries = heapInformation.numEntries;
+
+      for (int i = 0; i < numEntries; i++) {
+        seekToEntry(reader, entriesOffset, i);
+        EntryInformation entryInformation = reader.readEntryInformation(offset);
+        if (entryInformation != null) {
+          reader.getMetaMetaData().getEntry(
+            entryInformation.kind,
+            this,
+            entryInformation.tag,
+            entryInformation.type
+          ).read(
+            reader,
+            entryInformation.offset,
+            entryInformation.length,
+            entryInformation.tag,
+            entryInformation.type
+          );
+        }
+      }
+
+      if (seekAfter) {
+        seekToEntry(reader, entriesOffset, numEntries);
+      }
+
+      reader.getHandler().endHeap();
+    }
   }
 
 
