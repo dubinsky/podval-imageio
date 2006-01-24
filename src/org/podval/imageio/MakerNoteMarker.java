@@ -7,7 +7,7 @@ import java.io.IOException;
 
 public class MakerNoteMarker extends Entry {
 
-  public MakerNoteMarker(TypeNG type) {
+  public MakerNoteMarker(Type type) {
     /** @todo we do not really need a name here... */
     /** @todo we do not really need a type here either!!! */
     super("makerNoteMarker", type);
@@ -19,7 +19,7 @@ public class MakerNoteMarker extends Entry {
   }
 
 
-  public void read(Reader reader, long offset, int length, int tag, TypeNG type)
+  public void read(Reader reader, long offset, int length, int tag, Type type)
     throws IOException
   {
     MakerNote makerNote = null;
@@ -36,5 +36,10 @@ public class MakerNoteMarker extends Entry {
 
     makerNote.read(reader, offset, length, tag, type);
 //    new RecordNG("unknown-maker-note", type).read(reader, offset, length, tag, type);
+  }
+
+
+  protected String getKind() {
+    return "MakerNoteMarker";
   }
 }

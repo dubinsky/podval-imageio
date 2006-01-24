@@ -69,7 +69,7 @@ public class ExifReader extends Reader {
     offsetBase = this.offsetBase;
 
     int tag = in.readUnsignedShort();
-    TypeNG type = decodeType(in.readUnsignedShort());
+    Type type = decodeType(in.readUnsignedShort());
     int count = readUnsignedInt();
     int length = count * type.getLength();
 
@@ -81,22 +81,22 @@ public class ExifReader extends Reader {
   }
 
 
-  private static TypeNG decodeType(int code) throws IOException {
-    TypeNG result;
+  private static Type decodeType(int code) throws IOException {
+    Type result;
 
     switch (code) {
-    case  1: result = TypeNG.U8       ; break; // "byte"
-    case  2: result = TypeNG.STRING   ; break; // "ASCII string"
-    case  3: result = TypeNG.U16      ; break; // "short"
-    case  4: result = TypeNG.U32      ; break; // "long"
-    case  5: result = TypeNG.RATIONAL ; break; // "rational" (two longs)
-    case  6: result = TypeNG.S8       ; break;
-    case  7: result = TypeNG.X8       ; break; // "undefined"
-    case  8: result = TypeNG.S16      ; break;
-    case  9: result = TypeNG.S32      ; break; // "slong"
-    case 10: result = TypeNG.SRATIONAL; break; // "srational"
-    case 11: result = TypeNG.F32      ; break; // "single float"
-    case 12: result = TypeNG.F64      ; break; // "double float"
+    case  1: result = Type.U8       ; break; // "byte"
+    case  2: result = Type.STRING   ; break; // "ASCII string"
+    case  3: result = Type.U16      ; break; // "short"
+    case  4: result = Type.U32      ; break; // "long"
+    case  5: result = Type.RATIONAL ; break; // "rational" (two longs)
+    case  6: result = Type.S8       ; break;
+    case  7: result = Type.X8       ; break; // "undefined"
+    case  8: result = Type.S16      ; break;
+    case  9: result = Type.S32      ; break; // "slong"
+    case 10: result = Type.SRATIONAL; break; // "srational"
+    case 11: result = Type.F32      ; break; // "single float"
+    case 12: result = Type.F64      ; break; // "double float"
 
     default:
       throw new IOException("Unknown data type " + code);

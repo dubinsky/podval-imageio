@@ -10,17 +10,12 @@ import java.io.IOException;
 
 public class Heap extends Entry {
 
-//  public Heap() {
-//    super(null);
-//  }
-
-
   public Heap(String name) {
     super(name);
   }
 
 
-  public Heap(String name, TypeNG type) {
+  public Heap(String name, Type type) {
     super(name, type);
   }
 
@@ -43,7 +38,7 @@ public class Heap extends Entry {
   }
 
 
-  private void addEntry(int tag, TypeNG type, Entry entry) {
+  private void addEntry(int tag, Type type, Entry entry) {
     Key key = new Key(tag, type);
 
     Entry oldEntry = entries.get(key);
@@ -55,19 +50,19 @@ public class Heap extends Entry {
   }
 
 
-  public Entry getEntry(int tag, TypeNG type) {
+  public final Entry getEntry(int tag, Type type) {
     return entries.get(new Key(tag, type));
   }
 
 
-  public void read(Reader reader, long offset, int length, int tag, TypeNG type)
+  public void read(Reader reader, long offset, int length, int tag, Type type)
     throws IOException
   {
     read(reader, offset, length, tag, false);
   }
 
 
-  public boolean read(Reader reader, long offset, int length, int tag, boolean seekAfter)
+  public final boolean read(Reader reader, long offset, int length, int tag, boolean seekAfter)
     throws IOException
   {
     boolean result = reader.seekToHeap();
@@ -80,7 +75,7 @@ public class Heap extends Entry {
   }
 
 
-  protected void readInPlace(Reader reader, long offset, int length, int tag, boolean seekAfter)
+  protected final void readInPlace(Reader reader, long offset, int length, int tag, boolean seekAfter)
     throws IOException
   {
     if (reader.getHandler().startHeap(tag, getName())) {
@@ -123,12 +118,17 @@ public class Heap extends Entry {
   }
 
 
+  protected String getKind() {
+    return "Heap";
+  }
+
+
 
   /**
    */
   private static class Key {
 
-    public Key(int tag, TypeNG type) {
+    public Key(int tag, Type type) {
       this.tag = tag;
       this.type = type;
     }
@@ -157,7 +157,7 @@ public class Heap extends Entry {
     private final int tag;
 
 
-    private final TypeNG type;
+    private final Type type;
   }
 
 

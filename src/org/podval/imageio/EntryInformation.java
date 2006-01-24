@@ -5,7 +5,7 @@ package org.podval.imageio;
 
 public class EntryInformation {
 
-  public EntryInformation(Entry.Kind kind, long offset, int length, int tag, TypeNG type) {
+  public EntryInformation(Entry.Kind kind, long offset, int length, int tag, Type type) {
     this.kind = kind;
     this.offset = offset;
     this.length = length;
@@ -26,5 +26,5 @@ public class EntryInformation {
   public final int tag;
 
 
-  public final TypeNG type;
+  public final Type type;
 }

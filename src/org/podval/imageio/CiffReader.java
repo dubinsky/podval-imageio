@@ -28,7 +28,7 @@ public class CiffReader extends Reader {
 
 
   protected void read() throws IOException {
-    int heapLength = TypeNG.toInt(in.length() - headerLength);
+    int heapLength = Type.toInt(in.length() - headerLength);
     readInitialHeap("org_podval_imageio_ciff_1.0", headerLength, heapLength, 0, false);
   }
 
@@ -95,9 +95,9 @@ public class CiffReader extends Reader {
       offset = in.getStreamPosition();
     }
 
-    TypeNG type = decodeType(dataType);
+    Type type = decodeType(dataType);
 
-    boolean isHeap = ((type == TypeNG.ONE) || (type == TypeNG.TWO));
+    boolean isHeap = ((type == Type.ONE) || (type == Type.TWO));
 
     Entry.Kind kind = (isHeap ? Entry.Kind.HEAP : Entry.Kind.RECORD);
 
@@ -105,17 +105,17 @@ public class CiffReader extends Reader {
   }
 
 
-  private static TypeNG decodeType(int dataType) throws IOException {
-    TypeNG result;
+  private static Type decodeType(int dataType) throws IOException {
+    Type result;
 
     switch (dataType) {
-    case 0: result = TypeNG.U8    ; break;
-    case 1: result = TypeNG.STRING; break;
-    case 2: result = TypeNG.U16   ; break;
-    case 3: result = TypeNG.U32   ; break;
-    case 4: result = TypeNG.X8    ; break;
-    case 5: result = TypeNG.ONE   ; break;
-    case 6: result = TypeNG.TWO   ; break;
+    case 0: result = Type.U8    ; break;
+    case 1: result = Type.STRING; break;
+    case 2: result = Type.U16   ; break;
+    case 3: result = Type.U32   ; break;
+    case 4: result = Type.X8    ; break;
+    case 5: result = Type.ONE   ; break;
+    case 6: result = Type.TWO   ; break;
     default:
       throw new IOException("Unknown data type.");
     }

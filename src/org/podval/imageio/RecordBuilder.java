@@ -8,7 +8,7 @@ import org.xml.sax.Attributes;
 
 public class RecordBuilder extends Builder {
 
-  public RecordBuilder(Builder previous, RecordNG record) {
+  public RecordBuilder(Builder previous, Record record) {
     super(previous);
     this.record = record;
   }
@@ -20,7 +20,7 @@ public class RecordBuilder extends Builder {
     Builder result = null;
 
     if ("field".equals(name)) {
-      RecordNG field = getField(attributes, record.getType());
+      Record field = getField(attributes, record.getType());
       /** @todo count and indexes are allowed only for the top-most fields */
       /** @todo there can not be one subfield in a field */
       if (attributes.getValue("index") != null) {
@@ -46,7 +46,7 @@ public class RecordBuilder extends Builder {
   }
 
 
-  private final RecordNG record;
+  private final Record record;
 
 
   private int index;

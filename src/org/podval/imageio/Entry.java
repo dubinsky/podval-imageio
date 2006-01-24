@@ -15,7 +15,7 @@ public abstract class Entry {
   }
 
 
-  protected Entry(String name, TypeNG type) {
+  protected Entry(String name, Type type) {
     this.name = name;
     setType(type);
   }
@@ -26,22 +26,22 @@ public abstract class Entry {
   }
 
 
-  public final void setType(TypeNG value) {
+  public final void setType(Type value) {
     if (value != null) {
       if ((type != null) && (type != value)) {
         throw new IllegalStateException("Attempt to change the type");
       }
 
+      type = value;
+
       if (!checkType()) {
         throw new IllegalArgumentException("Wrong type: " + this);
       }
-
-      type = value;
     }
   }
 
 
-  public final TypeNG getType() {
+  public final Type getType() {
     return type;
   }
 
@@ -49,12 +49,20 @@ public abstract class Entry {
   protected abstract boolean checkType();
 
 
-  public abstract void read(Reader reader, long offset, int length, int tag, TypeNG type)
+  public abstract void read(Reader reader, long offset, int length, int tag, Type type)
     throws IOException;
+
+
+  public final String toString() {
+    return getKind() + " " + getName() + "::" + getType();
+  }
+
+
+  protected abstract String getKind();
 
 
   private final String name;
 
 
-  private TypeNG type;
+  private Type type;
 }

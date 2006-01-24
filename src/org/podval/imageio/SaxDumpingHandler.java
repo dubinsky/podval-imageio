@@ -84,15 +84,15 @@ public class SaxDumpingHandler extends SaxDumper implements ReaderHandler {
   }
 
 
-  public ValueAction atValue(int tag, String name, TypeNG type, int count)
+  public ValueAction atValue(int tag, String name, Type type, int count)
     throws IOException
   {
     return (count <= MAX_COUNT) ? ValueAction.VALUE : ValueAction.RAW;
   }
 
 
-  public void handleValue(int tag, String name, TypeNG type, int count, Object value) {
-    if ("make".equals(name) && (type == TypeNG.STRING)) {
+  public void handleValue(int tag, String name, Type type, int count, Object value) {
+    if ("make".equals(name) && (type == Type.STRING)) {
       make = (String) value;
     }
 
@@ -100,7 +100,7 @@ public class SaxDumpingHandler extends SaxDumper implements ReaderHandler {
   }
 
 
-  public void handleRawValue(int tag, String name, TypeNG type, int count, ImageInputStream is)
+  public void handleRawValue(int tag, String name, Type type, int count, ImageInputStream is)
     throws IOException
   {
     byte[] value = new byte[MAX_COUNT];
@@ -110,7 +110,7 @@ public class SaxDumpingHandler extends SaxDumper implements ReaderHandler {
   }
 
 
-  private void handleRecord(int tag, String name, TypeNG type, int count, Object value) {
+  private void handleRecord(int tag, String name, Type type, int count, Object value) {
     AttributesImpl attributes = new AttributesImpl();
 
     addAttribute(attributes, "tag", Integer.toString(tag));

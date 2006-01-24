@@ -175,7 +175,7 @@ public abstract class Reader {
   protected abstract boolean seekToHeap() throws IOException;
 
 
-  public final void handleRecord(long offset, int tag, TypeNG type, int count, RecordNG record)
+  public final void handleRecord(long offset, int tag, Type type, int count, Record record)
     throws IOException
   {
     ReaderHandler.ValueAction action = handler.atValue(tag, record.getName(), type, count);
@@ -191,11 +191,11 @@ public abstract class Reader {
   }
 
 
-  public Object readValue(TypeNG type, int count, RecordNG record) throws IOException {
+  public Object readValue(Type type, int count, Record record) throws IOException {
     /** @todo type/count sanity checks... */
     Object result = null;
 
-    if (type == TypeNG.STRING) {
+    if (type == Type.STRING) {
       result = readString(count);
     } else {
       if (count == 1) {
@@ -207,7 +207,7 @@ public abstract class Reader {
           }
         }
       } else {
-        if ((type == TypeNG.U8) || (type == TypeNG.X8)) {
+        if ((type == Type.U8) || (type == Type.X8)) {
           result = readBytes(count);
         } else {
           Object[] objects = new Object[count];
@@ -250,7 +250,7 @@ public abstract class Reader {
 
 
   protected int readUnsignedInt() throws IOException {
-    return TypeNG.readUnsignedInt(in);
+    return Type.readUnsignedInt(in);
   }
 
 

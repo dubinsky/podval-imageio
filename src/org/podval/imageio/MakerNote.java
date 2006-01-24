@@ -14,7 +14,7 @@ public class MakerNote extends Heap {
   }
 
 
-  public void read(Reader reader, long offset, int length, int tag, TypeNG type)
+  public void read(Reader reader, long offset, int length, int tag, Type type)
     throws IOException
   {
     reader.seek(offset);

@@ -28,7 +28,7 @@ public class HeapBuilder extends Builder {
     } else
 
     if ("record".equals(name)) {
-      RecordNG record = getRecord(attributes);
+      Record record = getRecord(attributes);
       entry = record;
       result = new RecordBuilder(this, record);
     } else

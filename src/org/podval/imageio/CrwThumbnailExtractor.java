@@ -45,7 +45,7 @@ public class CrwThumbnailExtractor {
       }
 
 
-      public ValueAction atValue(int tag, String name, TypeNG type, int count)
+      public ValueAction atValue(int tag, String name, Type type, int count)
         throws FileNotFoundException
       {
         boolean stream =
@@ -56,11 +56,11 @@ public class CrwThumbnailExtractor {
       }
 
 
-      public void handleValue(int tag, String name, TypeNG type, int count, Object value) {
+      public void handleValue(int tag, String name, Type type, int count, Object value) {
       }
 
 
-      public void handleRawValue(int tag, String name, TypeNG type, int count, ImageInputStream is)
+      public void handleRawValue(int tag, String name, Type type, int count, ImageInputStream is)
         throws IOException
       {
         File file = (tag == THUMB_TAG) ? thumb : proof;

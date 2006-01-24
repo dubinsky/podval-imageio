@@ -9,9 +9,10 @@ import java.io.IOException;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Arrays;
+import java.util.Collections;
 
 
-public enum TypeNG {
+public enum Type {
 
   U8(1) {
     public Object read(ImageInputStream in) throws IOException {
@@ -88,7 +89,7 @@ public enum TypeNG {
   TWO(0);
 
 
-  private TypeNG(int length) {
+  private Type(int length) {
     this.length = length;
   }
 
@@ -128,40 +129,55 @@ public enum TypeNG {
   }
 
 
-  public final boolean isFieldAllowed(TypeNG type) {
-    return allowedFields.contains(type);
-  }
-
-
-  public final boolean isSubFieldAllowed(TypeNG type) {
-    return allowedSubFields.contains(type);
-  }
-
-
-  private void addAllowedFields(TypeNG... value) {
+  private void addAllowedFields(Type... value) {
     allowedFields.addAll(Arrays.asList(value));
   }
 
 
-  private void addAllowedSubFields(TypeNG... value) {
+  public final boolean isFieldAllowed(Type type) {
+    return allowedFields.contains(type);
+  }
+
+
+  private void addAllowedSubFields(Type... value) {
     allowedSubFields.addAll(Arrays.asList(value));
   }
 
 
+  public final boolean isSubFieldAllowed(Type type) {
+    return allowedSubFields.contains(type);
+  }
+
+
+  private void setActualtypes(Type... value) {
+    actualTypes.clear();
+    actualTypes.addAll(Arrays.asList(value));
+  }
+
+
+  public final Set<Type> getAllowedTypes() {
+    return Collections.unmodifiableSet(actualTypes);
+  }
+
+
   static {
-    U8.addAllowedFields(U8);
-    X8.addAllowedFields(X8);
-    STRING.addAllowedFields(STRING);
-//    U16.setAllowedFieldTypes(U16, S16);
-    U32.addAllowedFields(U32, S32, F32);
-    S32.addAllowedFields(S32);
-    RATIONAL.addAllowedFields(RATIONAL);
-    SRATIONAL.addAllowedFields(SRATIONAL);
+    U8        .addAllowedFields(U8);
+    X8        .addAllowedFields(X8);
+    STRING    .addAllowedFields(STRING);
+    U16       .addAllowedFields(U16);
+    S16       .addAllowedFields(S16);
+    U32       .addAllowedFields(U32, S32, F32);
+    S32       .addAllowedFields(S32);
+    F32       .addAllowedFields(F32);
+    RATIONAL  .addAllowedFields(RATIONAL);
+    SRATIONAL .addAllowedFields(SRATIONAL);
     U16_OR_U32.addAllowedFields(U16_OR_U32);
 //    ONE
 //    TWO
 
     U32.addAllowedSubFields(U16, U8);
+
+    U16_OR_U32.setActualtypes(U16, U32);
   }
 
 
@@ -179,8 +195,11 @@ public enum TypeNG {
   private final int length;
 
 
-  private final Set<TypeNG> allowedFields = new HashSet<TypeNG>();
+  private final Set<Type> allowedFields = new HashSet<Type>();
 
 
-  private final Set<TypeNG> allowedSubFields = new HashSet<TypeNG>();
+  private final Set<Type> allowedSubFields = new HashSet<Type>();
+
+
+  private final Set<Type> actualTypes = new HashSet<Type>();
 }

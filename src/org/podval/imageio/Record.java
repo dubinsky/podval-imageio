@@ -7,14 +7,14 @@ import java.util.ArrayList;
 import java.io.IOException;
 
 
-public final class RecordNG extends Entry {
+public final class Record extends Entry {
 
-  public RecordNG(String name) {
+  public Record(String name) {
     super(name);
   }
 
 
-  public RecordNG(String name, TypeNG type) {
+  public Record(String name, Type type) {
     super(name, type);
   }
 
@@ -59,9 +59,9 @@ public final class RecordNG extends Entry {
   }
 
 
-  public void addField(int index, RecordNG field) {
+  public void addField(int index, Record field) {
     if (fields == null) {
-      fields = new ArrayList<RecordNG>(index+1);
+      fields = new ArrayList<Record>(index+1);
     }
 
     ensureSize(index+1);
@@ -82,8 +82,8 @@ public final class RecordNG extends Entry {
   }
 
 
-  public RecordNG getField(int index) {
-    RecordNG result = null;
+  public Record getField(int index) {
+    Record result = null;
 
     if ((fields != null) && (index < fields.size())) {
       result = fields.get(index);
@@ -104,7 +104,7 @@ public final class RecordNG extends Entry {
   }
 
 
-  public void read(Reader reader, long offset, int length, int tag, TypeNG type)
+  public void read(Reader reader, long offset, int length, int tag, Type type)
     throws IOException
   {
     /** @todo default field */
@@ -116,8 +116,8 @@ public final class RecordNG extends Entry {
     if (treatAsFolder) {
       if (reader.getHandler().startRecord(tag, getName())) {
         for (int index = 0; index < count; index++) {
-          RecordNG field = reader.getMetaMetaData().getField(this, index);
-          TypeNG fieldType = field.getType();
+          Record field = reader.getMetaMetaData().getField(this, index);
+          Type fieldType = field.getType();
           if (!isVector() || (index != 0)) {
             reader.handleRecord(offset, index, fieldType, 1, field);
           } else {
@@ -132,6 +132,11 @@ public final class RecordNG extends Entry {
     } else {
       reader.handleRecord(offset, tag, type, count, this);
     }
+  }
+
+
+  protected String getKind() {
+    return "Record";
   }
 
 
@@ -150,5 +155,5 @@ public final class RecordNG extends Entry {
   private Enumeration enumeration;
 
 
-  private ArrayList<RecordNG> fields;
+  private ArrayList<Record> fields;
 }

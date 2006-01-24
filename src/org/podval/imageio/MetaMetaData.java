@@ -33,7 +33,7 @@ public final class MetaMetaData {
   }
 
 
-  public Heap getHeap(String name, TypeNG type) {
+  public Heap getHeap(String name, Type type) {
     Heap result = name2heap.get(name);
     if (result == null) {
       result = new Heap(name);
@@ -44,10 +44,10 @@ public final class MetaMetaData {
   }
 
 
-  public RecordNG getRecord(String name, TypeNG type) {
-    RecordNG result = name2record.get(name);
+  public Record getRecord(String name, Type type) {
+    Record result = name2record.get(name);
     if (result == null) {
-      result = new RecordNG(name);
+      result = new Record(name);
       name2record.put(name, result);
     }
     result.setType(type);
@@ -68,7 +68,7 @@ public final class MetaMetaData {
   }
 
 
-  public Entry getEntry(Entry.Kind kind, Heap heap, int tag, TypeNG type)
+  public Entry getEntry(Entry.Kind kind, Heap heap, int tag, Type type)
     throws IOException
   {
     Entry result = heap.getEntry(tag, type);
@@ -92,7 +92,7 @@ public final class MetaMetaData {
       throw new IOException("Not a heap: " + tag + "-" + type);
     }
 
-    if ((kind == Entry.Kind.RECORD) && (result != null) && !(result instanceof RecordNG)) {
+    if ((kind == Entry.Kind.RECORD) && (result != null) && !(result instanceof Record)) {
       throw new IOException("Not a record: " + tag + "-" + type);
     }
 
@@ -100,8 +100,8 @@ public final class MetaMetaData {
   }
 
 
-  public RecordNG getField(RecordNG record, int index) {
-    RecordNG result = record.getField(index);
+  public Record getField(Record record, int index) {
+    Record result = record.getField(index);
 
     if (result == null) {
       result = unknownRecord(index, record.getType());
@@ -112,8 +112,8 @@ public final class MetaMetaData {
   }
 
 
-  private RecordNG unknownRecord(int tag, TypeNG type) {
-    return new RecordNG(unknown(tag), type);
+  private Record unknownRecord(int tag, Type type) {
+    return new Record(unknown(tag), type);
   }
 
 
@@ -129,7 +129,7 @@ public final class MetaMetaData {
   }
 
 
-  private void learn(RecordNG record, int index, RecordNG field) {
+  private void learn(Record record, int index, Record field) {
     record.addField(index, field);
   }
 
@@ -137,7 +137,7 @@ public final class MetaMetaData {
   private final Map<String, Heap> name2heap = new HashMap<String, Heap>();
 
 
-  private final Map<String, RecordNG> name2record = new HashMap<String, RecordNG>();
+  private final Map<String, Record> name2record = new HashMap<String, Record>();
 
 
   private final Map<String, MakerNote> make2note = new HashMap<String, MakerNote>();

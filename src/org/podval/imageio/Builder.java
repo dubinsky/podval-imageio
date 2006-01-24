@@ -43,8 +43,8 @@ public abstract class Builder {
   }
 
 
-  protected final RecordNG getRecord(Attributes attributes) throws SAXException {
-    RecordNG result = getMetaMetaData().getRecord(
+  protected final Record getRecord(Attributes attributes) throws SAXException {
+    Record result = getMetaMetaData().getRecord(
       getName(attributes),
       getType(attributes)
     );
@@ -53,17 +53,17 @@ public abstract class Builder {
   }
 
 
-  protected final RecordNG getField(Attributes attributes, TypeNG defaultType)
+  protected final Record getField(Attributes attributes, Type defaultType)
     throws SAXException
   {
     String name = getName(attributes);
-    TypeNG type = getType(attributes);
+    Type type = getType(attributes);
 
     if (type == null) {
       type = defaultType;
     }
 
-    RecordNG result = new RecordNG(name, type);
+    Record result = new Record(name, type);
 
     addAttributes(result, attributes);
 
@@ -71,7 +71,7 @@ public abstract class Builder {
   }
 
 
-  private void addAttributes(RecordNG record, Attributes attributes) {
+  private void addAttributes(Record record, Attributes attributes) {
     record.addIsVector(getBooleanAttribute("vector", attributes));
     record.addSkip(getBooleanAttribute("skip", attributes));
     /** @todo resolve conversion */
@@ -133,10 +133,10 @@ public abstract class Builder {
   }
 
 
-  protected final TypeNG getType(Attributes attributes)
+  protected final Type getType(Attributes attributes)
     throws SAXException
   {
-    TypeNG result =  null;
+    Type result =  null;
 
     String typeName = attributes.getValue("type");
 
@@ -144,7 +144,7 @@ public abstract class Builder {
       try {
         /** @todo check that typeName is in lower case */
         typeName = typeName.toUpperCase();
-        result = TypeNG.valueOf(typeName);
+        result = Type.valueOf(typeName);
       } catch (IllegalArgumentException e) {
         throw new SAXException("Unknown type " + typeName);
       }
