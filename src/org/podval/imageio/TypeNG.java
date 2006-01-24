@@ -6,10 +6,14 @@ import javax.imageio.stream.ImageInputStream;
 
 import java.io.IOException;
 
+import java.util.Set;
+import java.util.HashSet;
+import java.util.Arrays;
+
 
 public enum TypeNG {
 
-  U8(1 /*, true*/) {
+  U8(1) {
     public Object read(ImageInputStream in) throws IOException {
       return in.readUnsignedByte();
     }
@@ -21,13 +25,13 @@ public enum TypeNG {
     }
   },
 
-  X8(1, true) {  // structure
+  X8(1) {  // structure
     public Object read(ImageInputStream in) throws IOException {
       return in.readUnsignedByte();
     }
   },
 
-  STRING(1, true),
+  STRING(1),
 
   U16(2) {
     public Object read(ImageInputStream in) throws IOException {
@@ -85,23 +89,79 @@ public enum TypeNG {
 
 
   private TypeNG(int length) {
-    this(length, false);
-  }
-
-
-  private TypeNG(int length, boolean isVariableLength) {
     this.length = length;
-    this.isVariableLength = isVariableLength;
   }
 
 
-  public int getLength() {
+  public final int getLength() {
     return length;
   }
 
 
   protected Object read(ImageInputStream in) throws IOException {
     throw new UnsupportedOperationException();
+  }
+
+
+  public final boolean isVariableLength() {
+    return (this == U8) || (this == X8) || (this == STRING);
+  }
+
+
+  public final boolean isHeapAllowed() {
+    return (this == U32) || (this == ONE) || (this == TWO);
+  }
+
+
+  public final boolean isEnumerationAllowed() {
+    return (this == U16) || (this == U8) || (this == X8);
+  }
+
+
+  public final boolean isRecordAllowed() {
+    return !allowedFields.isEmpty();
+  }
+
+
+  public final boolean isVectorAllowed() {
+    return (this == U16);
+  }
+
+
+  public final boolean isFieldAllowed(TypeNG type) {
+    return allowedFields.contains(type);
+  }
+
+
+  public final boolean isSubFieldAllowed(TypeNG type) {
+    return allowedSubFields.contains(type);
+  }
+
+
+  private void addAllowedFields(TypeNG... value) {
+    allowedFields.addAll(Arrays.asList(value));
+  }
+
+
+  private void addAllowedSubFields(TypeNG... value) {
+    allowedSubFields.addAll(Arrays.asList(value));
+  }
+
+
+  static {
+    U8.addAllowedFields(U8);
+    X8.addAllowedFields(X8);
+    STRING.addAllowedFields(STRING);
+//    U16.setAllowedFieldTypes(U16, S16);
+    U32.addAllowedFields(U32, S32, F32);
+    S32.addAllowedFields(S32);
+    RATIONAL.addAllowedFields(RATIONAL);
+    SRATIONAL.addAllowedFields(SRATIONAL);
+    U16_OR_U32.addAllowedFields(U16_OR_U32);
+//    ONE
+//    TWO
+
+    U32.addAllowedSubFields(U16, U8);
   }
 
 
@@ -116,36 +176,11 @@ public enum TypeNG {
   }
 
 
-  public final int length;
+  private final int length;
 
 
-  public final boolean isVariableLength;
+  private final Set<TypeNG> allowedFields = new HashSet<TypeNG>();
 
 
-//  public final boolean isDirectoryAllowed;   // U32, ONE, TWO
-//  public final boolean isRecordAllowed;
-//  public final boolean isVectorAllowed;      // U16
-//  public final boolean isEnumerationAllowed; // U16, U8, X8
-//  private Type[] allowedFieldTypes;          // U32: U32, S32, F32; U16: U16, S16; self: U32, U8, X8, STRING, RATIONAL, SRATIONAL, U16_OR_U32
-//  private Type[] allowedSubfieldTypes;       // U32: U16, U8
-
-//  public boolean isFieldAllowed(Type type) {
-//    return (allowedFieldTypes != null) &&
-//      (((allowedFieldTypes.length == 0) && (type == this)) ||
-//      find(type, allowedFieldTypes));
-//  }
-//
-//
-//  public Type getDefaultFieldType() {
-//    assert (allowedFieldTypes != null) : "No default field type for non-record types.";
-//    return (allowedFieldTypes.length == 0) ? this : allowedFieldTypes[0];
-//  }
-//
-//
-//  private void setAllowedSubfieldTypes(Type[] allowedSubfieldTypes) {
-//    assert (allowedSubfieldTypes == null) || (allowedSubfieldTypes.length != 0)
-//      : "List of allowed subfield types can not be empty!";
-//
-//    this.allowedSubfieldTypes = allowedSubfieldTypes;
-//  }
+  private final Set<TypeNG> allowedSubFields = new HashSet<TypeNG>();
 }

@@ -25,6 +25,11 @@ public class Heap extends Entry {
   }
 
 
+  protected final boolean checkType() {
+    return true;
+  }
+
+
   public void addEntry(int tag, Entry entry) {
     if (entry.getType() == null) {
       throw new IllegalArgumentException("Attempt to add an entry " + this.getName() + "." + entry.getName() + " without type");

@@ -19,12 +19,21 @@ public final class RecordNG extends Entry {
   }
 
 
+  protected boolean checkType() {
+    return getType().isRecordAllowed();
+  }
+
+
   public boolean isVector() {
     return isVector;
   }
 
 
   public void addIsVector(boolean value) {
+    if (value && !getType().isVectorAllowed()) {
+      throw new IllegalArgumentException("Can not be a vector");
+    }
+
     isVector |= value;
   }
 
@@ -40,6 +49,8 @@ public final class RecordNG extends Entry {
         throw new IllegalArgumentException("Attempt to change conversion");
       }
     }
+
+    conversion = value;
   }
 
 
@@ -49,14 +60,16 @@ public final class RecordNG extends Entry {
 
 
   public void addField(int index, RecordNG field) {
-    /** @todo  */
     if (fields == null) {
-      fields = new ArrayList<RecordNG>();
+      fields = new ArrayList<RecordNG>(index+1);
     }
 
     ensureSize(index+1);
 
-    /** @todo check that we do not change the field... */
+    if (fields.get(index) != null) {
+      throw new IllegalArgumentException("Attempt to change field");
+    }
+
     fields.set(index, field);
   }
 
@@ -94,8 +107,11 @@ public final class RecordNG extends Entry {
   public void read(Reader reader, long offset, int length, int tag, TypeNG type)
     throws IOException
   {
+    /** @todo default field */
+    /** @todo variable length fields */
+
     int count = length / type.getLength();
-    boolean treatAsFolder = ((count > 1) || (getCount() > 1) || isVector()) && !type.isVariableLength;
+    boolean treatAsFolder = ((count > 1) || (getCount() > 1) || isVector()) && !type.isVariableLength();
 
     if (treatAsFolder) {
       if (reader.getHandler().startRecord(tag, getName())) {
@@ -114,8 +130,6 @@ public final class RecordNG extends Entry {
       reader.getHandler().endRecord();
 
     } else {
-      /* It is much simpler to just do seek right here, but if the data is not
-       needed, the seek() would be wasted... */
       reader.handleRecord(offset, tag, type, count, this);
     }
   }

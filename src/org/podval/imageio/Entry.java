@@ -32,6 +32,10 @@ public abstract class Entry {
         throw new IllegalStateException("Attempt to change the type");
       }
 
+      if (!checkType()) {
+        throw new IllegalArgumentException("Wrong type: " + this);
+      }
+
       type = value;
     }
   }
@@ -40,6 +44,9 @@ public abstract class Entry {
   public final TypeNG getType() {
     return type;
   }
+
+
+  protected abstract boolean checkType();
 
 
   public abstract void read(Reader reader, long offset, int length, int tag, TypeNG type)

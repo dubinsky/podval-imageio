@@ -68,9 +68,9 @@ public class Conversions {
   }
 
 
-  public static String extractStringFromBinary(Field.BinaryValue value) {
-    return new String(value.getValue());
-  }
+//  public static String extractStringFromBinary(Field.BinaryValue value) {
+//    return new String(value.getValue());
+//  }
 
 
 //  public float getExposure() {

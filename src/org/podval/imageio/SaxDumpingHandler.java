@@ -95,7 +95,8 @@ public class SaxDumpingHandler extends SaxDumper implements ReaderHandler {
     if ("make".equals(name) && (type == TypeNG.STRING)) {
       make = (String) value;
     }
-    handleRecord(getAttributes(tag, name, type, count, value));
+
+    handleRecord(tag, name, type, count, value);
   }
 
 
@@ -103,39 +104,31 @@ public class SaxDumpingHandler extends SaxDumper implements ReaderHandler {
     throws IOException
   {
     byte[] value = new byte[MAX_COUNT];
-    long offset = is.getStreamPosition();
     in.readFully(value);
 
-    AttributesImpl attributes = getAttributes(tag, name, type, count, value);
-    addAttribute(attributes, "offset", Long.toString(offset));
-    handleRecord(attributes);
+    handleRecord(tag, name, type, count, value);
   }
 
 
-  private AttributesImpl getAttributes(int tag, String name, TypeNG type, int count, Object value) {
-    AttributesImpl result = new AttributesImpl();
+  private void handleRecord(int tag, String name, TypeNG type, int count, Object value) {
+    AttributesImpl attributes = new AttributesImpl();
 
-    addAttribute(result, "tag", Integer.toString(tag));
+    addAttribute(attributes, "tag", Integer.toString(tag));
 
-    addNameAttribute(result, name);
+    addNameAttribute(attributes, name);
 
-    addAttribute(result, "type", type.toString());
+    addAttribute(attributes, "type", type.toString());
 
     if (count != 1) {
-      addAttribute(result, "count", Integer.toString(count));
+      addAttribute(attributes, "count", Integer.toString(count));
     }
 
     /** @todo vector... */
 
     if (value != null) {
-      addAttribute(result, "value", valueToString(value));
+      addAttribute(attributes, "value", valueToString(value));
     }
 
-    return result;
-  }
-
-
-  private void handleRecord(AttributesImpl attributes) {
     try {
       contentHandler.startElement(null, null, "record", attributes);
       contentHandler.endElement(null, null, "record");

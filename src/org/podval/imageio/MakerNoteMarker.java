@@ -14,6 +14,11 @@ public class MakerNoteMarker extends Entry {
   }
 
 
+  protected final boolean checkType() {
+    return true;
+  }
+
+
   public void read(Reader reader, long offset, int length, int tag, TypeNG type)
     throws IOException
   {
