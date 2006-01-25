@@ -16,7 +16,7 @@
 
   <record tag="7" name="cameraSoftware" type="string" count="24"/>
 
-  <record tag="8" name="serialNumber" type="U32"
+  <record tag="8" name="canonImageSerialNumber" type="U32"
     conversion="org.podval.imageio.Conversions.decodeImageSerialNumber"/>
 
   <record tag="9" name="ownerName" type="string" count="32"/>

@@ -48,7 +48,7 @@ public enum Type {
 
   U32(4) {
     public Object read(ImageInputStream in) throws IOException {
-      return readUnsignedInt(in);
+      return Util.readUnsignedInt(in);
     }
   },
 
@@ -66,7 +66,7 @@ public enum Type {
 
   RATIONAL(8) {
     public Object read(ImageInputStream in) throws IOException {
-      return new Rational(readUnsignedInt(in), readUnsignedInt(in));
+      return new Rational(Util.readUnsignedInt(in), Util.readUnsignedInt(in));
     }
   },
 
@@ -164,7 +164,7 @@ public enum Type {
     U8        .addAllowedFields(U8);
     X8        .addAllowedFields(X8);
     STRING    .addAllowedFields(STRING);
-    U16       .addAllowedFields(U16);
+    U16       .addAllowedFields(U16, S16);
     S16       .addAllowedFields(S16);
     U32       .addAllowedFields(U32, S32, F32);
     S32       .addAllowedFields(S32);
@@ -178,17 +178,6 @@ public enum Type {
     U32.addAllowedSubFields(U16, U8);
 
     U16_OR_U32.setActualtypes(U16, U32);
-  }
-
-
-  public static int readUnsignedInt(ImageInputStream in) throws IOException {
-    return toInt(in.readUnsignedInt());
-  }
-
-
-  public static int toInt(long value) throws IOException {
-    /** @todo check - or catch and transform? */
-    return (int) value;
   }
 
 

@@ -8,10 +8,16 @@ import org.xml.sax.Attributes;
 
 public class EnumerationBuilder extends Builder {
 
-  public EnumerationBuilder(Builder previous, Enumeration enumeration) {
+  public EnumerationBuilder(Builder previous, Attributes attributes) {
     super(previous);
-    this.enumeration = enumeration;
+    this.enumeration = createEnumeration(attributes);
   }
+
+
+  private Enumeration createEnumeration(Attributes attributes) {
+    return new Enumeration(null /** @todo class!!! */);
+  }
+
 
 
   public Builder startElement(String name, Attributes attributes)
@@ -35,5 +41,5 @@ public class EnumerationBuilder extends Builder {
   }
 
 
-  private final Enumeration enumeration;
+  public final Enumeration enumeration;
 }

@@ -8,9 +8,31 @@ import org.xml.sax.Attributes;
 
 public class RecordBuilder extends Builder {
 
-  public RecordBuilder(Builder previous, Record record) {
+  public RecordBuilder(Builder previous, Attributes attributes)
+    throws SAXException
+  {
     super(previous);
-    this.record = record;
+    this.record = createRecord(attributes);
+  }
+
+
+  private Record createRecord(Attributes attributes) throws SAXException {
+    Record result = getMetaMetaData().getRecord(
+      getName(attributes),
+      getType(attributes)
+    );
+
+    /** @todo count */
+
+    result.setIsVector(getBooleanAttribute("vector", attributes));
+    result.setSkip(getBooleanAttribute("skip", attributes));
+
+    String conversion = attributes.getValue("conversion");
+    if (conversion != null) {
+      result.getDefaultField().setConversion(conversion);
+    }
+
+    return result;
   }
 
 
@@ -20,21 +42,21 @@ public class RecordBuilder extends Builder {
     Builder result = null;
 
     if ("field".equals(name)) {
-      Record field = getField(attributes, record.getType());
-      /** @todo count and indexes are allowed only for the top-most fields */
+      /** @todo if default field was created, explicit fields are not allowed. */
+      FieldBuilder fieldBuilder = new FieldBuilder(this, attributes, record.getType());
       /** @todo there can not be one subfield in a field */
       if (attributes.getValue("index") != null) {
-        int index = getIntegerAttribute("index", attributes);
+        index = getIntegerAttribute("index", attributes);
       }
-      record.addField(index, field);
+      record.addField(index, fieldBuilder.field);
       index++;
-      result = new RecordBuilder(this, field);
+      result = fieldBuilder;
     } else
 
     if ("enumeration".equals(name)) {
-      Enumeration enumeration = getEnumeration(attributes);
-      record.setEnumeration(enumeration);
-      result = new EnumerationBuilder(this, enumeration);
+      EnumerationBuilder enumerationBuilder = new EnumerationBuilder(this, attributes);
+      record.getDefaultField().setEnumeration(enumerationBuilder.enumeration);
+      result = enumerationBuilder;
     }
 
     return result;
@@ -46,7 +68,7 @@ public class RecordBuilder extends Builder {
   }
 
 
-  private final Record record;
+  public final Record record;
 
 
   private int index;

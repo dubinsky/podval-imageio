@@ -49,7 +49,7 @@ public abstract class Entry {
   protected abstract boolean checkType();
 
 
-  public final void addSkip(boolean value) {
+  public final void setSkip(boolean value) {
     isSkip |= value;
   }
 

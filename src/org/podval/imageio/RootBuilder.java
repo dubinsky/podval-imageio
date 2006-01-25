@@ -23,7 +23,7 @@ public class RootBuilder extends Builder {
     } else
 
     if ("record".equals(name)) {
-      result = new RecordBuilder(this, getRecord(attributes));
+      result = new RecordBuilder(this, attributes);
     } else
 
     if ("makerNote".equals(name)) {

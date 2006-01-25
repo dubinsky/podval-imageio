@@ -28,7 +28,7 @@ public class CiffReader extends Reader {
 
 
   protected void read() throws IOException {
-    int heapLength = Type.toInt(in.length() - headerLength);
+    int heapLength = Util.toInt(in.length() - headerLength);
     readInitialHeap("org_podval_imageio_ciff_1.0", headerLength, heapLength, 0, false);
   }
 

@@ -22,7 +22,7 @@ public final class Field extends Entry {
   }
 
 
-  public void addConversion(String value) {
+  public void setConversion(String value) {
     if ((value != null) && (conversion != null)) {
       if (value != conversion) {
         throw new IllegalArgumentException("Attempt to change conversion");
@@ -93,7 +93,7 @@ public final class Field extends Entry {
 
 
   private String readString(byte[] bytes) throws IOException {
-    // Length of 0 indicates 'indefinite'. We limit 'em here... - ???
+    /** @todo length of 0 indicates 'indefinite'. Limit 'em here? */
 
     int l = 0;
     for (; l<bytes.length; l++) {

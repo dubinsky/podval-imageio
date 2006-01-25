@@ -75,13 +75,13 @@ public final class MetaMetaData {
 
     if (result == null) {
       switch (kind) {
-      case HEAP   : result = new Heap(unknown(tag), type); break;
+      case HEAP   : result = unknownHeap  (tag, type); break;
       case RECORD : result = unknownRecord(tag, type); break;
       case UNKNOWN:
         boolean isRecordAllowed = true; /** @todo this depends on type... */
         result = (isRecordAllowed) ?
           unknownRecord(tag, type) :
-          new Heap(unknown(tag), type);
+          unknownHeap  (tag, type);
         break;
       }
 
@@ -100,15 +100,20 @@ public final class MetaMetaData {
   }
 
 
-  public Record getField(Record record, int index) {
-    Record result = record.getField(index);
+  public Field getField(Record record, int index) {
+    Field result = record.getField(index);
 
     if (result == null) {
-      result = unknownRecord(index, record.getType());
+      result = unknownField(index, record.getType());
       learn(record, index, result);
     }
 
     return result;
+  }
+
+
+  private Heap unknownHeap(int tag, Type type) {
+    return new Heap(unknown(tag), type);
   }
 
 
@@ -117,19 +122,24 @@ public final class MetaMetaData {
   }
 
 
+  private Field unknownField(int tag, Type type) {
+    return new Field(unknown(tag), type);
+  }
+
+
   private String unknown(int tag) {
     return "unknown-" + tag;
   }
 
 
-  private void learn(Heap parent, int tag, Entry entry) {
+  private void learn(Heap heap, int tag, Entry entry) {
     /** @todo should "learning" be disableable? */
     /** @todo mark as auto-learned */
-    parent.addEntry(tag, entry);
+    heap.addEntry(tag, entry);
   }
 
 
-  private void learn(Record record, int index, Record field) {
+  private void learn(Record record, int index, Field field) {
     record.addField(index, field);
   }
 

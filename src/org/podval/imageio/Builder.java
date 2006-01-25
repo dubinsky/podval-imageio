@@ -43,53 +43,7 @@ public abstract class Builder {
   }
 
 
-  protected final Record getRecord(Attributes attributes) throws SAXException {
-    Record result = getMetaMetaData().getRecord(
-      getName(attributes),
-      getType(attributes)
-    );
-    addAttributes(result, attributes);
-    return result;
-  }
-
-
-  protected final Record getField(Attributes attributes, Type defaultType)
-    throws SAXException
-  {
-    String name = getName(attributes);
-    Type type = getType(attributes);
-
-    if (type == null) {
-      type = defaultType;
-    }
-
-    Record result = new Record(name, type);
-
-    addAttributes(result, attributes);
-
-    return result;
-  }
-
-
-  private void addAttributes(Record record, Attributes attributes) {
-    record.addIsVector(getBooleanAttribute("vector", attributes));
-    record.addSkip(getBooleanAttribute("skip", attributes));
-    /** @todo resolve conversion */
-    record.addConversion(attributes.getValue("conversion"));
-
-    /** @todo handlers? */
-//      ... getAttribute("handler", attributes);
-    /** @todo handle tags the same way... */
-//      ... getIntegerAttribute("count", attributes);
-  }
-
-
-  protected final Enumeration getEnumeration(Attributes attributes) {
-    return new Enumeration(null /** @todo class!!! */);
-  }
-
-
-  private MetaMetaData getMetaMetaData() {
+  protected final MetaMetaData getMetaMetaData() {
     Builder candidate = this;
     while (!(candidate instanceof DocumentBuilder)) {
       candidate = candidate.previous;
@@ -116,7 +70,7 @@ public abstract class Builder {
   }
 
 
-  private boolean getBooleanAttribute(String name, Attributes attributes) {
+  protected final boolean getBooleanAttribute(String name, Attributes attributes) {
     return Boolean.valueOf(attributes.getValue(name));
   }
 

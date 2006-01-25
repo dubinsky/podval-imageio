@@ -2,7 +2,6 @@
 
 package org.podval.imageio;
 
-import java.io.OutputStream;
 import java.io.IOException;
 
 import javax.imageio.stream.ImageInputStream;
@@ -81,6 +80,11 @@ public abstract class Reader {
   }
 
 
+  public final void seek(long offset) throws IOException {
+    in.seek(offset);
+  }
+
+
   public final ReaderHandler getHandler() {
     return handler;
   }
@@ -92,7 +96,7 @@ public abstract class Reader {
 
 
   /**
-   * Reads format-specific prolog.
+   * Reads format-specific prologue.
    *
    * @throws IOException
    */
@@ -165,11 +169,6 @@ public abstract class Reader {
     throws IOException;
 
 
-  public final void seek(long offset) throws IOException {
-    in.seek(offset);
-  }
-
-
   protected abstract int getEntryLength();
 
 
@@ -180,84 +179,8 @@ public abstract class Reader {
   protected abstract boolean seekToHeap() throws IOException;
 
 
-  /** @todo eliminate: moved to Field */
-  public final void handleRecord(long offset, int tag, Type type, int count, Record record)
-    throws IOException
-  {
-    ReaderHandler.ValueAction action = handler.atValue(tag, record.getName(), type, count);
-
-    if ((action != null) && (action != ReaderHandler.ValueAction.SKIP)) {
-      in.seek(offset);
-
-      switch (action) {
-      case RAW  : handler.handleRawValue(tag, record.getName(), type, count, in); break;
-      case VALUE: handler.handleValue(tag, record.getName(), type, count, readValue(type, count, record)); break;
-      }
-    }
-  }
-
-
-  /** @todo eliminate: moved to Field */
-  public Object readValue(Type type, int count, Record record) throws IOException {
-    /** @todo type/count sanity checks... */
-    Object result = null;
-
-    if (type == Type.STRING) {
-      result = readString(count);
-    } else {
-      if (count == 1) {
-        result = type.read(in);
-        Enumeration enumeration = record.getEnumeration();
-        if (enumeration != null) {
-          if (result instanceof Integer) {
-            result = enumeration.getValue((Integer) result);
-          }
-        }
-      } else {
-        if ((type == Type.U8) || (type == Type.X8)) {
-          result = readBytes(count);
-        } else {
-          Object[] objects = new Object[count];
-          for (int i = 0; i<count; i++) {
-            objects[i] = type.read(in);
-          }
-          result = objects;
-        }
-      }
-    }
-
-    return result;
-  }
-
-
-  private String readString(int length) throws IOException {
-    // Length of 0 indicates 'indefinite'. We limit 'em here... - ???
-
-    byte[] bytes = readBytes(length);
-    int l = 0;
-    for (; l<length; l++) {
-      if (bytes[l] == 0) {
-        break;
-      }
-    }
-
-//      if (l == length) {
-////        result.append("|NO ZERO. TRUNCATED?");
-//      }
-
-    return new String(bytes, 0, l).trim();
-  }
-
-
-  private byte[] readBytes(int length) throws IOException {
-    byte[] result = new byte[length];
-    in.readFully(result);
-    return result;
-  }
-
-
   protected int readUnsignedInt() throws IOException {
-    return Type.readUnsignedInt(in);
+    return Util.readUnsignedInt(getInputStream());
   }
 
 

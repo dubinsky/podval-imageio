@@ -92,8 +92,8 @@
 
   <record tag="23" type="string" name="thumbnailFileName"/>
 
-  <record tag="23" type="U32" name="serialNumber">
-    <field type="U32" name="serialNumber"
+  <record tag="23" type="U32" name="imageSerialNumber">
+    <field type="U32" name="imageSerialNumber"
       conversion="org.podval.imageio.Conversions.decodeImageSerialNumber"/>
 
     <field type="U32" name="reserved" skip="true"/>

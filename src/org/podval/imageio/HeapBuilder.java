@@ -28,9 +28,9 @@ public class HeapBuilder extends Builder {
     } else
 
     if ("record".equals(name)) {
-      Record record = getRecord(attributes);
-      entry = record;
-      result = new RecordBuilder(this, record);
+      RecordBuilder recordBuilder = new RecordBuilder(this, attributes);
+      entry = recordBuilder.record;
+      result = recordBuilder;
     } else
 
     if ("makerNoteMarker".equals(name)) {

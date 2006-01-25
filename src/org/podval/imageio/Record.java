@@ -29,7 +29,7 @@ public final class Record extends Entry {
   }
 
 
-  public void addIsVector(boolean value) {
+  public void setIsVector(boolean value) {
     if (value && !getType().isVectorAllowed()) {
       throw new IllegalArgumentException("Can not be a vector");
     }
@@ -38,25 +38,27 @@ public final class Record extends Entry {
   }
 
 
+  /** @todo setCount() */
+
+
   public int getCount() {
     return count;
   }
 
 
-  public void addConversion(String value) {
-    if ((value != null) && (conversion != null)) {
-      if (value != conversion) {
-        throw new IllegalArgumentException("Attempt to change conversion");
-      }
+  public Field getDefaultField() {
+    /** @todo check that there are no other fields - and that there won't be! */
+    if (fields.isEmpty()) {
+      addField(0, new Field(getName(), getType()));
     }
 
-    conversion = value;
+    return fields.get(0);
   }
 
 
-  public void addField(int index, Record field) {
-    if (fields == null) {
-      fields = new ArrayList<Record>(index+1);
+  public void addField(int index, Field field) {
+    if (!getType().isFieldAllowed(field.getType())) {
+      throw new IllegalArgumentException(field + " is not allowed in " + this);
     }
 
     ensureSize(index+1);
@@ -77,32 +79,14 @@ public final class Record extends Entry {
   }
 
 
-  public Record getField(int index) {
-    Record result = null;
-
-    if ((fields != null) && (index < fields.size())) {
-      result = fields.get(index);
-    }
-
-    return result;
-  }
-
-
-  public void setEnumeration(Enumeration value) {
-    /** @todo checks? */
-    enumeration = value;
-  }
-
-
-  public Enumeration getEnumeration() {
-    return enumeration;
+  public Field getField(int index) {
+    return ((fields != null) && (index < fields.size())) ? fields.get(index) : null;
   }
 
 
   public void read(Reader reader, long offset, int length, int tag, Type type)
     throws IOException
   {
-    /** @todo default field */
     /** @todo variable length fields */
 
     int count = length / type.getLength();
@@ -111,7 +95,7 @@ public final class Record extends Entry {
     if (treatAsFolder) {
       if (reader.getHandler().startFolder(tag, getName())) {
         for (int index = 0; index < count; index++) {
-          Record field = reader.getMetaMetaData().getField(this, index);
+          Field field = reader.getMetaMetaData().getField(this, index);
           Type fieldType = field.getType();
           if (!isVector() || (index != 0)) {
             handleRecord(reader, offset, index, fieldType, 1, field);
@@ -125,16 +109,15 @@ public final class Record extends Entry {
       reader.getHandler().endFolder();
 
     } else {
-      handleRecord(reader, offset, tag, type, count, this);
+      handleRecord(reader, offset, tag, type, count, getDefaultField());
     }
   }
 
 
-  private void handleRecord(Reader reader, long offset, int tag, Type type, int count, Record field)
+  private void handleRecord(Reader reader, long offset, int tag, Type type, int count, Field field)
     throws IOException
   {
-    reader.handleRecord(offset, tag, type, count, field);
-//    field.read(reader, offset, count, tag, type);
+    field.read(reader, offset, count, tag, type);
   }
 
 
@@ -149,11 +132,5 @@ public final class Record extends Entry {
   private int count;
 
 
-  private String conversion;
-
-
-  private Enumeration enumeration;
-
-
-  private ArrayList<Record> fields;
+  private ArrayList<Field> fields = new ArrayList<Field>(1);
 }
