@@ -15,27 +15,11 @@ public class CrwInformationExtractor {
   {
     new CiffReader().read(in, new ReaderHandler() {
 
-      public boolean startHeap(int tag, String name) {
+      public boolean startFolder(int tag, String name) {
         boolean result =
           ((level == 0) && (tag ==  0)) || // ciff
           ((level == 1) && (tag == 10)) || // imageProperties
           ((level == 2) && (tag == 11));   // canonRawProperties
-
-        if (result) {
-          level++;
-        }
-
-        return result;
-      }
-
-
-      public void endHeap() {
-        level--;
-      }
-
-
-      public boolean startRecord(int tag, String name) {
-        boolean result = false;
 
         if (level == 3) {
 
@@ -50,11 +34,17 @@ public class CrwInformationExtractor {
           }
         }
 
+        if (result) {
+          level++;
+        }
+
         return result;
       }
 
 
-      public void endRecord() {
+      public void endFolder() {
+        level--;
+
         inSensor = false;
         inDecodeTable = false;
       }

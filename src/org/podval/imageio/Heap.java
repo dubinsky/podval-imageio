@@ -78,7 +78,7 @@ public class Heap extends Entry {
   protected final void readInPlace(Reader reader, long offset, int length, int tag, boolean seekAfter)
     throws IOException
   {
-    if (reader.getHandler().startHeap(tag, getName())) {
+    if (reader.getHandler().startFolder(tag, getName())) {
       HeapInformation heapInformation = reader.readHeapInformation(offset, length);
       long entriesOffset = heapInformation.entriesOffset;
       int numEntries = heapInformation.numEntries;
@@ -106,7 +106,7 @@ public class Heap extends Entry {
         seekToEntry(reader, entriesOffset, numEntries);
       }
 
-      reader.getHandler().endHeap();
+      reader.getHandler().endFolder();
     }
   }
 

@@ -5,7 +5,6 @@ package org.podval.imageio;
 import org.xml.sax.helpers.AttributesImpl;
 import org.xml.sax.SAXException;
 
-import java.io.File;
 import java.io.OutputStream;
 import java.io.IOException;
 
@@ -43,42 +42,21 @@ public class SaxDumpingHandler extends SaxDumper implements ReaderHandler {
   }
 
 
-  public boolean startHeap(int tag, String name) {
-    startFolder(tag, name, "directory");
-    return true;
-  }
-
-
-  public void endHeap() {
-    endFolder("directory");
-  }
-
-
-  public boolean startRecord(int tag, String name) {
-    startFolder(tag, name, "record");
-    return true;
-  }
-
-
-  public void endRecord() {
-    endFolder("record");
-  }
-
-
-  private void startFolder(int tag, String name, String kind) {
+  public boolean startFolder(int tag, String name) {
     try {
       AttributesImpl attributes = new AttributesImpl();
       addAttribute(attributes, "tag", Integer.toString(tag));
       addNameAttribute(attributes, name);
-      contentHandler.startElement(null, null, kind, attributes);
+      contentHandler.startElement(null, null, "folder", attributes);
     } catch (SAXException e) {
     }
+    return true;
   }
 
 
-  private void endFolder(String kind) {
+  public void endFolder() {
     try {
-      contentHandler.endElement(null, null, kind);
+      contentHandler.endElement(null, null, "folder");
     } catch (SAXException e) {
     }
   }
@@ -130,8 +108,8 @@ public class SaxDumpingHandler extends SaxDumper implements ReaderHandler {
     }
 
     try {
-      contentHandler.startElement(null, null, "record", attributes);
-      contentHandler.endElement(null, null, "record");
+      contentHandler.startElement(null, null, "item", attributes);
+      contentHandler.endElement(null, null, "item");
     } catch (SAXException e) {
     }
   }
@@ -171,7 +149,6 @@ public class SaxDumpingHandler extends SaxDumper implements ReaderHandler {
 
   public String getMake() {
     return make;
-//    return null;
   }
 
 

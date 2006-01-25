@@ -49,6 +49,16 @@ public abstract class Entry {
   protected abstract boolean checkType();
 
 
+  public final void addSkip(boolean value) {
+    isSkip |= value;
+  }
+
+
+  public final boolean isSkip() {
+    return isSkip;
+  }
+
+
   public abstract void read(Reader reader, long offset, int length, int tag, Type type)
     throws IOException;
 
@@ -65,4 +75,7 @@ public abstract class Entry {
 
 
   private Type type;
+
+
+  private boolean isSkip;
 }

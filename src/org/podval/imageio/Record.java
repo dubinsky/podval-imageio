@@ -38,8 +38,8 @@ public final class Record extends Entry {
   }
 
 
-  public void addSkip(boolean value) {
-    skip |= value;
+  public int getCount() {
+    return count;
   }
 
 
@@ -51,11 +51,6 @@ public final class Record extends Entry {
     }
 
     conversion = value;
-  }
-
-
-  public int getCount() {
-    return count;
   }
 
 
@@ -114,12 +109,12 @@ public final class Record extends Entry {
     boolean treatAsFolder = ((count > 1) || (getCount() > 1) || isVector()) && !type.isVariableLength();
 
     if (treatAsFolder) {
-      if (reader.getHandler().startRecord(tag, getName())) {
+      if (reader.getHandler().startFolder(tag, getName())) {
         for (int index = 0; index < count; index++) {
           Record field = reader.getMetaMetaData().getField(this, index);
           Type fieldType = field.getType();
           if (!isVector() || (index != 0)) {
-            reader.handleRecord(offset, index, fieldType, 1, field);
+            handleRecord(reader, offset, index, fieldType, 1, field);
           } else {
             /** @todo check vector length */
           }
@@ -127,11 +122,19 @@ public final class Record extends Entry {
         }
       }
 
-      reader.getHandler().endRecord();
+      reader.getHandler().endFolder();
 
     } else {
-      reader.handleRecord(offset, tag, type, count, this);
+      handleRecord(reader, offset, tag, type, count, this);
     }
+  }
+
+
+  private void handleRecord(Reader reader, long offset, int tag, Type type, int count, Record field)
+    throws IOException
+  {
+    reader.handleRecord(offset, tag, type, count, field);
+//    field.read(reader, offset, count, tag, type);
   }
 
 
@@ -144,9 +147,6 @@ public final class Record extends Entry {
 
 
   private int count;
-
-
-  private boolean skip;
 
 
   private String conversion;

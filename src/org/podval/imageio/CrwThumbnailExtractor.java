@@ -27,21 +27,12 @@ public class CrwThumbnailExtractor {
 
     new CiffReader().read(in, new ReaderHandler() {
 
-      public boolean startHeap(int tag, String name) {
+      public boolean startFolder(int tag, String name) {
         return (tag == 0);
       }
 
 
-      public void endHeap() {
-      }
-
-
-      public boolean startRecord(int tag, String name) {
-        return false;
-      }
-
-
-      public void endRecord() {
+      public void endFolder() {
       }
 
 

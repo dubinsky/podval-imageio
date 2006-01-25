@@ -76,6 +76,11 @@ public abstract class Reader {
   }
 
 
+  public final ImageInputStream getInputStream() {
+    return in;
+  }
+
+
   public final ReaderHandler getHandler() {
     return handler;
   }
@@ -175,6 +180,7 @@ public abstract class Reader {
   protected abstract boolean seekToHeap() throws IOException;
 
 
+  /** @todo eliminate: moved to Field */
   public final void handleRecord(long offset, int tag, Type type, int count, Record record)
     throws IOException
   {
@@ -191,6 +197,7 @@ public abstract class Reader {
   }
 
 
+  /** @todo eliminate: moved to Field */
   public Object readValue(Type type, int count, Record record) throws IOException {
     /** @todo type/count sanity checks... */
     Object result = null;

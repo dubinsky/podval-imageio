@@ -14,23 +14,12 @@ public interface ReaderHandler {
 
   /**
    *
-   * @return boolean true if the heap should be processed; false if it should be skipped
+   * @return boolean true if the folder should be processed; false if it should be skipped
    */
-  public boolean startHeap(int tag, String name);
+  public boolean startFolder(int tag, String name);
 
 
-  /** @todo rename (to directory?) */
-  public void endHeap();
-
-
-  /**
-   *
-   * @return boolean true if the record should be processed; false if it should be skipped
-   */
-  public boolean startRecord(int tag, String name);
-
-
-  public void endRecord();
+  public void endFolder();
 
 
   public ValueAction atValue(int tag, String name, Type type, int count)
