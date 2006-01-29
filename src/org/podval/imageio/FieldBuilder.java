@@ -9,15 +9,34 @@ import org.xml.sax.Attributes;
 public class FieldBuilder extends Builder {
 
   public FieldBuilder(Builder previous, Attributes attributes, Type defaultType)
-    throws SAXException
+    throws MetaMetaDataException
   {
     super(previous);
     this.field = createField(attributes, defaultType);
   }
 
 
+  private Field createField(Attributes attributes, Type defaultType)
+    throws MetaMetaDataException
+  {
+    String name = getName(attributes);
+    Type type = getType(attributes);
+
+    if (type == null) {
+      type = defaultType;
+    }
+
+    Field result = new Field(name, type);
+
+    result.setSkip(getBooleanAttribute("skip", attributes));
+    result.setConversion(attributes.getValue("conversion"));
+
+    return result;
+  }
+
+
   public Builder startElement(String name, Attributes attributes)
-    throws SAXException
+    throws MetaMetaDataException
   {
     Builder result = null;
 
@@ -40,27 +59,8 @@ public class FieldBuilder extends Builder {
   }
 
 
-  private Field createField(Attributes attributes, Type defaultType)
-    throws SAXException
-  {
-    String name = getName(attributes);
-    Type type = getType(attributes);
-
-    if (type == null) {
-      type = defaultType;
-    }
-
-    Field result = new Field(name, type);
-
-    result.setSkip(getBooleanAttribute("skip", attributes));
-    result.setConversion(attributes.getValue("conversion"));
-
-    return result;
-  }
-
-
   public String toString() {
-    return "<record name=\"" + field.getName() + "\"/>";
+    return field.toString();
   }
 
 

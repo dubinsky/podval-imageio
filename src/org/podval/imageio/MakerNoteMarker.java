@@ -7,15 +7,14 @@ import java.io.IOException;
 
 public class MakerNoteMarker extends Entry {
 
-  public MakerNoteMarker(Type type) {
+  public MakerNoteMarker(Type type) throws MetaMetaDataException {
     /** @todo we do not really need a name here... */
     /** @todo we do not really need a type here either!!! */
     super("makerNoteMarker", type);
   }
 
 
-  protected final boolean checkType() {
-    return true;
+  protected final void checkType() {
   }
 
 

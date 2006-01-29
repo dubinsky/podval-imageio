@@ -15,7 +15,7 @@ public class HeapBuilder extends Builder {
 
 
   public Builder startElement(String name, Attributes attributes)
-    throws SAXException
+    throws MetaMetaDataException
   {
     Builder result = null;
 
@@ -48,7 +48,7 @@ public class HeapBuilder extends Builder {
 
 
   public String toString() {
-    return "<heap name=\"" + heap.getName() + "\"/>";
+    return heap.toString();
   }
 
 

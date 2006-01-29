@@ -13,20 +13,22 @@ public abstract class Builder {
   }
 
 
-  public abstract Builder startElement(String name, Attributes attributes) throws SAXException;
+  public abstract Builder startElement(String name, Attributes attributes)
+    throws MetaMetaDataException;
 
 
-  public final Builder endElement() {
-    check();
+  public final Builder getPrevious() {
     return previous;
   }
 
 
-  protected void check() {
+  protected void check() throws MetaMetaDataException {
   }
 
 
-  protected final Heap getHeap(Attributes attributes) throws SAXException {
+  protected final Heap getHeap(Attributes attributes)
+    throws MetaMetaDataException
+  {
     return getMetaMetaData().getHeap(
       getName(attributes),
       getType(attributes)
@@ -34,7 +36,9 @@ public abstract class Builder {
   }
 
 
-  protected final Heap getMakerNote(Attributes attributes) throws SAXException {
+  protected final Heap getMakerNote(Attributes attributes)
+    throws MetaMetaDataException
+  {
     return getMetaMetaData().getMakerNote(
       getName(attributes),
       getAttribute("make", attributes),
@@ -52,18 +56,18 @@ public abstract class Builder {
   }
 
 
-  protected final String getName(Attributes attributes) throws SAXException {
+  protected final String getName(Attributes attributes) throws MetaMetaDataException {
     return getAttribute("name", attributes);
   }
 
 
   private String getAttribute(String name, Attributes attributes)
-    throws SAXException
+    throws MetaMetaDataException
   {
     String result = attributes.getValue(name);
 
     if (result == null) {
-      throw new SAXException("Missing required attribute " + name);
+      throw new MetaMetaDataException("Missing required attribute " + name);
     }
 
     return result;
@@ -76,19 +80,19 @@ public abstract class Builder {
 
 
   protected final int getIntegerAttribute(String name, Attributes attributes)
-    throws SAXException
+    throws MetaMetaDataException
   {
     try {
       String value = attributes.getValue(name);
       return (value == null) ? 0 : Integer.valueOf(value);
     } catch (NumberFormatException e) {
-      throw new SAXException(e);
+      throw new MetaMetaDataException(e);
     }
   }
 
 
   protected final Type getType(Attributes attributes)
-    throws SAXException
+    throws MetaMetaDataException
   {
     Type result =  null;
 
@@ -96,11 +100,10 @@ public abstract class Builder {
 
     if (typeName != null) {
       try {
-        /** @todo check that typeName is in lower case */
         typeName = typeName.toUpperCase();
         result = Type.valueOf(typeName);
       } catch (IllegalArgumentException e) {
-        throw new SAXException("Unknown type " + typeName);
+        throw new MetaMetaDataException("Unknown type " + typeName);
       }
     }
 

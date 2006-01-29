@@ -19,10 +19,8 @@ public class EnumerationBuilder extends Builder {
   }
 
 
-
-  public Builder startElement(String name, Attributes attributes)
-    throws SAXException
-  {
+  public Builder startElement(String name,
+    Attributes attributes) throws MetaMetaDataException {
     Builder result = null;
 
     if ("item".equals(name)) {
@@ -37,7 +35,7 @@ public class EnumerationBuilder extends Builder {
 
 
   public String toString() {
-    return "<enumeration/>";
+    return enumeration.toString();
   }
 
 

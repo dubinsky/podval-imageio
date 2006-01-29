@@ -11,12 +11,12 @@ public abstract class Entry {
 
 
   protected Entry(String name) {
-    this(name, null);
+    this.name = name;
   }
 
 
-  protected Entry(String name, Type type) {
-    this.name = name;
+  protected Entry(String name, Type type) throws MetaMetaDataException {
+    this(name);
     setType(type);
   }
 
@@ -26,17 +26,15 @@ public abstract class Entry {
   }
 
 
-  public final void setType(Type value) {
+  public final void setType(Type value) throws MetaMetaDataException {
     if (value != null) {
       if ((type != null) && (type != value)) {
-        throw new IllegalStateException("Attempt to change the type");
+        throw new MetaMetaDataException("Attempt to change the type of " + this + " to " + value);
       }
 
       type = value;
 
-      if (!checkType()) {
-        throw new IllegalArgumentException("Wrong type: " + this);
-      }
+      checkType();
     }
   }
 
@@ -46,7 +44,7 @@ public abstract class Entry {
   }
 
 
-  protected abstract boolean checkType();
+  protected abstract void checkType() throws MetaMetaDataException;
 
 
   public final void setSkip(boolean value) {

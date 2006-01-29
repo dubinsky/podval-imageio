@@ -8,21 +8,19 @@ import org.xml.sax.SAXException;
 
 public class MakerNoteMarkerBuilder extends Builder {
 
-  public MakerNoteMarkerBuilder(Builder previous, MakerNoteMarker makerNoteMarker) throws SAXException {
+  public MakerNoteMarkerBuilder(Builder previous, MakerNoteMarker makerNoteMarker) {
     super(previous);
     this.makerNoteMarker = makerNoteMarker;
   }
 
 
-  public Builder startElement(String name, Attributes attributes)
-    throws SAXException
-  {
+  public Builder startElement(String name, Attributes attributes) {
     return null;
   }
 
 
   public String toString() {
-    return "<makerNoteMarker name=\"" + makerNoteMarker.getName() + "\"/>";
+    return makerNoteMarker.toString();
   }
 
 

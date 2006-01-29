@@ -161,7 +161,7 @@ public abstract class Reader {
   public final boolean readInitialHeap(String name, long offset, int length, int tag, boolean seekAfter)
     throws IOException
   {
-    return metaMetaData.getHeap(name, null).read(this, offset, length, tag, seekAfter);
+    return metaMetaData.getHeap(name).read(this, offset, length, tag, seekAfter);
   }
 
 

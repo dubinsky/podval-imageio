@@ -9,18 +9,20 @@ import java.io.IOException;
 
 public final class Record extends Entry {
 
-  public Record(String name) {
+  public Record(String name) throws MetaMetaDataException {
     super(name);
   }
 
 
-  public Record(String name, Type type) {
+  public Record(String name, Type type) throws MetaMetaDataException {
     super(name, type);
   }
 
 
-  protected boolean checkType() {
-    return getType().isRecordAllowed();
+  protected void checkType() throws MetaMetaDataException {
+    if (!getType().isRecordAllowed()) {
+      throw new MetaMetaDataException("Wrong record type: " + this);
+    }
   }
 
 
@@ -29,9 +31,9 @@ public final class Record extends Entry {
   }
 
 
-  public void setIsVector(boolean value) {
+  public void setIsVector(boolean value) throws MetaMetaDataException {
     if (value && !getType().isVectorAllowed()) {
-      throw new IllegalArgumentException("Can not be a vector");
+      throw new MetaMetaDataException("Can not be a vector: " + this);
     }
 
     isVector |= value;
@@ -46,7 +48,7 @@ public final class Record extends Entry {
   }
 
 
-  public Field getDefaultField() {
+  public Field getDefaultField() throws MetaMetaDataException {
     /** @todo check that there are no other fields - and that there won't be! */
     if (fields.isEmpty()) {
       addField(0, new Field(getName(), getType()));
@@ -56,9 +58,9 @@ public final class Record extends Entry {
   }
 
 
-  public void addField(int index, Field field) {
+  public void addField(int index, Field field) throws MetaMetaDataException {
     if (!getType().isFieldAllowed(field.getType())) {
-      throw new IllegalArgumentException(field + " is not allowed in " + this);
+      throw new MetaMetaDataException(field + " of this type is not allowed in " + this);
     }
 
     ensureSize(index+1);
@@ -95,21 +97,29 @@ public final class Record extends Entry {
     if (treatAsFolder) {
       if (reader.getHandler().startFolder(tag, getName())) {
         for (int index = 0; index < count; index++) {
-          Field field = reader.getMetaMetaData().getField(this, index);
-          Type fieldType = field.getType();
-          if (!isVector() || (index != 0)) {
-            handleRecord(reader, offset, index, fieldType, 1, field);
-          } else {
-            /** @todo check vector length */
+          try {
+            Field field = reader.getMetaMetaData().getField(this, index);
+            Type fieldType = field.getType();
+            if (!isVector() || (index != 0)) {
+              handleRecord(reader, offset, index, fieldType, 1, field);
+            } else {
+              /** @todo check vector length */
+            }
+            offset += fieldType.getLength();
+          } catch (MetaMetaDataException e) {
+            throw new IOException(e.getMessage());
           }
-          offset += fieldType.getLength();
         }
       }
 
       reader.getHandler().endFolder();
 
     } else {
-      handleRecord(reader, offset, tag, type, count, getDefaultField());
+      try {
+        handleRecord(reader, offset, tag, type, count, getDefaultField());
+      } catch (MetaMetaDataException e) {
+        throw new IOException(e.getMessage());
+      }
     }
   }
 

@@ -15,13 +15,15 @@ public class Heap extends Entry {
   }
 
 
-  public Heap(String name, Type type) {
+  public Heap(String name, Type type) throws MetaMetaDataException {
     super(name, type);
   }
 
 
-  protected final boolean checkType() {
-    return true;
+  protected final void checkType() throws MetaMetaDataException {
+    if (!getType().isHeapAllowed()) {
+      throw new MetaMetaDataException("Wrong heap type: " + this);
+    }
   }
 
 
@@ -30,11 +32,9 @@ public class Heap extends Entry {
       throw new IllegalArgumentException("Attempt to add an entry " + this.getName() + "." + entry.getName() + " without type");
     }
 
-    /** @todo add under all of the entry's types
-         for (Iterator i = entry.getType().getActualTypes().iterator(); i.hasNext();)
-           addEntry(tag, (Type) i.next(), entry);
-     */
-    addEntry(tag, entry.getType(), entry);
+    for (Type type : entry.getType().getActualTypes()) {
+      addEntry(tag, type, entry);
+    }
   }
 
 

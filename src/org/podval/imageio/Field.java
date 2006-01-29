@@ -7,13 +7,13 @@ import java.io.IOException;
 
 public final class Field extends Entry {
 
-  public Field(String name, Type type) {
+  public Field(String name, Type type) throws MetaMetaDataException {
     super(name, type);
   }
 
 
-  protected boolean checkType() {
-    return getType().isRecordAllowed();
+  protected void checkType() {
+    /** @todo  */
   }
 
 
@@ -33,8 +33,10 @@ public final class Field extends Entry {
   }
 
 
-  public void setEnumeration(Enumeration value) {
-    /** @todo checks? */
+  public void setEnumeration(Enumeration value) throws MetaMetaDataException {
+    if (!getType().isEnumerationAllowed()) {
+      throw new MetaMetaDataException("Enumeration is not allowed for " + this);
+    }
     enumeration = value;
   }
 

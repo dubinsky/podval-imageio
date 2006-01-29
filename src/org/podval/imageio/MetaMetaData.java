@@ -33,18 +33,24 @@ public final class MetaMetaData {
   }
 
 
-  public Heap getHeap(String name, Type type) {
-    Heap result = name2heap.get(name);
-    if (result == null) {
-      result = new Heap(name);
-      name2heap.put(name, result);
-    }
+  public Heap getHeap(String name, Type type) throws MetaMetaDataException {
+    Heap result = getHeap(name);
     result.setType(type);
     return result;
   }
 
 
-  public Record getRecord(String name, Type type) {
+  public Heap getHeap(String name) {
+    Heap result = name2heap.get(name);
+    if (result == null) {
+      result = new Heap(name);
+      name2heap.put(name, result);
+    }
+    return result;
+  }
+
+
+  public Record getRecord(String name, Type type) throws MetaMetaDataException {
     Record result = name2record.get(name);
     if (result == null) {
       result = new Record(name);
@@ -74,15 +80,19 @@ public final class MetaMetaData {
     Entry result = heap.getEntry(tag, type);
 
     if (result == null) {
-      switch (kind) {
-      case HEAP   : result = unknownHeap  (tag, type); break;
-      case RECORD : result = unknownRecord(tag, type); break;
-      case UNKNOWN:
-        boolean isRecordAllowed = true; /** @todo this depends on type... */
-        result = (isRecordAllowed) ?
-          unknownRecord(tag, type) :
-          unknownHeap  (tag, type);
-        break;
+      try {
+        switch (kind) {
+        case HEAP   : result = unknownHeap  (tag, type); break;
+        case RECORD : result = unknownRecord(tag, type); break;
+        case UNKNOWN:
+          boolean isRecordAllowed = true; /** @todo this depends on type... */
+          result = (isRecordAllowed) ?
+            unknownRecord(tag, type) :
+            unknownHeap(tag, type);
+          break;
+        }
+      } catch (MetaMetaDataException e) {
+        throw new IOException(e.getMessage());
       }
 
       learn(heap, tag, result);
@@ -100,7 +110,7 @@ public final class MetaMetaData {
   }
 
 
-  public Field getField(Record record, int index) {
+  public Field getField(Record record, int index) throws MetaMetaDataException {
     Field result = record.getField(index);
 
     if (result == null) {
@@ -112,17 +122,17 @@ public final class MetaMetaData {
   }
 
 
-  private Heap unknownHeap(int tag, Type type) {
+  private Heap unknownHeap(int tag, Type type) throws MetaMetaDataException {
     return new Heap(unknown(tag), type);
   }
 
 
-  private Record unknownRecord(int tag, Type type) {
+  private Record unknownRecord(int tag, Type type) throws MetaMetaDataException {
     return new Record(unknown(tag), type);
   }
 
 
-  private Field unknownField(int tag, Type type) {
+  private Field unknownField(int tag, Type type) throws MetaMetaDataException {
     return new Field(unknown(tag), type);
   }
 
@@ -139,7 +149,7 @@ public final class MetaMetaData {
   }
 
 
-  private void learn(Record record, int index, Field field) {
+  private void learn(Record record, int index, Field field) throws MetaMetaDataException {
     record.addField(index, field);
   }
 

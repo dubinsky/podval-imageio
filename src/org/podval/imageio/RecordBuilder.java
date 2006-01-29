@@ -9,14 +9,16 @@ import org.xml.sax.Attributes;
 public class RecordBuilder extends Builder {
 
   public RecordBuilder(Builder previous, Attributes attributes)
-    throws SAXException
+    throws MetaMetaDataException
   {
     super(previous);
     this.record = createRecord(attributes);
   }
 
 
-  private Record createRecord(Attributes attributes) throws SAXException {
+  private Record createRecord(Attributes attributes)
+    throws MetaMetaDataException
+  {
     Record result = getMetaMetaData().getRecord(
       getName(attributes),
       getType(attributes)
@@ -25,6 +27,7 @@ public class RecordBuilder extends Builder {
     /** @todo count */
 
     result.setIsVector(getBooleanAttribute("vector", attributes));
+
     result.setSkip(getBooleanAttribute("skip", attributes));
 
     String conversion = attributes.getValue("conversion");
@@ -37,7 +40,7 @@ public class RecordBuilder extends Builder {
 
 
   public Builder startElement(String name, Attributes attributes)
-    throws SAXException
+    throws MetaMetaDataException
   {
     Builder result = null;
 
@@ -64,7 +67,7 @@ public class RecordBuilder extends Builder {
 
 
   public String toString() {
-    return "<record name=\"" + record.getName() + "\"/>";
+    return record.toString();
   }
 
 

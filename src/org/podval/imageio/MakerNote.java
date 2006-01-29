@@ -8,9 +8,13 @@ import java.io.IOException;
 public class MakerNote extends Heap {
 
   public MakerNote(String name, String maker, String signature) {
-    super(name, null);
+    super(name);
     this.maker = maker;
     this.signature = signature;
+  }
+
+
+  protected void checktype() {
   }
 
 

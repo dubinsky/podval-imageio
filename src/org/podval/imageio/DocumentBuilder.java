@@ -14,9 +14,7 @@ public class DocumentBuilder extends Builder {
   }
 
 
-  public Builder startElement(String name, Attributes attributes)
-    throws SAXException
-  {
+  public Builder startElement(String name, Attributes attributes) {
     Builder result = null;
 
     if ("meta-metadata".equals(name)) {

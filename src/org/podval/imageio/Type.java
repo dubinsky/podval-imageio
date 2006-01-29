@@ -91,6 +91,7 @@ public enum Type {
 
   private Type(int length) {
     this.length = length;
+    this.actualTypes.add(this);
   }
 
 
@@ -155,7 +156,7 @@ public enum Type {
   }
 
 
-  public final Set<Type> getAllowedTypes() {
+  public final Set<Type> getActualTypes() {
     return Collections.unmodifiableSet(actualTypes);
   }
 

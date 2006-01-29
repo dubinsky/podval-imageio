@@ -14,7 +14,7 @@ public class RootBuilder extends Builder {
 
 
   public Builder startElement(String name, Attributes attributes)
-    throws SAXException
+    throws MetaMetaDataException
   {
     Builder result = null;
 

@@ -75,7 +75,7 @@ public final class Loader {
 
     parser.parse(is, new DefaultHandler() {
 
-      public void startDocument() throws SAXException {
+      public void startDocument() {
         currentBuilder = new DocumentBuilder(metaMetaData);
       }
 
@@ -83,22 +83,44 @@ public final class Loader {
       public void startElement(String uri, String localName, String qName, Attributes attributes)
         throws SAXException
       {
-        Builder nextBuilder = currentBuilder.startElement(qName, attributes);
-        if (nextBuilder == null) {
-          throw new SAXException("Unexpected element " + qName + " in " + currentBuilder);
+        try {
+          Builder nextBuilder = currentBuilder.startElement(qName, attributes);
+          if (nextBuilder == null) {
+            throw new MetaMetaDataException("Unexpected element " + qName + " in " +
+              currentBuilder);
+          }
+          currentBuilder = nextBuilder;
+        } catch (MetaMetaDataException e) {
+          throw new SAXException(calculateExceptionMessage(e));
         }
-        currentBuilder = nextBuilder;
       }
 
 
       public void endElement(String uri, String localName, String qName)
         throws SAXException
       {
-        currentBuilder = currentBuilder.endElement();
+        try {
+          currentBuilder.check();
+          currentBuilder = currentBuilder.getPrevious();
+        } catch (MetaMetaDataException e) {
+          throw new SAXException(calculateExceptionMessage(e));
+        }
       }
     });
   }
 
+
+  private String calculateExceptionMessage(MetaMetaDataException e) {
+    String result = e.getMessage();
+
+    Builder context = currentBuilder;
+    while (!(context instanceof RootBuilder)) {
+      result = context + " / " + result;
+      context = context.getPrevious();
+    }
+
+    return result;
+  }
 
   private final MetaMetaData metaMetaData;
 
