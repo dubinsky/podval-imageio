@@ -2,6 +2,10 @@
 
 package org.podval.imageio;
 
+import org.podval.imageio.metametadata.MetaMetaData;
+
+import org.podval.imageio.util.SaxDumper;
+
 import org.xml.sax.helpers.AttributesImpl;
 import org.xml.sax.SAXException;
 
@@ -12,7 +16,6 @@ import javax.imageio.stream.ImageInputStream;
 
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactoryConfigurationError;
-import org.podval.imageio.metametadata.*;
 
 
 public class SaxDumpingHandler extends SaxDumper implements ReaderHandler {
@@ -22,7 +25,6 @@ public class SaxDumpingHandler extends SaxDumper implements ReaderHandler {
 
   public static void dump(Reader reader, ImageInputStream in, MetaMetaData metaMetaData, OutputStream os)
     throws
-    IOException,
     TransformerFactoryConfigurationError,
     TransformerException,
     IllegalArgumentException
@@ -44,59 +46,49 @@ public class SaxDumpingHandler extends SaxDumper implements ReaderHandler {
 
 
   public boolean startFolder(int tag, String name) {
-    try {
-      AttributesImpl attributes = new AttributesImpl();
-      addAttribute(attributes, "tag", Integer.toString(tag));
-      addNameAttribute(attributes, name);
-      contentHandler.startElement(null, null, "folder", attributes);
-    } catch (SAXException e) {
-    }
+    AttributesImpl attributes = new AttributesImpl();
+    addAttribute(attributes, "tag", Integer.toString(tag));
+    addNameAttribute(attributes, name);
+    startElement("folder", attributes);
     return true;
   }
 
 
   public void endFolder() {
-    try {
-      contentHandler.endElement(null, null, "folder");
-    } catch (SAXException e) {
-    }
+    endElement("folder");
   }
 
 
-  public ValueAction atValue(int tag, String name, Type type, int count)
-    throws IOException
-  {
+  public ValueAction atValue(int tag, String name, int count) {
     return (count <= MAX_COUNT) ? ValueAction.VALUE : ValueAction.RAW;
   }
 
 
-  public void handleValue(int tag, String name, Type type, int count, Object value) {
-    if ("make".equals(name) && (type == Type.STRING)) {
+  public void handleValue(int tag, String name, int count, Object value) {
+    if ("make".equals(name)) {
       make = (String) value;
     }
 
-    handleRecord(tag, name, type, count, value);
+    handleRecord(tag, name, count, value);
   }
 
 
-  public void handleRawValue(int tag, String name, Type type, int count, ImageInputStream is)
+  public void handleRawValue(int tag, String name, int count, ImageInputStream is)
     throws IOException
   {
     byte[] value = new byte[MAX_COUNT];
     in.readFully(value);
 
-    handleRecord(tag, name, type, count, value);
+    handleRecord(tag, name, count, value);
   }
 
 
-  private void handleRecord(int tag, String name, Type type, int count, Object value) {
+  private void handleRecord(int tag, String name, int count, Object value) {
     AttributesImpl attributes = new AttributesImpl();
 
     addAttribute(attributes, "tag", Integer.toString(tag));
 
     addNameAttribute(attributes, name);
-
-    addAttribute(attributes, "type", type.toString());
 
     if (count != 1) {
       addAttribute(attributes, "count", Integer.toString(count));
@@ -156,18 +148,6 @@ public class SaxDumpingHandler extends SaxDumper implements ReaderHandler {
 
   private static String toHex(byte b) {
     return HEX[(b & 0xF0) >> 4] + HEX[b & 0xF];
-  }
-
-
-  private void addNameAttribute(AttributesImpl attributes, String name) {
-    if (name != null) {
-      addAttribute(attributes, "name", name);
-    }
-  }
-
-
-  private void addAttribute(AttributesImpl attributes, String name, String value) {
-    attributes.addAttribute(null, null, name, "string", value);
   }
 
 

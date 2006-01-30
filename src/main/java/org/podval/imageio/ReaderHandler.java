@@ -22,14 +22,14 @@ public interface ReaderHandler {
   public void endFolder();
 
 
-  public ValueAction atValue(int tag, String name, Type type, int count)
+  public ValueAction atValue(int tag, String name, int count)
     throws IOException;
 
 
-  public void handleValue(int tag, String name, Type type, int count, Object value);
+  public void handleValue(int tag, String name, int count, Object value);
 
 
-  public void handleRawValue(int tag, String name, Type type, int count, ImageInputStream is)
+  public void handleRawValue(int tag, String name, int count, ImageInputStream is)
     throws IOException;
 
 

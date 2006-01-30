@@ -1,6 +1,6 @@
 /* $Id$ */
 
-package org.podval.imageio;
+package org.podval.imageio.util;
 
 import java.io.IOException;
 
@@ -13,7 +13,7 @@ public final class Util {
   }
 
 
-  protected static int readUnsignedInt(ImageInputStream in) throws IOException {
+  public static int readUnsignedInt(ImageInputStream in) throws IOException {
     return toInt(in.readUnsignedInt());
   }
 

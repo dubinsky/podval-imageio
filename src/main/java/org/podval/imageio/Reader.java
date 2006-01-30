@@ -2,12 +2,15 @@
 
 package org.podval.imageio;
 
+import org.podval.imageio.metametadata.MetaMetaData;
+
+import org.podval.imageio.util.Util;
+
 import java.io.IOException;
 
 import javax.imageio.stream.ImageInputStream;
 
 import java.nio.ByteOrder;
-import org.podval.imageio.metametadata.*;
 
 
 public abstract class Reader {

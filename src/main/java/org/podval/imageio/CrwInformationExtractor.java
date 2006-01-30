@@ -50,7 +50,7 @@ public class CrwInformationExtractor {
       }
 
 
-      public ValueAction atValue(int tag, String name, Type type, int count)
+      public ValueAction atValue(int tag, String name, int count)
         throws FileNotFoundException
       {
         ValueAction result = ValueAction.SKIP;
@@ -67,7 +67,7 @@ public class CrwInformationExtractor {
       }
 
 
-      public void handleValue(int tag, String name, Type type, int count, Object value) {
+      public void handleValue(int tag, String name, int count, Object value) {
         if (isWidthValue(tag)) {
           width = (Integer) value;
         } else
@@ -82,7 +82,7 @@ public class CrwInformationExtractor {
       }
 
 
-      public void handleRawValue(int tag, String name, Type type, int count, ImageInputStream is)
+      public void handleRawValue(int tag, String name, int count, ImageInputStream is)
         throws IOException
       {
         crwOffset = is.getStreamPosition();

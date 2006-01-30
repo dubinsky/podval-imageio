@@ -19,18 +19,18 @@ import java.io.BufferedReader;
 import java.io.IOException;
 
 
-public final class Loader {
+public final class MetaMetaDataLoader {
 
   public static MetaMetaData load(String resourceName)
     throws ParserConfigurationException, SAXException, IOException
   {
     MetaMetaData result = new MetaMetaData();
-    new Loader(result).loadResource(resourceName);
+    new MetaMetaDataLoader(result).loadResource(resourceName);
     return result;
   }
 
 
-  private Loader(MetaMetaData metaMetaData) {
+  private MetaMetaDataLoader(MetaMetaData metaMetaData) {
     this.metaMetaData = metaMetaData;
   }
 

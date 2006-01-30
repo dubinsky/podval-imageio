@@ -5,11 +5,12 @@ package org.podval.imageio.metametadata;
 import org.podval.imageio.Reader;
 import org.podval.imageio.HeapInformation;
 import org.podval.imageio.EntryInformation;
-import org.podval.imageio.Type;
-
 
 import java.util.Map;
 import java.util.HashMap;
+import java.util.List;
+import java.util.LinkedList;
+import java.util.Collections;
 
 import java.io.IOException;
 
@@ -57,7 +58,19 @@ public class Heap extends Entry {
 
 
   public final Entry getEntry(int tag, Type type) {
-    return entries.get(new Key(tag, type));
+    return getEntry(new Key(tag, type));
+  }
+
+
+  public final Entry getEntry(Key key) {
+    return entries.get(key);
+  }
+
+
+  public final List<Key> getKeys() {
+    List<Key> result = new LinkedList<Key>(entries.keySet());
+    Collections.sort(result);
+    return result;
   }
 
 
@@ -132,11 +145,27 @@ public class Heap extends Entry {
 
   /**
    */
-  private static class Key {
+  public static final class Key implements Comparable<Key> {
 
     public Key(int tag, Type type) {
       this.tag = tag;
       this.type = type;
+    }
+
+
+    public int compareTo(Key other) {
+      int result;
+
+      if (tag < other.tag) {
+        result = -1;
+      } else
+      if (tag > other.tag) {
+        result = +1;
+      } else {
+        result = type.compareTo(other.type);
+      }
+
+      return result;
     }
 
 
@@ -160,13 +189,13 @@ public class Heap extends Entry {
     }
 
 
-    private final int tag;
+    public final int tag;
 
 
-    private final Type type;
+    public final Type type;
   }
 
 
 
-  private final Map<Key, Entry> entries = new HashMap<Key,Entry>();
+  private final Map<Key, Entry> entries = new HashMap<Key, Entry>();
 }

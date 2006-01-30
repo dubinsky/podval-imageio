@@ -2,7 +2,8 @@
 
 package org.podval.imageio;
 
-import org.podval.imageio.metametadata.*;
+import org.podval.imageio.metametadata.Type;
+import org.podval.imageio.metametadata.Entry;
 
 
 public class EntryInformation {

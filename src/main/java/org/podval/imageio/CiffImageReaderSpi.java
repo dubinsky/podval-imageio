@@ -1,3 +1,5 @@
+/* $Id$ */
+
 package org.podval.imageio;
 
 import java.util.Locale;

@@ -3,7 +3,6 @@
 package org.podval.imageio.metametadata;
 
 import org.podval.imageio.Reader;
-import org.podval.imageio.Type;
 
 import java.io.IOException;
 

@@ -2,9 +2,7 @@
 
 package org.podval.imageio.metametadata;
 
-import org.podval.imageio.Type;
-import org.podval.imageio.metametadata.loader.Loader;
-
+import org.podval.imageio.metametadata.loader.MetaMetaDataLoader;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -23,7 +21,7 @@ public final class MetaMetaData {
   {
     MetaMetaData result = name2data.get(name);
     if (result == null) {
-      result = Loader.load(name + ".list");
+      result = MetaMetaDataLoader.load(name + ".list");
       name2data.put(name, result);
     }
     return result;

@@ -1,6 +1,10 @@
 /* $Id$ */
 
-package org.podval.imageio;
+package org.podval.imageio.metametadata;
+
+import org.podval.imageio.Rational;
+
+import org.podval.imageio.util.Util;
 
 import javax.imageio.stream.ImageInputStream;
 

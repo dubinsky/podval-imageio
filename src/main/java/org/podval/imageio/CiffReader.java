@@ -2,10 +2,14 @@
 
 package org.podval.imageio;
 
+import org.podval.imageio.metametadata.Type;
+import org.podval.imageio.metametadata.Entry;
+
+import org.podval.imageio.util.Util;
+
 import javax.imageio.stream.ImageInputStream;
 
 import java.io.IOException;
-import org.podval.imageio.metametadata.*;
 
 
 public class CiffReader extends Reader {

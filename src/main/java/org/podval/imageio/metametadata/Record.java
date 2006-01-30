@@ -3,10 +3,10 @@
 package org.podval.imageio.metametadata;
 
 import org.podval.imageio.Reader;
-import org.podval.imageio.Type;
 
-
+import java.util.List;
 import java.util.ArrayList;
+import java.util.Collections;
 
 import java.io.IOException;
 
@@ -87,6 +87,11 @@ public final class Record extends Entry {
 
   public Field getField(int index) {
     return ((fields != null) && (index < fields.size())) ? fields.get(index) : null;
+  }
+
+
+  public List<Field> getFields() {
+    return Collections.unmodifiableList(fields);
   }
 
 

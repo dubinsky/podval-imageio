@@ -2,8 +2,7 @@
 
 package org.podval.imageio.metametadata.loader;
 
-import org.podval.imageio.Type;
-
+import org.podval.imageio.metametadata.Type;
 import org.podval.imageio.metametadata.Field;
 import org.podval.imageio.metametadata.MetaMetaDataException;
 

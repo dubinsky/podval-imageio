@@ -4,8 +4,6 @@ package org.podval.imageio.metametadata;
 
 import org.podval.imageio.Reader;
 import org.podval.imageio.ReaderHandler; /** @todo encapsulate in the Reader? */
-import org.podval.imageio.Type;
-
 
 import java.io.IOException;
 
@@ -54,14 +52,14 @@ public final class Field extends Entry {
   public void read(Reader reader, long offset, int count, int tag, Type type)
     throws IOException
   {
-    ReaderHandler.ValueAction action = reader.getHandler().atValue(tag, getName(), type, count);
+    ReaderHandler.ValueAction action = reader.getHandler().atValue(tag, getName(), count);
 
     if ((action != null) && (action != ReaderHandler.ValueAction.SKIP)) {
       reader.seek(offset);
 
       switch (action) {
-      case RAW  : reader.getHandler().handleRawValue(tag, getName(), type, count, reader.getInputStream());        break;
-      case VALUE: reader.getHandler().handleValue   (tag, getName(), type, count, readValue(reader, type, count)); break;
+      case RAW  : reader.getHandler().handleRawValue(tag, getName(), count, reader.getInputStream());        break;
+      case VALUE: reader.getHandler().handleValue   (tag, getName(), count, readValue(reader, type, count)); break;
       }
     }
   }

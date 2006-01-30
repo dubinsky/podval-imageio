@@ -1,6 +1,6 @@
 /* $Id$ */
 
-package org.podval.imageio;
+package org.podval.imageio.util;
 
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.OutputKeys;
@@ -18,6 +18,7 @@ import org.xml.sax.EntityResolver;
 import org.xml.sax.SAXNotRecognizedException;
 import org.xml.sax.SAXException;
 import org.xml.sax.InputSource;
+import org.xml.sax.helpers.AttributesImpl;
 
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -128,6 +129,34 @@ public abstract class SaxDumper implements XMLReader {
 
 
   protected abstract void read() throws IOException;
+
+
+  protected final void addNameAttribute(AttributesImpl attributes, String name) {
+    if (name != null) {
+      addAttribute(attributes, "name", name);
+    }
+  }
+
+
+  protected final void addAttribute(AttributesImpl attributes, String name, String value) {
+    attributes.addAttribute(null, null, name, "string", value);
+  }
+
+
+  protected final void startElement(String name, AttributesImpl attributes) {
+    try {
+      contentHandler.startElement(null, null, name, attributes);
+    } catch (SAXException e) {
+    }
+  }
+
+
+  protected final void endElement(String name) {
+    try {
+      contentHandler.endElement(null, null, name);
+    } catch (SAXException e) {
+    }
+  }
 
 
   protected ContentHandler contentHandler;

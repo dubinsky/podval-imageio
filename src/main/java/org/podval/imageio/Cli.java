@@ -2,6 +2,8 @@
 
 package org.podval.imageio;
 
+import org.podval.imageio.metametadata.MetaMetaData;
+
 import java.io.File;
 import java.io.IOException;
 
@@ -15,7 +17,6 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 
 import java.util.Iterator;
-import org.podval.imageio.metametadata.*;
 
 
 public final class Cli {

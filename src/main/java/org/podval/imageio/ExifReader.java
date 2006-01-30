@@ -2,10 +2,12 @@
 
 package org.podval.imageio;
 
+import org.podval.imageio.metametadata.Type;
+import org.podval.imageio.metametadata.Entry;
+
 import javax.imageio.stream.ImageInputStream;
 
 import java.io.IOException;
-import org.podval.imageio.metametadata.*;
 
 
 public class ExifReader extends Reader {
