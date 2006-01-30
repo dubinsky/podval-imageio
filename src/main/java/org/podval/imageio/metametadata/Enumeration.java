@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.lang.NoSuchFieldException;
 
 
-public class Enumeration {
+public final class Enumeration {
 
   public Enumeration(Class enumClass) {
     this.enumClass = enumClass;
@@ -52,6 +52,15 @@ public class Enumeration {
       String unknown = "unknown-" + tag;
       result = unknown;
       addValue(tag, unknown);
+    }
+
+    return result;
+  }
+
+
+  public Object getValue(Object result) {
+    if (result instanceof Integer) {
+      result = getValue(((Integer) result).intValue());
     }
 
     return result;

@@ -110,7 +110,7 @@ public final class Record extends Entry {
             Field field = reader.getMetaMetaData().getField(this, index);
             Type fieldType = field.getType();
             if (!isVector() || (index != 0)) {
-              handleRecord(reader, offset, index, fieldType, 1, field);
+              handleField(reader, offset, index, fieldType, 1, field);
             } else {
               /** @todo check vector length */
             }
@@ -125,7 +125,7 @@ public final class Record extends Entry {
 
     } else {
       try {
-        handleRecord(reader, offset, tag, type, count, getDefaultField());
+        handleField(reader, offset, tag, type, count, getDefaultField());
       } catch (MetaMetaDataException e) {
         throw new IOException(e.getMessage());
       }
@@ -133,7 +133,7 @@ public final class Record extends Entry {
   }
 
 
-  private void handleRecord(Reader reader, long offset, int tag, Type type, int count, Field field)
+  private void handleField(Reader reader, long offset, int tag, Type type, int count, Field field)
     throws IOException
   {
     field.read(reader, offset, count, tag, type);

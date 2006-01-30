@@ -44,11 +44,9 @@ public class FieldBuilder extends Builder {
     Builder result = null;
 
     if ("field".equals(name)) {
-      /** @todo !!!!! */
-      /** @todo there can not be one subfield in a field */
-/////      field.addField(subField);
       FieldBuilder fieldBuilder = new FieldBuilder(this, attributes, field.getType());
       Field subField = fieldBuilder.field;
+      field.addSubField(subField);
       result = fieldBuilder;
     } else
 
@@ -59,6 +57,11 @@ public class FieldBuilder extends Builder {
     }
 
     return result;
+  }
+
+
+  protected void check() throws MetaMetaDataException {
+    field.checkSubFields();
   }
 
 

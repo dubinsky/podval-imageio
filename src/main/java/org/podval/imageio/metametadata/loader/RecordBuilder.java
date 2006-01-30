@@ -47,9 +47,8 @@ public class RecordBuilder extends Builder {
     Builder result = null;
 
     if ("field".equals(name)) {
-      /** @todo if default field was created, explicit fields are not allowed. */
       FieldBuilder fieldBuilder = new FieldBuilder(this, attributes, record.getType());
-      /** @todo there can not be one subfield in a field */
+
       if (attributes.getValue("index") != null) {
         index = getIntegerAttribute("index", attributes);
       }
