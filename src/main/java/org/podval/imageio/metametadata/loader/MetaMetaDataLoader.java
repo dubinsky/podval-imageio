@@ -21,12 +21,10 @@ import java.io.IOException;
 
 public final class MetaMetaDataLoader {
 
-  public static MetaMetaData load(String resourceName)
+  public static void load(MetaMetaData result)
     throws ParserConfigurationException, SAXException, IOException
   {
-    MetaMetaData result = new MetaMetaData();
-    new MetaMetaDataLoader(result).loadResource(resourceName);
-    return result;
+    new MetaMetaDataLoader(result).load(result.getName() + ".list");
   }
 
 
@@ -35,7 +33,7 @@ public final class MetaMetaDataLoader {
   }
 
 
-  private void loadResource(String resourceName)
+  private void load(String resourceName)
     throws ParserConfigurationException, SAXException, IOException
   {
     InputStream is = getClass().getClassLoader().getResourceAsStream(resourceName);
@@ -65,7 +63,7 @@ public final class MetaMetaDataLoader {
       }
       line = line.trim();
       if ((line.length() > 0) && !line.startsWith("#")) {
-        loadResource(line);
+        load(line);
       }
     }
   }

@@ -40,7 +40,7 @@ public class SaxDumpingHandler extends SaxDumper implements ReaderHandler {
   }
 
 
-  protected void read() throws IOException {
+  protected void dump() throws IOException {
     reader.read(in, this, metaMetaData);
   }
 
@@ -65,11 +65,7 @@ public class SaxDumpingHandler extends SaxDumper implements ReaderHandler {
 
 
   public void handleValue(int tag, String name, int count, Object value) {
-    if ("make".equals(name)) {
-      make = (String) value;
-    }
-
-    handleRecord(tag, name, count, value);
+    handleItem(tag, name, count, value);
   }
 
 
@@ -79,11 +75,11 @@ public class SaxDumpingHandler extends SaxDumper implements ReaderHandler {
     byte[] value = new byte[MAX_COUNT];
     in.readFully(value);
 
-    handleRecord(tag, name, count, value);
+    handleItem(tag, name, count, value);
   }
 
 
-  private void handleRecord(int tag, String name, int count, Object value) {
+  private void handleItem(int tag, String name, int count, Object value) {
     AttributesImpl attributes = new AttributesImpl();
 
     addAttribute(attributes, "tag", Integer.toString(tag));
@@ -138,11 +134,6 @@ public class SaxDumpingHandler extends SaxDumper implements ReaderHandler {
   }
 
 
-  public String getMake() {
-    return make;
-  }
-
-
   private static final String[] HEX = new String[] { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F" };
 
 
@@ -158,7 +149,4 @@ public class SaxDumpingHandler extends SaxDumper implements ReaderHandler {
 
 
   private final MetaMetaData metaMetaData;
-
-
-  private String make;
 }

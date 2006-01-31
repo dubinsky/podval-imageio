@@ -21,7 +21,8 @@ public final class MetaMetaData {
   {
     MetaMetaData result = name2data.get(name);
     if (result == null) {
-      result = MetaMetaDataLoader.load(name + ".list");
+      result = new MetaMetaData(name);
+      MetaMetaDataLoader.load(result);
       name2data.put(name, result);
     }
     return result;
@@ -31,7 +32,18 @@ public final class MetaMetaData {
   private static Map<String, MetaMetaData> name2data = new HashMap<String,MetaMetaData>();
 
 
-  public MetaMetaData() {
+  public MetaMetaData(String name) {
+    this.name = name;
+  }
+
+
+  public String getName() {
+    return name;
+  }
+
+
+  public Heap getInitialHeap() {
+    return getHeap(getName() + "-root");
   }
 
 
@@ -154,6 +166,9 @@ public final class MetaMetaData {
   private void learn(Record record, int index, Field field) throws MetaMetaDataException {
     record.addField(index, field);
   }
+
+
+  private final String name;
 
 
   private final Map<String, Heap> name2heap = new HashMap<String, Heap>();

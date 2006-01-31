@@ -34,9 +34,8 @@ public class ExifReader extends Reader {
     // Since virtually all the tags (except 513 and 514) seem to be allowed
     // both in IFD0 and IFD1 (including EXIF and GPS IFDs),
     // the same directory descriptor can be used for IFD1 too.
-    String heapName = "org_podval_imageio_exif_1.0";
-    if (readInitialHeap(heapName, 0, true)) {
-      readInitialHeap(heapName, 1, false);
+    if (readInitialHeap(0, true)) {
+      readInitialHeap(1, false);
     }
   }
 
@@ -107,6 +106,23 @@ public class ExifReader extends Reader {
 
     return result;
   }
+
+
+  public final void handleValue(int tag, String name, int count, Object value) {
+    if ("make".equals(name)) {
+      make = (String) value;
+    }
+
+    super.handleValue(tag, name, count, value);
+  }
+
+
+  public final String getMake() {
+    return make;
+  }
+
+
+  private String make;
 
 
   private long offsetBase;

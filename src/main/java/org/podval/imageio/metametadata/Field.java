@@ -95,14 +95,14 @@ public final class Field extends Entry {
     throws IOException
   {
     if (!hasSubFields()) {
-      ReaderHandler.ValueAction action = reader.getHandler().atValue(tag, getName(), count);
+      ReaderHandler.ValueAction action = reader.atValue(tag, getName(), count);
 
       if ((action != null) && (action != ReaderHandler.ValueAction.SKIP)) {
         reader.seek(offset);
 
         switch (action) {
-        case RAW  : reader.getHandler().handleRawValue(tag, getName(), count, reader.getInputStream());        break;
-        case VALUE: reader.getHandler().handleValue   (tag, getName(), count, readValue(reader, type, count)); break;
+        case RAW  : reader.handleRawValue(tag, getName(), count, reader.getInputStream());        break;
+        case VALUE: reader.handleValue   (tag, getName(), count, readValue(reader, type, count)); break;
         }
       }
 
@@ -111,7 +111,7 @@ public final class Field extends Entry {
         throw new IOException("Count must be 1 for fields with sub-fields");
       }
 
-      if (reader.getHandler().startFolder(tag, getName())) {
+      if (reader.startFolder(tag, getName())) {
         if (type != Type.U32) {
           throw new IOException("Reading of subfields implemented for fields of type U32 only");
         }
@@ -120,6 +120,8 @@ public final class Field extends Entry {
         int index = 0;
 
         for (Field subField : subFields) {
+          /** @todo redo with the number of bits */
+
           Type subFieldType = subField.getType();
           int subFieldValue;
 
@@ -134,20 +136,12 @@ public final class Field extends Entry {
             throw new IOException("Sub-field reading not implemented for type " + subFieldType);
           }
 
-          ReaderHandler.ValueAction action = reader.getHandler().atValue(tag, getName(), count);
-
-          if (action != null) {
-            switch (action) {
-            case SKIP : break;
-            case RAW  : throw new IOException("Can not read sub-field as raw");
-            case VALUE: reader.getHandler().handleValue(index, subField.getName(), 1, subField.processEnumeration(subFieldValue)); break;
-            }
-          }
+          reader.handleValue(index, subField.getName(), subField.processEnumeration(subFieldValue));
 
           index++;
         }
 
-        reader.getHandler().endFolder();
+        reader.endFolder();
       }
     }
   }

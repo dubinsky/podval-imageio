@@ -36,9 +36,7 @@ public class CrwThumbnailExtractor {
       }
 
 
-      public ValueAction atValue(int tag, String name, int count)
-        throws FileNotFoundException
-      {
+      public ValueAction atValue(int tag, String name, int count) {
         boolean stream =
           ((thumb != null) && (tag == THUMB_TAG)) ||
           ((proof != null) && (tag == PROOF_TAG));

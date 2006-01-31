@@ -2,7 +2,7 @@
 
 <meta-metadata>
 
-<directory name="org_podval_imageio_exif_1.0">
+<directory name="exif-root">
 
   <record tag="256" name="imageWidth" type="U16_or_U32"/>
 

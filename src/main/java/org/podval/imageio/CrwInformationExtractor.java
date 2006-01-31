@@ -50,9 +50,7 @@ public class CrwInformationExtractor {
       }
 
 
-      public ValueAction atValue(int tag, String name, int count)
-        throws FileNotFoundException
-      {
+      public ValueAction atValue(int tag, String name, int count) {
         ValueAction result = ValueAction.SKIP;
 
         if (isWidthValue(tag) || isHeightValue(tag) || isDecodeTableValue(tag)) {

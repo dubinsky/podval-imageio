@@ -3,6 +3,7 @@
 package org.podval.imageio.metametadata;
 
 import org.podval.imageio.Reader;
+import org.podval.imageio.ExifReader;
 
 import java.io.IOException;
 
@@ -25,7 +26,11 @@ public class MakerNoteMarker extends Entry {
   {
     MakerNote makerNote = null;
 
-    String make = reader.getHandler().getMake();
+    if (!(reader instanceof ExifReader)) {
+      throw new IOException("Maker note only allowed in EXIF!");
+    }
+
+    String make = ((ExifReader) reader).getMake();
 
     if (make != null) {
       makerNote = reader.getMetaMetaData().getMakerNote(make);
@@ -36,7 +41,6 @@ public class MakerNoteMarker extends Entry {
     }
 
     makerNote.read(reader, offset, length, tag, type);
-//    new RecordNG("unknown-maker-note", type).read(reader, offset, length, tag, type);
   }
 
 

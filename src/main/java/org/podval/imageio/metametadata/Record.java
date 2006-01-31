@@ -104,7 +104,7 @@ public final class Record extends Entry {
     boolean treatAsFolder = ((count > 1) || (getCount() > 1) || isVector()) && !type.isVariableLength();
 
     if (treatAsFolder) {
-      if (reader.getHandler().startFolder(tag, getName())) {
+      if (reader.startFolder(tag, getName())) {
         for (int index = 0; index < count; index++) {
           try {
             Field field = reader.getMetaMetaData().getField(this, index);
@@ -121,7 +121,7 @@ public final class Record extends Entry {
         }
       }
 
-      reader.getHandler().endFolder();
+      reader.endFolder();
 
     } else {
       try {

@@ -13,7 +13,7 @@ import javax.imageio.stream.ImageInputStream;
 import java.nio.ByteOrder;
 
 
-public abstract class Reader {
+public abstract class Reader implements ReaderHandler {
 
   /**
    * Checks if the stream seems to be of the appropriate format.
@@ -50,7 +50,7 @@ public abstract class Reader {
 
 
   public final void read(ImageInputStream in, ReaderHandler handler) throws IOException {
-    read(in, handler, new MetaMetaData());
+    read(in, handler, new MetaMetaData(""));
   }
 
 
@@ -155,17 +155,17 @@ public abstract class Reader {
   }
 
 
-  public final boolean readInitialHeap(String name, int tag, boolean seekAfter)
+  public final boolean readInitialHeap(int tag, boolean seekAfter)
     throws IOException
   {
-    return readInitialHeap(name, 0, 0, tag, seekAfter);
+    return readInitialHeap(0, 0, tag, seekAfter);
   }
 
 
-  public final boolean readInitialHeap(String name, long offset, int length, int tag, boolean seekAfter)
+  public final boolean readInitialHeap(long offset, int length, int tag, boolean seekAfter)
     throws IOException
   {
-    return metaMetaData.getHeap(name).read(this, offset, length, tag, seekAfter);
+    return metaMetaData.getInitialHeap().read(this, offset, length, tag, seekAfter);
   }
 
 
@@ -181,6 +181,48 @@ public abstract class Reader {
 
 
   public abstract boolean seekToHeap() throws IOException;
+
+
+  public final boolean startFolder(int tag, String name) {
+    return getHandler().startFolder(tag, name);
+  }
+
+
+  public final void endFolder() {
+    getHandler().endFolder();
+  }
+
+
+  public final ValueAction atValue(int tag, String name, int count) {
+    return getHandler().atValue(tag, name, count);
+  }
+
+
+  public void handleValue(int tag, String name, int count, Object value) {
+    getHandler().handleValue(tag, name, count, value);
+  }
+
+
+  public final void handleValue(int tag, String name, Object value)
+    throws IOException
+  {
+    ValueAction action = atValue(tag, name, 1);
+
+    if ((action != null) && (action != ValueAction.SKIP)) {
+      if (action == ValueAction.RAW) {
+        throw new IOException("Can not read this value as raw");
+      }
+
+      handleValue(tag, name, 1, value);
+    }
+  }
+
+
+  public final void handleRawValue(int tag, String name, int count, ImageInputStream is)
+    throws IOException
+  {
+    getHandler().handleRawValue(tag, name, count, is);
+  }
 
 
   protected int readUnsignedInt() throws IOException {

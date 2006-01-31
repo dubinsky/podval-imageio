@@ -22,8 +22,7 @@ public interface ReaderHandler {
   public void endFolder();
 
 
-  public ValueAction atValue(int tag, String name, int count)
-    throws IOException;
+  public ValueAction atValue(int tag, String name, int count);
 
 
   public void handleValue(int tag, String name, int count, Object value);
@@ -31,7 +30,4 @@ public interface ReaderHandler {
 
   public void handleRawValue(int tag, String name, int count, ImageInputStream is)
     throws IOException;
-
-
-  public String getMake();
 }

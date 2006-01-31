@@ -38,7 +38,7 @@ public class MetaMetaDataDumper extends SaxDumper {
   }
 
 
-  protected void read() {
+  protected void dump() {
     dumpHeap(heap, null);
   }
 

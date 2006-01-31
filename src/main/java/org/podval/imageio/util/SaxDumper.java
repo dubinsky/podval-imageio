@@ -27,7 +27,7 @@ import java.io.IOException;
 
 public abstract class SaxDumper implements XMLReader {
 
-  public void dump(OutputStream os) throws
+  public final void dump(OutputStream os) throws
     TransformerFactoryConfigurationError,
     TransformerException,
     IllegalArgumentException
@@ -47,88 +47,88 @@ public abstract class SaxDumper implements XMLReader {
   }
 
 
-  public boolean getFeature(String name) throws SAXNotRecognizedException {
+  public final boolean getFeature(String name) throws SAXNotRecognizedException {
     throw new SAXNotRecognizedException();
   }
 
 
 
-  public void setFeature(String name, boolean value) throws SAXNotRecognizedException {
+  public final void setFeature(String name, boolean value) throws SAXNotRecognizedException {
     throw new SAXNotRecognizedException();
   }
 
 
 
-  public Object getProperty(String name) throws SAXNotRecognizedException {
+  public final Object getProperty(String name) throws SAXNotRecognizedException {
     throw new SAXNotRecognizedException();
   }
 
 
 
-  public void setProperty(String name, Object value) throws SAXNotRecognizedException {
+  public final void setProperty(String name, Object value) throws SAXNotRecognizedException {
     throw new SAXNotRecognizedException();
   }
 
 
 
-  public void setEntityResolver(EntityResolver resolver) {
+  public final void setEntityResolver(EntityResolver resolver) {
   }
 
 
 
-  public EntityResolver getEntityResolver() {
+  public final EntityResolver getEntityResolver() {
     return null;
   }
 
 
 
-  public void setDTDHandler(DTDHandler handler) {
+  public final void setDTDHandler(DTDHandler handler) {
   }
 
 
 
-  public DTDHandler getDTDHandler() {
+  public final DTDHandler getDTDHandler() {
     return null;
   }
 
 
 
-  public void setContentHandler(ContentHandler handler) {
+  public final void setContentHandler(ContentHandler handler) {
     this.contentHandler = handler;
   }
 
 
 
-  public ContentHandler getContentHandler() {
+  public final ContentHandler getContentHandler() {
     return contentHandler;
   }
 
 
 
-  public void setErrorHandler(ErrorHandler handler) {
+  public final void setErrorHandler(ErrorHandler handler) {
   }
 
 
 
-  public ErrorHandler getErrorHandler() {
+  public final ErrorHandler getErrorHandler() {
     return null;
   }
 
 
 
-  public void parse(String systemId) {
+  public final void parse(String systemId) {
     throw new UnsupportedOperationException();
   }
 
 
-  public void parse(InputSource input) throws IOException, SAXException {
+  public final void parse(InputSource input) throws IOException, SAXException {
     contentHandler.startDocument();
-    read();
+    dump();
     contentHandler.endDocument();
   }
 
 
-  protected abstract void read() throws IOException;
+  protected abstract void dump() throws IOException;
 
 
   protected final void addNameAttribute(AttributesImpl attributes, String name) {
