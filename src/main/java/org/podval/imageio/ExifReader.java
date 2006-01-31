@@ -34,8 +34,8 @@ public class ExifReader extends Reader {
     // Since virtually all the tags (except 513 and 514) seem to be allowed
     // both in IFD0 and IFD1 (including EXIF and GPS IFDs),
     // the same directory descriptor can be used for IFD1 too.
-    if (readInitialHeap(0, true)) {
-      readInitialHeap(1, false);
+    if (readRootHeap(0, true)) {
+      readRootHeap(1, false);
     }
   }
 

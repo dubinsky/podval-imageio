@@ -21,10 +21,9 @@ public class RecordBuilder extends Builder {
   private Record createRecord(Attributes attributes)
     throws MetaMetaDataException
   {
-    Record result = getMetaMetaData().getRecord(
-      getName(attributes),
-      getType(attributes)
-    );
+    Record result = getMetaMetaData().getRecord(getName(attributes));
+
+    result.setType(getType(attributes));
 
     /** @todo count */
 

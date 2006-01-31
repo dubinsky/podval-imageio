@@ -33,7 +33,7 @@ public class MakerNoteMarker extends Entry {
     String make = ((ExifReader) reader).getMake();
 
     if (make != null) {
-      makerNote = reader.getMetaMetaData().getMakerNote(make);
+      makerNote = MakerNote.get(make);
     }
 
     if (makerNote == null) {

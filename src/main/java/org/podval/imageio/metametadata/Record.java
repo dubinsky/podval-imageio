@@ -13,7 +13,7 @@ import java.io.IOException;
 
 public final class Record extends Entry {
 
-  public Record(String name) throws MetaMetaDataException {
+  public Record(String name) {
     super(name);
   }
 
@@ -85,11 +85,6 @@ public final class Record extends Entry {
   }
 
 
-  public Field getField(int index) {
-    return ((fields != null) && (index < fields.size())) ? fields.get(index) : null;
-  }
-
-
   public List<Field> getFields() {
     return Collections.unmodifiableList(fields);
   }
@@ -107,7 +102,7 @@ public final class Record extends Entry {
       if (reader.startFolder(tag, getName())) {
         for (int index = 0; index < count; index++) {
           try {
-            Field field = reader.getMetaMetaData().getField(this, index);
+            Field field = getField(index);
             Type fieldType = field.getType();
             if (!isVector() || (index != 0)) {
               handleField(reader, offset, index, fieldType, 1, field);
@@ -130,6 +125,15 @@ public final class Record extends Entry {
         throw new IOException(e.getMessage());
       }
     }
+  }
+
+
+  private Field getField(int index) throws MetaMetaDataException {
+    if ((fields == null) || (index >= fields.size()) || (fields.get(index) == null)) {
+      addField(index, new Field(unknown(index), getType()));
+    }
+
+    return fields.get(index);
   }
 
 

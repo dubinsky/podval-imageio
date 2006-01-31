@@ -5,6 +5,7 @@ package org.podval.imageio.metametadata.loader;
 import org.podval.imageio.metametadata.Type;
 import org.podval.imageio.metametadata.Heap;
 import org.podval.imageio.metametadata.MetaMetaData;
+import org.podval.imageio.metametadata.MakerNote;
 import org.podval.imageio.metametadata.MetaMetaDataException;
 
 import org.xml.sax.Attributes;
@@ -33,17 +34,16 @@ public abstract class Builder {
   protected final Heap getHeap(Attributes attributes)
     throws MetaMetaDataException
   {
-    return getMetaMetaData().getHeap(
-      getName(attributes),
-      getType(attributes)
-    );
+    Heap result = getMetaMetaData().getHeap(getName(attributes));
+    result.setType(getType(attributes));
+    return result;
   }
 
 
   protected final Heap getMakerNote(Attributes attributes)
     throws MetaMetaDataException
   {
-    return getMetaMetaData().getMakerNote(
+    return MakerNote.get(
       getName(attributes),
       getAttribute("make", attributes),
       attributes.getValue("signature")

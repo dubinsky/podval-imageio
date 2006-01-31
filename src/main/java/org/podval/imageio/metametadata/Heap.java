@@ -106,9 +106,8 @@ public class Heap extends Entry {
         seekToEntry(reader, entriesOffset, i);
         EntryInformation entryInformation = reader.readEntryInformation(offset);
         if (entryInformation != null) {
-          reader.getMetaMetaData().getEntry(
+          getEntry(
             entryInformation.kind,
-            this,
             entryInformation.tag,
             entryInformation.type
           ).read(
@@ -127,6 +126,52 @@ public class Heap extends Entry {
 
       reader.endFolder();
     }
+  }
+
+
+  private Entry getEntry(Entry.Kind kind, int tag, Type type)
+    throws IOException
+  {
+    Entry result = getEntry(tag, type);
+
+    if (result == null) {
+      try {
+        switch (kind) {
+        case HEAP   : result = unknownHeap  (tag, type); break;
+        case RECORD : result = unknownRecord(tag, type); break;
+        case UNKNOWN:
+          boolean isRecordAllowed = true; /** @todo this depends on type... */
+          result = (isRecordAllowed) ?
+            unknownRecord(tag, type) :
+            unknownHeap(tag, type);
+          break;
+        }
+      } catch (MetaMetaDataException e) {
+        throw new IOException(e.getMessage());
+      }
+
+      addEntry(tag, result);
+    }
+
+    if ((kind == Entry.Kind.HEAP) && (result != null) &&!(result instanceof Heap)) {
+      throw new IOException("Not a heap: " + tag + "-" + type);
+    }
+
+    if ((kind == Entry.Kind.RECORD) && (result != null) && !(result instanceof Record)) {
+      throw new IOException("Not a record: " + tag + "-" + type);
+    }
+
+    return result;
+  }
+
+
+  private Heap unknownHeap(int tag, Type type) throws MetaMetaDataException {
+    return new Heap(unknown(tag), type);
+  }
+
+
+  private Record unknownRecord(int tag, Type type) throws MetaMetaDataException {
+    return new Record(unknown(tag), type);
   }
 
 

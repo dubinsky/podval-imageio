@@ -2,6 +2,7 @@
 
 package org.podval.imageio.metametadata.loader;
 
+import org.podval.imageio.metametadata.MetaMetaData;
 import org.podval.imageio.metametadata.Type;
 import org.podval.imageio.metametadata.Entry;
 import org.podval.imageio.metametadata.Heap;
@@ -23,23 +24,23 @@ import org.xml.sax.helpers.AttributesImpl;
 
 public class MetaMetaDataDumper extends SaxDumper {
 
-  public static void dump(Heap heap, OutputStream os)
+  public static void dump(MetaMetaData metaMetaData, OutputStream os)
     throws
     TransformerFactoryConfigurationError,
     TransformerException,
     IllegalArgumentException
   {
-    new MetaMetaDataDumper(heap).dump(os);
+    new MetaMetaDataDumper(metaMetaData).dump(os);
   }
 
 
-  private MetaMetaDataDumper(Heap heap) {
-    this.heap = heap;
+  private MetaMetaDataDumper(MetaMetaData metaMetadata) {
+    this.metaMetadata = metaMetadata;
   }
 
 
   protected void dump() {
-    dumpHeap(heap, null);
+    dumpHeap(metaMetadata.getRootHeap(), null);
   }
 
 
@@ -134,5 +135,5 @@ public class MetaMetaDataDumper extends SaxDumper {
   }
 
 
-  private final Heap heap;
+  private final MetaMetaData metaMetadata;
 }

@@ -68,6 +68,11 @@ public abstract class Entry {
   }
 
 
+  protected final String unknown(int tag) {
+    return "unknown-" + tag;
+  }
+
+
   protected abstract String getKind();
 
 

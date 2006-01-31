@@ -34,7 +34,7 @@ public class CiffReader extends Reader {
 
   protected void read() throws IOException {
     int heapLength = Util.toInt(in.length() - headerLength);
-    readInitialHeap(headerLength, heapLength, 0, false);
+    readRootHeap(headerLength, heapLength, 0, false);
   }
 
 

@@ -155,17 +155,17 @@ public abstract class Reader implements ReaderHandler {
   }
 
 
-  public final boolean readInitialHeap(int tag, boolean seekAfter)
+  public final boolean readRootHeap(int tag, boolean seekAfter)
     throws IOException
   {
-    return readInitialHeap(0, 0, tag, seekAfter);
+    return readRootHeap(0, 0, tag, seekAfter);
   }
 
 
-  public final boolean readInitialHeap(long offset, int length, int tag, boolean seekAfter)
+  public final boolean readRootHeap(long offset, int length, int tag, boolean seekAfter)
     throws IOException
   {
-    return metaMetaData.getInitialHeap().read(this, offset, length, tag, seekAfter);
+    return metaMetaData.getRootHeap().read(this, offset, length, tag, seekAfter);
   }
 
 
