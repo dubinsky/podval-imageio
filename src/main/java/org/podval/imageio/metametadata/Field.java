@@ -27,14 +27,14 @@ public final class Field extends Entry {
   }
 
 
-  public void setConversion(String value) {
-    if ((value != null) && (conversion != null)) {
-      if (value != conversion) {
+  public void setConversion(String value) throws MetaMetaDataException {
+    if ((value != null) && (conversion != null) && (value != conversion)) {
         throw new IllegalArgumentException("Attempt to change conversion");
-      }
     }
 
     conversion = value;
+
+    check();
   }
 
 
@@ -43,15 +43,9 @@ public final class Field extends Entry {
       throw new MetaMetaDataException("Enumeration is not allowed for " + this);
     }
 
-    if (hasSubFields()) {
-      throw new MetaMetaDataException("Field with sub-fields can not have an enumeration: " + this);
-    }
-
-    if (enumeration != null) {
-      throw new MetaMetaDataException("Attempt to change enumeration: " + this);
-    }
-
     enumeration = value;
+
+    check();
   }
 
 
@@ -65,15 +59,13 @@ public final class Field extends Entry {
       throw new MetaMetaDataException(field + " of this type is not allowed in " + this);
     }
 
-    if (enumeration != null) {
-      throw new MetaMetaDataException("Field with enumeration can not have sub-fields: " + this);
-    }
-
     if (!hasSubFields()) {
       subFields = new LinkedList<Field>();
     }
 
     subFields.add(field);
+
+    check();
   }
 
 
@@ -169,6 +161,7 @@ public final class Field extends Entry {
   }
 
 
+  /** @todo this should also take care of the conversion!!! */
   private Object processEnumeration(Object result) {
     Enumeration enumeration = getEnumeration();
 
@@ -218,6 +211,16 @@ public final class Field extends Entry {
 
   private boolean hasSubFields() {
     return (subFields != null);
+  }
+
+
+  private void check() throws MetaMetaDataException {
+    if ((hasSubFields() && (conversion != null)) ||
+        (hasSubFields() && (enumeration != null)) ||
+        ((conversion != null) && (enumeration != null)))
+    {
+      throw new MetaMetaDataException("Only one of sub-fields, conversion and enumeration is allowed");
+    }
   }
 
 
