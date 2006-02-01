@@ -1,4 +1,0 @@
-Defaulting of types: more intelligent?
-IFDs are U32?
-Do IFD0/IFD1 through emulation of Handler events?
-Mapping handlers.
