@@ -5,10 +5,15 @@ package org.podval.imageio.metametadata;
 import org.podval.imageio.Reader;
 import org.podval.imageio.ReaderHandler;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.InvocationTargetException;
+
 import java.util.List;
 import java.util.LinkedList;
 
 import java.io.IOException;
+
+import javax.imageio.stream.ImageInputStream;
 
 
 public final class Field extends Entry {
@@ -72,6 +77,7 @@ public final class Field extends Entry {
   public void checkSubFields() throws MetaMetaDataException {
     if (hasSubFields()) {
       int length = 0;
+
       for (Field field : subFields) {
         length += field.getType().getLength();
       }
@@ -86,15 +92,19 @@ public final class Field extends Entry {
   public void read(Reader reader, long offset, int count, int tag, Type type)
     throws IOException
   {
+    ImageInputStream is = reader.getInputStream();
+
     if (!hasSubFields()) {
       ReaderHandler.ValueAction action = reader.atValue(tag, getName(), count);
 
       if ((action != null) && (action != ReaderHandler.ValueAction.SKIP)) {
         reader.seek(offset);
 
-        switch (action) {
-        case RAW  : reader.handleRawValue(tag, getName(), count, reader.getInputStream());        break;
-        case VALUE: reader.handleValue   (tag, getName(), count, readValue(reader, type, count)); break;
+        if (action == ReaderHandler.ValueAction.RAW) {
+          reader.handleRawValue(tag, getName(), count, is);
+        } else {
+          Object value = processValue(type.read(is, count));
+          reader.handleValue(tag, getName(), count, value);
         }
       }
 
@@ -104,32 +114,14 @@ public final class Field extends Entry {
       }
 
       if (reader.startFolder(tag, getName())) {
-        if (type != Type.U32) {
-          throw new IOException("Reading of subfields implemented for fields of type U32 only");
-        }
-
-        int value = ((Integer) type.read(reader.getInputStream()));
+        int value = ((Integer) type.read(is));
         int index = 0;
 
         for (Field subField : subFields) {
-          /** @todo redo with the number of bits */
+          int numBits = subField.getType().getLength() * 8;
+          subField.handleValue(reader, index, value >> (32 - numBits));
 
-          Type subFieldType = subField.getType();
-          int subFieldValue;
-
-          if (subFieldType == Type.U16) {
-            subFieldValue = (value >> 16) & 0x0000FFFF;
-            value = value << 16;
-          } else
-          if (subFieldType == Type.U8) {
-            subFieldValue = (value >> 24) & 0x000000FF;
-            value = value << 8;
-          } else {
-            throw new IOException("Sub-field reading not implemented for type " + subFieldType);
-          }
-
-          reader.handleValue(index, subField.getName(), subField.processEnumeration(subFieldValue));
-
+          value = value << numBits;
           index++;
         }
 
@@ -139,73 +131,10 @@ public final class Field extends Entry {
   }
 
 
-  private Object readValue(Reader reader, Type type, int count) throws IOException {
-    /** @todo type/count sanity checks... */
-    Object result = null;
-
-    if (type == Type.STRING) {
-      result = readString(readBytes(reader, count));
-    } else {
-      if (count == 1) {
-        result = processEnumeration(type.read(reader.getInputStream()));
-      } else {
-        if ((type == Type.U8) || (type == Type.X8)) {
-          result = readBytes(reader, count);
-        } else {
-          result = readValues(reader, type, count);
-        }
-      }
-    }
-
-    return result;
-  }
-
-
-  /** @todo this should also take care of the conversion!!! */
-  private Object processEnumeration(Object result) {
-    Enumeration enumeration = getEnumeration();
-
-    if (enumeration != null) {
-      result = enumeration.getValue(result);
-    }
-
-    return result;
-  }
-
-
-  private String readString(byte[] bytes) throws IOException {
-    /** @todo length of 0 indicates 'indefinite'. Limit 'em here? */
-
-    int l = 0;
-    for (; l<bytes.length; l++) {
-      if (bytes[l] == 0) {
-        break;
-      }
-    }
-
-//      if (l == length) {
-////        result.append("|NO ZERO. TRUNCATED?");
-//      }
-
-    return new String(bytes, 0, l).trim();
-  }
-
-
-  private byte[] readBytes(Reader reader, int length) throws IOException {
-    byte[] result = new byte[length];
-    reader.getInputStream().readFully(result);
-    return result;
-  }
-
-
-  private Object[] readValues(Reader reader, Type type, int count)
+  private void handleValue(Reader reader, int index, int value)
     throws IOException
   {
-    Object[] result = new Object[count];
-    for (int i = 0; i < count; i++) {
-      result[i] = type.read(reader.getInputStream());
-    }
-    return result;
+    reader.handleValue(index, getName(), processValue(value));
   }
 
 
@@ -221,6 +150,67 @@ public final class Field extends Entry {
     {
       throw new MetaMetaDataException("Only one of sub-fields, conversion and enumeration is allowed");
     }
+  }
+
+
+  private Object processValue(Object value) throws IOException {
+    Enumeration enumeration = getEnumeration();
+
+    if (conversion != null) {
+      value = convert(conversion, value);
+    }
+
+    if (enumeration != null) {
+      value = enumeration.getValue(value);
+    }
+
+    return value;
+  }
+
+
+  private static Object convert(String conversion, Object value)
+    throws IOException
+  {
+    int lastDot = conversion.lastIndexOf(".");
+    if (lastDot == -1) {
+      throw new IOException("No \".\" in the conversion name");
+    }
+
+    String className = conversion.substring(0, lastDot);
+    String methodName = conversion.substring(lastDot+1, conversion.length());
+
+    Class clazz;
+    try {
+      clazz = Class.forName(className);
+    } catch (ClassNotFoundException e) {
+      throw new IOException("Conversion class not found: " + className);
+    }
+
+    Class valueClass = value.getClass();
+
+    Class type;
+    if (valueClass == Integer.class) {
+      type = Integer.TYPE;
+    } else {
+      type = valueClass;
+    }
+
+    Method method;
+    try {
+      method = clazz.getMethod(methodName, type);
+    } catch (NoSuchMethodException e) {
+      throw new IOException("Conversion method not found: " + conversion + "(" + value.getClass().getName() + ")");
+    }
+
+    try {
+      value = method.invoke(null, value);
+    } catch (IllegalAccessException e) {
+      throw new IOException("Can't invoke conversion: " + conversion);
+    } catch (InvocationTargetException e) {
+      throw new IOException("Can't invoke conversion: " + conversion);
+    }
+
+    return value;
   }
 
 

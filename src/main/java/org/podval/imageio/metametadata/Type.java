@@ -22,6 +22,10 @@ public enum Type {
     public Object read(ImageInputStream in) throws IOException {
       return in.readUnsignedByte();
     }
+
+    public Object read(ImageInputStream is, int count) throws IOException {
+      return (count == 1) ? read(is) : Util.readBytes(is, count);
+    }
   },
 
   S8(1) {
@@ -34,9 +38,17 @@ public enum Type {
     public Object read(ImageInputStream in) throws IOException {
       return in.readUnsignedByte();
     }
+
+    public Object read(ImageInputStream is, int count) throws IOException {
+      return (count == 1) ? read(is) : Util.readBytes(is, count);
+    }
   },
 
-  STRING(1),
+  STRING(1) {
+    public Object read(ImageInputStream is, int count) throws IOException {
+      return Util.readString(is, count);
+    }
+  },
 
   U16(2) {
     public Object read(ImageInputStream in) throws IOException {
@@ -104,8 +116,21 @@ public enum Type {
   }
 
 
-  public Object read(ImageInputStream in) throws IOException {
+  public Object read(ImageInputStream is) throws IOException {
     throw new UnsupportedOperationException();
+  }
+
+
+  public Object read(ImageInputStream is, int count) throws IOException {
+    if (count == 1) {
+      return read(is);
+    } else {
+      Object[] result = new Object[count];
+      for (int i = 0; i < count; i++) {
+        result[i] = read(is);
+      }
+      return result;
+    }
   }
 
 

@@ -16,6 +16,11 @@ public final class Rational {
   }
 
 
+  public float toFloatValue() {
+    return (float) numerator / (float) denominator;
+  }
+
+
   public final int numerator;
 
 

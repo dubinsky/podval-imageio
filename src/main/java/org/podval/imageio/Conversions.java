@@ -38,6 +38,11 @@ public class Conversions {
   }
 
 
+  public static Date decodeCiffCapturedTime(int value) {
+    return new Date(1000 * (long) value);
+  }
+
+
   /* Typical values:
      Av   F      Tv  Exp. time
       0   1      -5  30
@@ -60,19 +65,19 @@ public class Conversions {
    */
 
 
-  public static float convertApexApertureValueToFNumber(float value) {
-     return (float) Math.pow(2.0, value/2);
+  public static float convertApexApertureValueToFNumber(Rational value) {
+     return (float) Math.pow(2.0, value.toFloatValue()/2);
   }
 
 
-  public static float convertApexShutterSpeedValueToExposureTime(float value) {
-    return (float) (1.0f / Math.pow(2.0, value));
+  public static float convertApexShutterSpeedValueToExposureTime(Rational value) {
+    return (float) (1.0f / Math.pow(2.0, value.toFloatValue()));
   }
 
 
-//  public static String extractStringFromBinary(Field.BinaryValue value) {
-//    return new String(value.getValue());
-//  }
+  public static String extractStringFromBinary(byte[] value) {
+    return new String(value);
+  }
 
 
 //  public float getExposure() {
@@ -85,8 +90,7 @@ public class Conversions {
 //  }
 
 
-  /** @todo this should be done through record handler, not conversion - if at all! */
-  public static String decodeExifFlashStatus(long v) {
+  public static String decodeExifFlashStatus(int v) {
     int value = (int) v;
     boolean fired = (value & 0x01) != 0;
     int strobeReturn = (value >> 1) & 0x03;
@@ -115,7 +119,7 @@ public class Conversions {
   }
 
 
-  public static long decodeImageSerialNumber(long value) {
+  public static long decodeImageSerialNumber(int value) {
     //chh-nnnn; c - cycle of 10000 images, starting 1; hh - hundreds of nnnn.
     int number = (int) (value % 10000);
     int chh = (int) (value / 10000);
@@ -128,7 +132,7 @@ public class Conversions {
   }
 
 
-  public static String decodeCanonCameraSerialNumber(long value) {
+  public static String decodeCanonCameraSerialNumber(int value) {
     // High 16 bits are printed as a 4-digit hex number.
     // Low 16 bits are printed as a 5-digit decimal number.
     int high = (int) ((value >> 16) & 0xFFFF);
@@ -138,11 +142,11 @@ public class Conversions {
 
 
 
-  public static float convertTenthsOfSecondToSeconds(long value) {
+  public static float convertTenthsOfSecondToSeconds(int value) {
     return value / 10f;
   }
 
-  public static boolean convertIntegerToBoolean(long value) {
+  public static boolean convertIntegerToBoolean(int value) {
     return (value == 1);
   }
 }

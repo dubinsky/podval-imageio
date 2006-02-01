@@ -53,8 +53,9 @@
     <field name="reserved" skip="true"/>
   </record>
 
-  <record tag="14" type="U32" name="capturedTime" handler="org.podval.imageio.CiffCapturedTimeHandler">
-    <field type="U32" name="timeCount"/> <!-- Seconds from Epoch: 1/1/1970 -->
+  <record tag="14" type="U32" name="capturedTime">
+    <!-- Seconds from Epoch: 1/1/1970 -->
+    <field type="U32" name="timeCount" conversion="org.podval.imageio.Conversions.decodeCiffCapturedTime"/>
     <!-- Canon G2 writes 0s in the other two fields, so time is GMT/UTC.
       int timezoneOffset = TimeZone.getDefault().getOffset(millisFromEpoch);
       result = new Date(millisFromEpoch-timezoneOffset);
