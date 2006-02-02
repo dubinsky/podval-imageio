@@ -2,7 +2,7 @@
 
 <meta-metadata>
 
-<makerNote make="Canon" directory="canon-maker-note"/>
+<makerNote make="Canon" class="org.podval.imageio.metametadata.HeapMakerNoteReader$Canon"/>
 
 <directory name="canon-maker-note">
   <!-- XXXX: I see this twice, with different values (and count)! WTF? -->

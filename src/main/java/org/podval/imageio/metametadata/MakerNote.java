@@ -12,10 +12,9 @@ import java.io.IOException;
 
 public final class MakerNote implements Readable {
 
-  public static MakerNote get(String make, String signature, String heapName) {
-    MakerNote result = new MakerNote(make, signature, heapName);
+  public static void put(String make, String readerClassName) {
+    MakerNote result = new MakerNote(readerClassName);
     make2note.put(make, result);
-    return result;
   }
 
 
@@ -27,10 +26,8 @@ public final class MakerNote implements Readable {
   private static final Map<String, MakerNote> make2note = new HashMap<String, MakerNote>();
 
 
-  public MakerNote(String maker, String signature, String heapName) {
-    this.maker = maker;
-    this.signature = signature;
-    this.heapName = heapName;
+  public MakerNote(String readerClassName) {
+    this.readerClassName = readerClassName;
   }
 
 
@@ -41,19 +38,25 @@ public final class MakerNote implements Readable {
   public void read(Reader reader, long offset, int length, int tag, Type type)
     throws IOException
   {
-    reader.seek(offset);
+    Class clazz;
+    try {
+      clazz = Class.forName(readerClassName);
+    } catch (ClassNotFoundException e) {
+      throw new IOException("Reader class not found: " + readerClassName);
+    }
 
-    /** @todo read signature */
+    Object readerInstance;
+    try {
+      readerInstance = clazz.newInstance();
+    } catch (InstantiationException e) {
+      throw new IOException(e.getMessage());
+    } catch (IllegalAccessException e) {
+      throw new IOException(e.getMessage());
+    }
 
-    reader.getMetaMetaData().getHeap(heapName).readInPlace(reader, offset, length, tag, false);
+    ((Readable) readerInstance).read(reader, offset, length, tag, type);
   }
 
 
-  private final String maker;
-
-
-  private final String signature;
-
-
-  private final String heapName;
+  private final String readerClassName;
 }

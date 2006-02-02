@@ -131,7 +131,7 @@ public class CiffImageReader extends ImageReader {
     /** @todo in the SPI I check that this is an ImageInputStream... */
     if (result == null)
       throw new IllegalStateException("Input not set.");
-    result.seek(0); /** @todo use marl/reset instead!!! */
+    result.seek(0); /** @todo use mark/reset instead!!! */
     return result;
   }
 }

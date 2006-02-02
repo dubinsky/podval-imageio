@@ -15,10 +15,9 @@ public final class MakerNoteBuilder extends Builder {
   {
     super(previous);
 
-    this.makerNote = MakerNote.get(
+    MakerNote.put(
       getAttribute("make", attributes),
-      attributes.getValue("signature"),
-      attributes.getValue("directory")
+      getAttribute("class", attributes)
     );
   }
 
@@ -26,12 +25,4 @@ public final class MakerNoteBuilder extends Builder {
   public Builder startElement(String name, Attributes attributes) {
     return null;
   }
-
-
-  public String toString() {
-    return makerNote.toString();
-  }
-
-
-  private final MakerNote makerNote;
 }

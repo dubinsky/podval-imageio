@@ -98,7 +98,7 @@ public final class Field extends Entry {
       ReaderHandler.ValueAction action = reader.atValue(tag, getName(), count);
 
       if ((action != null) && (action != ReaderHandler.ValueAction.SKIP)) {
-        reader.seek(offset);
+        is.seek(offset);
 
         if (action == ReaderHandler.ValueAction.RAW) {
           reader.handleRawValue(tag, getName(), count, is);

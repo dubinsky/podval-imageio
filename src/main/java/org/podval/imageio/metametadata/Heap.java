@@ -152,11 +152,11 @@ public class Heap extends Entry {
       addEntry(tag, result);
     }
 
-    if ((kind == Entry.Kind.HEAP) && (result != null) &&!(result instanceof Heap)) {
+    if ((kind == Entry.Kind.HEAP) && !(result instanceof Heap)) {
       throw new IOException("Not a heap: " + tag + "-" + type);
     }
 
-    if ((kind == Entry.Kind.RECORD) && (result != null) && !(result instanceof Record)) {
+    if ((kind == Entry.Kind.RECORD) && !(result instanceof Record)) {
       throw new IOException("Not a record: " + tag + "-" + type);
     }
 
@@ -177,7 +177,7 @@ public class Heap extends Entry {
   private void seekToEntry(Reader reader, long entriesOffset, int entryNumber)
     throws IOException
   {
-    reader.seek(entriesOffset + reader.getEntryLength()*entryNumber);
+    reader.getInputStream().seek(entriesOffset + reader.getEntryLength()*entryNumber);
   }
 
 

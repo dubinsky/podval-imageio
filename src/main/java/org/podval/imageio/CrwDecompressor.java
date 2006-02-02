@@ -49,7 +49,11 @@ public class CrwDecompressor {
     this.rawHeight = rawHeight;
     this.numLowBits = 0;
     this.shift = 4 - 2*numLowBits; /** @todo ? */
-    in.seek(540 + numLowBits*rawHeight*rawWidth/4); /** @todo and not where the image starts? */
+    /**
+     * @todo and not where the image starts?
+     * It seems that decodeTable[3] gives offset of the image from the offsetBase...
+     **/
+    in.seek(540 + numLowBits*rawHeight*rawWidth/4);
   }
 
 

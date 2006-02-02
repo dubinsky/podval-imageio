@@ -84,11 +84,6 @@ public abstract class Reader implements ReaderHandler {
   }
 
 
-  public final void seek(long offset) throws IOException {
-    in.seek(offset);
-  }
-
-
   public final ReaderHandler getHandler() {
     return handler;
   }

@@ -24,8 +24,6 @@ public class MakerNoteMarker extends Entry {
   public void read(Reader reader, long offset, int length, int tag, Type type)
     throws IOException
   {
-    MakerNote makerNote = null;
-
     if (!(reader instanceof ExifReader)) {
       throw new IOException("Maker note only allowed in EXIF!");
     }
@@ -33,14 +31,11 @@ public class MakerNoteMarker extends Entry {
     String make = ((ExifReader) reader).getMake();
 
     if (make != null) {
-      makerNote = MakerNote.get(make);
+      MakerNote makerNote = MakerNote.get(make);
+      if (makerNote != null) {
+        makerNote.read(reader, offset, length, tag, type);
+      }
     }
-
-    if (makerNote == null) {
-      makerNote = new MakerNote("unknown-maker-note", "unknown", null);
-    }
-
-    makerNote.read(reader, offset, length, tag, type);
   }
 
 
