@@ -2,12 +2,8 @@
 
 package org.podval.imageio.metametadata;
 
-import org.podval.imageio.Reader;
 
-import java.io.IOException;
-
-
-public abstract class Entry {
+public abstract class Entry implements Readable {
 
   public enum Kind { HEAP, RECORD, UNKNOWN }
 
@@ -57,10 +53,6 @@ public abstract class Entry {
   public final boolean isSkip() {
     return isSkip;
   }
-
-
-  public abstract void read(Reader reader, long offset, int length, int tag, Type type)
-    throws IOException;
 
 
   public final String toString() {

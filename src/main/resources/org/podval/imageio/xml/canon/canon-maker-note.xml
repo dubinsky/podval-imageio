@@ -2,8 +2,9 @@
 
 <meta-metadata>
 
-<makerNote make="Canon" name="canon-maker-note">
+<makerNote make="Canon" directory="canon-maker-note"/>
 
+<directory name="canon-maker-note">
   <!-- XXXX: I see this twice, with different values (and count)! WTF? -->
   <record tag="0" name="canonMakerNote-0-justZeroes" type="U16" count="6"/>
 
@@ -33,7 +34,7 @@
   <record tag="16" name="canonMakerNote-16"/>
 -->
 
-</makerNote>
+</directory>
 
 <record name="canon-maker-note-2" type="U16" count="4" skip="true"/>
 

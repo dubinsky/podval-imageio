@@ -2,19 +2,25 @@
 
 package org.podval.imageio.metametadata.loader;
 
+import org.podval.imageio.metametadata.Entry;
 import org.podval.imageio.metametadata.Record;
 import org.podval.imageio.metametadata.MetaMetaDataException;
 
 import org.xml.sax.Attributes;
 
 
-public class RecordBuilder extends Builder {
+public class RecordBuilder extends EntryBuilder {
 
   public RecordBuilder(Builder previous, Attributes attributes)
     throws MetaMetaDataException
   {
     super(previous);
     this.record = createRecord(attributes);
+  }
+
+
+  public Entry getEntry() {
+    return record;
   }
 
 
@@ -66,12 +72,7 @@ public class RecordBuilder extends Builder {
   }
 
 
-  public String toString() {
-    return record.toString();
-  }
-
-
-  public final Record record;
+  private final Record record;
 
 
   private int index;

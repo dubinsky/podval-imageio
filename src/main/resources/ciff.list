@@ -1,5 +1,5 @@
 org/podval/imageio/xml/ciff/ciff-root.xml
 org/podval/imageio/xml/canon/canon-ciff.xml
-org/podval/imageio/xml/canon/canon-maker-note.xml
+#org/podval/imageio/xml/canon/canon-maker-note.xml
 org/podval/imageio/xml/canon/canon-maker-note-1.xml
 org/podval/imageio/xml/canon/canon-maker-note-4.xml

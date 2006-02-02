@@ -10,10 +10,10 @@ import java.util.HashMap;
 import java.io.IOException;
 
 
-public final class MakerNote extends Heap {
+public final class MakerNote implements Readable {
 
-  public static MakerNote get(String name, String make, String signature) {
-    MakerNote result = new MakerNote(name, make, signature);
+  public static MakerNote get(String make, String signature, String heapName) {
+    MakerNote result = new MakerNote(make, signature, heapName);
     make2note.put(make, result);
     return result;
   }
@@ -27,10 +27,10 @@ public final class MakerNote extends Heap {
   private static final Map<String, MakerNote> make2note = new HashMap<String, MakerNote>();
 
 
-  public MakerNote(String name, String maker, String signature) {
-    super(name);
+  public MakerNote(String maker, String signature, String heapName) {
     this.maker = maker;
     this.signature = signature;
+    this.heapName = heapName;
   }
 
 
@@ -42,8 +42,10 @@ public final class MakerNote extends Heap {
     throws IOException
   {
     reader.seek(offset);
+
     /** @todo read signature */
-    readInPlace(reader, offset, length, tag, false);
+
+    reader.getMetaMetaData().getHeap(heapName).readInPlace(reader, offset, length, tag, false);
   }
 
 
@@ -51,4 +53,7 @@ public final class MakerNote extends Heap {
 
 
   private final String signature;
+
+
+  private final String heapName;
 }

@@ -3,9 +3,7 @@
 package org.podval.imageio.metametadata.loader;
 
 import org.podval.imageio.metametadata.Type;
-import org.podval.imageio.metametadata.Heap;
 import org.podval.imageio.metametadata.MetaMetaData;
-import org.podval.imageio.metametadata.MakerNote;
 import org.podval.imageio.metametadata.MetaMetaDataException;
 
 import org.xml.sax.Attributes;
@@ -31,26 +29,6 @@ public abstract class Builder {
   }
 
 
-  protected final Heap getHeap(Attributes attributes)
-    throws MetaMetaDataException
-  {
-    Heap result = getMetaMetaData().getHeap(getName(attributes));
-    result.setType(getType(attributes));
-    return result;
-  }
-
-
-  protected final Heap getMakerNote(Attributes attributes)
-    throws MetaMetaDataException
-  {
-    return MakerNote.get(
-      getName(attributes),
-      getAttribute("make", attributes),
-      attributes.getValue("signature")
-    );
-  }
-
-
   protected final MetaMetaData getMetaMetaData() {
     Builder candidate = this;
     while (!(candidate instanceof DocumentBuilder)) {
@@ -65,7 +43,7 @@ public abstract class Builder {
   }
 
 
-  private String getAttribute(String name, Attributes attributes)
+  protected final String getAttribute(String name, Attributes attributes)
     throws MetaMetaDataException
   {
     String result = attributes.getValue(name);
@@ -95,7 +73,7 @@ public abstract class Builder {
   }
 
 
-  protected final Type getType(Attributes attributes)
+  protected static Type getType(Attributes attributes)
     throws MetaMetaDataException
   {
     Type result =  null;

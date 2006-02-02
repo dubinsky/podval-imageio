@@ -2,13 +2,19 @@
 
 package org.podval.imageio.metametadata.loader;
 
+import org.podval.imageio.metametadata.MetaMetaDataException;
+
 import org.xml.sax.Attributes;
 
 
 public class EnumerationItemBuilder extends Builder {
 
-  public EnumerationItemBuilder(Builder previous) {
+  public EnumerationItemBuilder(Builder previous, Attributes attributes)
+    throws MetaMetaDataException
+  {
     super(previous);
+
+    value = attributes.getValue("value");
   }
 
 
@@ -18,7 +24,9 @@ public class EnumerationItemBuilder extends Builder {
 
 
   public String toString() {
-    /** @todo ??? */
-    return "<item/>";
+    return value;
   }
+
+
+  public final String value;
 }

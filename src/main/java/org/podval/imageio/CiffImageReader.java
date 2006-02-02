@@ -5,6 +5,7 @@ package org.podval.imageio;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.ImageReadParam;
+import javax.imageio.ImageTypeSpecifier;
 import javax.imageio.stream.ImageInputStream;
 import javax.imageio.metadata.IIOMetadata;
 import javax.imageio.spi.ImageReaderSpi;
@@ -102,7 +103,7 @@ public class CiffImageReader extends ImageReader {
   }
 
 
-  public Iterator getImageTypes(int imageIndex) {
+  public Iterator<ImageTypeSpecifier> getImageTypes(int imageIndex) {
     checkImageIndex(imageIndex);
     /** @todo XXXX */
     return null;

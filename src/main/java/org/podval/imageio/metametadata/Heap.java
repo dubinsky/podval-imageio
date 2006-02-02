@@ -48,8 +48,7 @@ public class Heap extends Entry {
   private void addEntry(int tag, Type type, Entry entry) {
     Key key = new Key(tag, type);
 
-    Entry oldEntry = entries.get(key);
-    if (oldEntry != null) {
+    if (entries.get(key) != null) {
       throw new IllegalArgumentException("Attempt to replace " + entry.getName() + " with " + getName() +
         "; key " + key);
     }
@@ -129,7 +128,7 @@ public class Heap extends Entry {
   }
 
 
-  private Entry getEntry(Entry.Kind kind, int tag, Type type)
+  private Readable getEntry(Entry.Kind kind, int tag, Type type)
     throws IOException
   {
     Entry result = getEntry(tag, type);

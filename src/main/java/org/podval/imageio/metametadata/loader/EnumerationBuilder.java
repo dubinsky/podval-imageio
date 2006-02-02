@@ -12,24 +12,24 @@ public class EnumerationBuilder extends Builder {
 
   public EnumerationBuilder(Builder previous, Attributes attributes) {
     super(previous);
-    this.enumeration = createEnumeration(attributes);
+    this.enumeration = new Enumeration(null /** @todo class!!! */);
   }
 
 
-  private Enumeration createEnumeration(Attributes attributes) {
-    return new Enumeration(null /** @todo class!!! */);
-  }
-
-
-  public Builder startElement(String name,
-    Attributes attributes) throws MetaMetaDataException {
+  public Builder startElement(String name, Attributes attributes)
+    throws MetaMetaDataException
+  {
     Builder result = null;
 
     if ("item".equals(name)) {
-      int tag = getIntegerAttribute("tag", attributes);
-      String value = attributes.getValue("value");
-      enumeration.addValue(tag, value);
-      result = new EnumerationItemBuilder(this);
+      EnumerationItemBuilder next = new EnumerationItemBuilder(this, attributes);
+
+      enumeration.addValue(
+        getIntegerAttribute("tag", attributes),
+        next.value
+      );
+
+      result = next;
     }
 
     return result;

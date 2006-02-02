@@ -20,7 +20,7 @@ public class RootBuilder extends Builder {
     Builder result = null;
 
     if ("directory".equals(name)) {
-      result = new HeapBuilder(this, getHeap(attributes));
+      result = new HeapBuilder(this, attributes);
     } else
 
     if ("record".equals(name)) {
@@ -28,7 +28,7 @@ public class RootBuilder extends Builder {
     } else
 
     if ("makerNote".equals(name)) {
-      result = new HeapBuilder(this, getMakerNote(attributes));
+      result = new MakerNoteBuilder(this, attributes);
     }
 
     return result;
