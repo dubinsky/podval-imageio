@@ -31,10 +31,7 @@ public class MakerNoteMarker extends Entry {
     String make = ((ExifReader) reader).getMake();
 
     if (make != null) {
-      MakerNote makerNote = MakerNote.get(make);
-      if (makerNote != null) {
-        makerNote.read(reader, offset, length, tag, type);
-      }
+      MakerNote.read(make, reader, offset, length, tag);
     }
   }
 

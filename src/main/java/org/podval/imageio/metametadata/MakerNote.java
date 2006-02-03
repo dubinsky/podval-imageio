@@ -10,53 +10,43 @@ import java.util.HashMap;
 import java.io.IOException;
 
 
-public final class MakerNote implements Readable {
+public final class MakerNote {
 
   public static void put(String make, String readerClassName) {
-    MakerNote result = new MakerNote(readerClassName);
-    make2note.put(make, result);
+    make2note.put(make, readerClassName);
   }
 
 
-  public static MakerNote get(String make) {
+  private static String getReaderClassName(String make) {
     return make2note.get(make);
   }
 
 
-  private static final Map<String, MakerNote> make2note = new HashMap<String, MakerNote>();
-
-
-  public MakerNote(String readerClassName) {
-    this.readerClassName = readerClassName;
-  }
-
-
-  protected void checktype() {
-  }
-
-
-  public void read(Reader reader, long offset, int length, int tag, Type type)
+  public static void read(String make, Reader reader, long offset, int length, int tag)
     throws IOException
   {
-    Class clazz;
-    try {
-      clazz = Class.forName(readerClassName);
-    } catch (ClassNotFoundException e) {
-      throw new IOException("Reader class not found: " + readerClassName);
-    }
+    String readerClassName = getReaderClassName(make);
+    if (readerClassName != null) {
+      Class clazz;
+      try {
+        clazz = Class.forName(readerClassName);
+      } catch (ClassNotFoundException e) {
+        throw new IOException("Reader class not found: " + readerClassName);
+      }
 
-    Object readerInstance;
-    try {
-      readerInstance = clazz.newInstance();
-    } catch (InstantiationException e) {
-      throw new IOException(e.getMessage());
-    } catch (IllegalAccessException e) {
-      throw new IOException(e.getMessage());
-    }
+      Object readerInstance;
+      try {
+        readerInstance = clazz.newInstance();
+      } catch (InstantiationException e) {
+        throw new IOException(e.getMessage());
+      } catch (IllegalAccessException e) {
+        throw new IOException(e.getMessage());
+      }
 
-    ((Readable) readerInstance).read(reader, offset, length, tag, type);
+      ((MakerNoteReader) readerInstance).read(make, reader, offset, length, tag);
+    }
   }
 
 
-  private final String readerClassName;
+  private static final Map<String, String> make2note = new HashMap<String, String>();
 }

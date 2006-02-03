@@ -7,13 +7,13 @@ import org.podval.imageio.Reader;
 import java.io.IOException;
 
 
-public abstract class HeapMakerNoteReader implements Readable {
+public abstract class HeapMakerNoteReader implements MakerNoteReader {
 
   private HeapMakerNoteReader() {
   }
 
 
-  public void read(Reader reader, long offset, int length, int tag, Type type)
+  public void read(String make, Reader reader, long offset, int length, int tag)
     throws IOException
   {
     reader.getInputStream().seek(offset);
@@ -22,19 +22,15 @@ public abstract class HeapMakerNoteReader implements Readable {
 
     /** @todo more seeking */
 
-    reader.getMetaMetaData().getHeap(getHeapName()).readInPlace(reader, offset, length, tag, false);
+    String heapName = make.toLowerCase() + "-maker-note";
+
+    reader.getMetaMetaData().getHeap(heapName).readInPlace(reader, offset, length, tag, false);
   }
-
-
-  protected abstract String getHeapName();
 
 
 
   /**
    */
   public static class Canon extends HeapMakerNoteReader {
-    protected String getHeapName() {
-      return "canon-maker-note";
-    }
   }
 }
