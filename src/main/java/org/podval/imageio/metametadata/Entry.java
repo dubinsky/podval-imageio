@@ -2,20 +2,18 @@
 
 package org.podval.imageio.metametadata;
 
+import org.podval.imageio.Reader;
 
-public abstract class Entry implements Readable {
+import java.io.IOException;
+
+
+public abstract class Entry { //implements Parent {
 
   public enum Kind { HEAP, RECORD, UNKNOWN }
 
 
   protected Entry(String name) {
     this.name = name;
-  }
-
-
-  protected Entry(String name, Type type) throws MetaMetaDataException {
-    this(name);
-    setType(type);
   }
 
 
@@ -66,6 +64,10 @@ public abstract class Entry implements Readable {
 
 
   protected abstract String getKind();
+
+
+  public abstract void read(Reader reader, long offset, int length, int tag, Type type)
+    throws IOException;
 
 
   private final String name;

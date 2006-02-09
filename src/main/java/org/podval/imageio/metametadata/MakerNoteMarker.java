@@ -10,10 +10,10 @@ import java.io.IOException;
 
 public class MakerNoteMarker extends Entry {
 
-  public MakerNoteMarker(Type type) throws MetaMetaDataException {
+  public MakerNoteMarker() throws MetaMetaDataException {
     /** @todo we do not really need a name here... */
     /** @todo we do not really need a type here either!!! */
-    super("makerNoteMarker", type);
+    super("makerNoteMarker");
   }
 
 

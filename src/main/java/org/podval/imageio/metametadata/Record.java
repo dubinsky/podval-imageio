@@ -18,11 +18,6 @@ public final class Record extends Entry {
   }
 
 
-  public Record(String name, Type type) throws MetaMetaDataException {
-    super(name, type);
-  }
-
-
   protected void checkType() throws MetaMetaDataException {
     if (!getType().isRecordAllowed()) {
       throw new MetaMetaDataException("Wrong record type: " + this);
@@ -55,7 +50,9 @@ public final class Record extends Entry {
   public Field getDefaultField() throws MetaMetaDataException {
     /** @todo check that there are no other fields - and that there won't be! */
     if (fields.isEmpty()) {
-      addField(0, new Field(getName(), getType()));
+      Field field = new Field(getName());
+      field.setType(getType());
+      addField(0, field);
     }
 
     return fields.get(0);
@@ -130,7 +127,9 @@ public final class Record extends Entry {
 
   private Field getField(int index) throws MetaMetaDataException {
     if ((fields == null) || (index >= fields.size()) || (fields.get(index) == null)) {
-      addField(index, new Field(unknown(index), getType()));
+      Field field = new Field(unknown(index));
+      field.setType(getType());
+      addField(index, field);
     }
 
     return fields.get(index);

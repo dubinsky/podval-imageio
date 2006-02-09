@@ -29,7 +29,8 @@ public class FieldBuilder extends Builder {
       type = defaultType;
     }
 
-    Field result = new Field(name, type);
+    Field result = new Field(name);
+    result.setType(type);
 
     result.setSkip(getBooleanAttribute("skip", attributes));
     result.setConversion(attributes.getValue("conversion"));

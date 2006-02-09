@@ -18,8 +18,8 @@ import javax.imageio.stream.ImageInputStream;
 
 public final class Field extends Entry {
 
-  public Field(String name, Type type) throws MetaMetaDataException {
-    super(name, type);
+  public Field(String name) {
+    super(name);
   }
 
 

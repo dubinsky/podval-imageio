@@ -22,11 +22,6 @@ public class Heap extends Entry {
   }
 
 
-  public Heap(String name, Type type) throws MetaMetaDataException {
-    super(name, type);
-  }
-
-
   protected final void checkType() throws MetaMetaDataException {
     if (!getType().isHeapAllowed()) {
       throw new MetaMetaDataException("Wrong heap type: " + this);
@@ -128,7 +123,7 @@ public class Heap extends Entry {
   }
 
 
-  private Readable getEntry(Entry.Kind kind, int tag, Type type)
+  private Entry getEntry(Entry.Kind kind, int tag, Type type)
     throws IOException
   {
     Entry result = getEntry(tag, type);
@@ -136,15 +131,15 @@ public class Heap extends Entry {
     if (result == null) {
       try {
         switch (kind) {
-        case HEAP   : result = unknownHeap  (tag, type); break;
-        case RECORD : result = unknownRecord(tag, type); break;
+        case HEAP   : result = unknownHeap  (tag); break;
+        case RECORD : result = unknownRecord(tag); break;
         case UNKNOWN:
           boolean isRecordAllowed = true; /** @todo this depends on type... */
-          result = (isRecordAllowed) ?
-            unknownRecord(tag, type) :
-            unknownHeap(tag, type);
+          result = (isRecordAllowed) ? unknownRecord(tag) : unknownHeap(tag);
           break;
         }
+
+        result.setType(type);
       } catch (MetaMetaDataException e) {
         throw new IOException(e.getMessage());
       }
@@ -164,13 +159,13 @@ public class Heap extends Entry {
   }
 
 
-  private Heap unknownHeap(int tag, Type type) throws MetaMetaDataException {
-    return new Heap(unknown(tag), type);
+  private Heap unknownHeap(int tag) throws MetaMetaDataException {
+    return new Heap(unknown(tag));
   }
 
 
-  private Record unknownRecord(int tag, Type type) throws MetaMetaDataException {
-    return new Record(unknown(tag), type);
+  private Record unknownRecord(int tag) throws MetaMetaDataException {
+    return new Record(unknown(tag));
   }
 
 

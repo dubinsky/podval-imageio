@@ -15,7 +15,8 @@ public final class MakerNoteMarkerBuilder extends EntryBuilder {
     throws MetaMetaDataException
   {
     super(previous);
-    this.makerNoteMarker = new MakerNoteMarker(getType(attributes));
+    this.makerNoteMarker = new MakerNoteMarker();
+    this.makerNoteMarker.setType(getType(attributes));
   }
 
 
