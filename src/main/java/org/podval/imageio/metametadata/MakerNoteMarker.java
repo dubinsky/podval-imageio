@@ -8,7 +8,7 @@ import org.podval.imageio.ExifReader;
 import java.io.IOException;
 
 
-public class MakerNoteMarker extends Entry {
+public final class MakerNoteMarker extends Entry {
 
   public MakerNoteMarker() throws MetaMetaDataException {
     /** @todo we do not really need a name here... */
@@ -17,7 +17,7 @@ public class MakerNoteMarker extends Entry {
   }
 
 
-  protected final void checkType() {
+  protected void checkType() {
   }
 
 
@@ -31,8 +31,34 @@ public class MakerNoteMarker extends Entry {
     String make = ((ExifReader) reader).getMake();
 
     if (make != null) {
-      MakerNote.read(make, reader, offset, length, tag);
+      String readerClassName = reader.getMetaMetaData().getMakerNoteReaderClassName(make);
+      if (readerClassName != null) {
+        read(make, reader, readerClassName, offset, length, tag);
+      }
     }
+  }
+
+
+  private void read(String make, Reader reader, String readerClassName, long offset, int length, int tag)
+    throws IOException
+  {
+    Class clazz;
+    try {
+      clazz = Class.forName(readerClassName);
+    } catch (ClassNotFoundException e) {
+      throw new IOException("Reader class not found: " + readerClassName);
+    }
+
+    Object readerInstance;
+    try {
+      readerInstance = clazz.newInstance();
+    } catch (InstantiationException e) {
+      throw new IOException(e.getMessage());
+    } catch (IllegalAccessException e) {
+      throw new IOException(e.getMessage());
+    }
+
+    ((MakerNoteReader) readerInstance).read(make, reader, offset, length, tag);
   }
 
 

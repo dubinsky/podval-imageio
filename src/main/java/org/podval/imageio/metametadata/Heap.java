@@ -129,9 +129,10 @@ public class Heap extends Entry {
         result = (isHeap) ? new Heap(name) : new Record(name);
         result.setType(type);
         addEntry(tag, result);
-      } else {
-        result.checkKind(kind);
       }
+
+      result.checkKind(kind);
+
     } catch (MetaMetaDataException e) {
       throw new IOException(e.getMessage());
     }

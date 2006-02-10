@@ -58,14 +58,15 @@ public final class Record extends Entry {
 
 
   private void addField(int index, String name) throws MetaMetaDataException {
-    Field field = new Field(name);
-    field.setType(getType());
-    field.setParent(this);
-    addField(index, field);
+    addField(index, new Field(name));
   }
 
 
   public void addField(int index, Field field) throws MetaMetaDataException {
+    if (field.getType() == null) {
+      field.setType(getType());
+    }
+
     if (!getType().isFieldAllowed(field.getType())) {
       throw new MetaMetaDataException(field + " of this type is not allowed in " + this);
     }
@@ -77,6 +78,8 @@ public final class Record extends Entry {
     }
 
     fields.set(index, field);
+
+    field.setParent(this);
   }
 
 

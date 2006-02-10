@@ -44,6 +44,11 @@ public final class MetaMetaData implements Parent {
   }
 
 
+  public Parent getParent() {
+    return null;
+  }
+
+
   public Heap getRootHeap() {
     return getHeap(getName() + "-root");
   }
@@ -71,8 +76,13 @@ public final class MetaMetaData implements Parent {
   }
 
 
-  public Parent getParent() {
-    return null;
+  public void addMakerNoteReaderClass(String make, String readerClassName) {
+    make2note.put(make, readerClassName);
+  }
+
+
+  public String getMakerNoteReaderClassName(String make) {
+    return make2note.get(make);
   }
 
 
@@ -83,4 +93,7 @@ public final class MetaMetaData implements Parent {
 
 
   private final Map<String, Record> name2record = new HashMap<String, Record>();
+
+
+  private final Map<String, String> make2note = new HashMap<String, String>();
 }
