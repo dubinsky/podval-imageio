@@ -11,31 +11,15 @@ import org.xml.sax.Attributes;
 
 public class FieldBuilder extends Builder {
 
-  public FieldBuilder(Builder previous, Attributes attributes, Type defaultType)
+  public FieldBuilder(Builder previous, Attributes attributes)
     throws MetaMetaDataException
   {
     super(previous);
-    this.field = createField(attributes, defaultType);
-  }
 
-
-  private Field createField(Attributes attributes, Type defaultType)
-    throws MetaMetaDataException
-  {
-    String name = getName(attributes);
-    Type type = getType(attributes);
-
-    if (type == null) {
-      type = defaultType;
-    }
-
-    Field result = new Field(name);
-    result.setType(type);
-
-    result.setSkip(getBooleanAttribute("skip", attributes));
-    result.setConversion(attributes.getValue("conversion"));
-
-    return result;
+    this.field = new Field(getName(attributes));
+    field.setType(getType(attributes));
+    field.setSkip(getBooleanAttribute("skip", attributes));
+    field.setConversion(attributes.getValue("conversion"));
   }
 
 
@@ -45,8 +29,13 @@ public class FieldBuilder extends Builder {
     Builder result = null;
 
     if ("field".equals(name)) {
-      FieldBuilder fieldBuilder = new FieldBuilder(this, attributes, field.getType());
+      FieldBuilder fieldBuilder = new FieldBuilder(this, attributes);
       Field subField = fieldBuilder.field;
+
+      if (subField.getType() == null) {
+        subField.setType(field.getType());
+      }
+
       field.addSubField(subField);
       result = fieldBuilder;
     } else

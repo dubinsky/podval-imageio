@@ -6,6 +6,7 @@ import org.podval.imageio.metametadata.MetaMetaData;
 import org.podval.imageio.metametadata.Type;
 import org.podval.imageio.metametadata.Entry;
 import org.podval.imageio.metametadata.Heap;
+import org.podval.imageio.metametadata.Key;
 import org.podval.imageio.metametadata.Record;
 import org.podval.imageio.metametadata.Field;
 import org.podval.imageio.metametadata.MakerNoteMarker;
@@ -47,7 +48,7 @@ public class MetaMetaDataDumper extends SaxDumper {
   private void dumpHeap(Heap heap, String tag) {
     startElement("directory", getEntryAttributes(heap, tag));
 
-    for (Heap.Key key : heap.getKeys()) {
+    for (Key key : heap.getKeys()) {
       Entry entry = heap.getEntry(key);
       String entryTag = Integer.toString(key.tag);
 

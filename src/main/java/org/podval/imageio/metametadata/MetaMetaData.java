@@ -14,7 +14,7 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.ParserConfigurationException;
 
 
-public final class MetaMetaData {
+public final class MetaMetaData implements Parent {
 
   public static MetaMetaData get(String name)
     throws ParserConfigurationException, SAXException, IOException
@@ -53,6 +53,7 @@ public final class MetaMetaData {
     Heap result = name2heap.get(name);
     if (result == null) {
       result = new Heap(name);
+      result.setParent(this);
       name2heap.put(name, result);
     }
     return result;
@@ -63,9 +64,15 @@ public final class MetaMetaData {
     Record result = name2record.get(name);
     if (result == null) {
       result = new Record(name);
+      result.setParent(this);
       name2record.put(name, result);
     }
     return result;
+  }
+
+
+  public Parent getParent() {
+    return null;
   }
 
 

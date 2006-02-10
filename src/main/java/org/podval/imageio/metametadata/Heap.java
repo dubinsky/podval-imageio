@@ -34,25 +34,18 @@ public class Heap extends Entry {
       throw new IllegalArgumentException("Attempt to add an entry " + this.getName() + "." + entry.getName() + " without type");
     }
 
+    entry.setParent(this);
+
     for (Type type : entry.getType().getActualTypes()) {
-      addEntry(tag, type, entry);
+      Key key = new Key(tag, type);
+
+      if (entries.get(key) != null) {
+        throw new IllegalArgumentException("Attempt to replace " + entry.getName() + " with " + getName() +
+          "; key " + key);
+      }
+
+      entries.put(key, entry);
     }
-  }
-
-
-  private void addEntry(int tag, Type type, Entry entry) {
-    Key key = new Key(tag, type);
-
-    if (entries.get(key) != null) {
-      throw new IllegalArgumentException("Attempt to replace " + entry.getName() + " with " + getName() +
-        "; key " + key);
-    }
-    entries.put(key, entry);
-  }
-
-
-  public final Entry getEntry(int tag, Type type) {
-    return getEntry(new Key(tag, type));
   }
 
 
@@ -126,46 +119,24 @@ public class Heap extends Entry {
   private Entry getEntry(Entry.Kind kind, int tag, Type type)
     throws IOException
   {
-    Entry result = getEntry(tag, type);
+    Entry result = getEntry(new Key(tag, type));
 
-    if (result == null) {
-      try {
-        switch (kind) {
-        case HEAP   : result = unknownHeap  (tag); break;
-        case RECORD : result = unknownRecord(tag); break;
-        case UNKNOWN:
-          boolean isRecordAllowed = true; /** @todo this depends on type... */
-          result = (isRecordAllowed) ? unknownRecord(tag) : unknownHeap(tag);
-          break;
-        }
+    try {
+      if (result == null) {
+        boolean isHeap = (kind == Entry.Kind.HEAP);
 
+        String name = unknown(tag);
+        result = (isHeap) ? new Heap(name) : new Record(name);
         result.setType(type);
-      } catch (MetaMetaDataException e) {
-        throw new IOException(e.getMessage());
+        addEntry(tag, result);
+      } else {
+        result.checkKind(kind);
       }
-
-      addEntry(tag, result);
-    }
-
-    if ((kind == Entry.Kind.HEAP) && !(result instanceof Heap)) {
-      throw new IOException("Not a heap: " + tag + "-" + type);
-    }
-
-    if ((kind == Entry.Kind.RECORD) && !(result instanceof Record)) {
-      throw new IOException("Not a record: " + tag + "-" + type);
+    } catch (MetaMetaDataException e) {
+      throw new IOException(e.getMessage());
     }
 
     return result;
-  }
-
-
-  private Heap unknownHeap(int tag) throws MetaMetaDataException {
-    return new Heap(unknown(tag));
-  }
-
-
-  private Record unknownRecord(int tag) throws MetaMetaDataException {
-    return new Record(unknown(tag));
   }
 
 
@@ -176,64 +147,9 @@ public class Heap extends Entry {
   }
 
 
-  protected String getKind() {
-    return "Heap";
+  protected Kind getKind() {
+    return Kind.HEAP;
   }
-
-
-
-  /**
-   */
-  public static final class Key implements Comparable<Key> {
-
-    public Key(int tag, Type type) {
-      this.tag = tag;
-      this.type = type;
-    }
-
-
-    public int compareTo(Key other) {
-      int result;
-
-      if (tag < other.tag) {
-        result = -1;
-      } else
-      if (tag > other.tag) {
-        result = +1;
-      } else {
-        result = type.compareTo(other.type);
-      }
-
-      return result;
-    }
-
-
-    public boolean equals(Object o) {
-      Key other = (Key) o;
-      return (this.tag == other.tag) && (this.type == other.type);
-    }
-
-
-    public int hashCode() {
-      int result = tag*317;
-      if (type != null) {
-        result += type.hashCode();
-      }
-      return result;
-    }
-
-
-    public String toString() {
-      return tag + "-" + type;
-    }
-
-
-    public final int tag;
-
-
-    public final Type type;
-  }
-
 
 
   private final Map<Key, Entry> entries = new HashMap<Key, Entry>();

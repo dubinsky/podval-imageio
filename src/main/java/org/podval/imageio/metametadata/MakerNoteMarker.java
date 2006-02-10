@@ -36,7 +36,7 @@ public class MakerNoteMarker extends Entry {
   }
 
 
-  protected String getKind() {
-    return "MakerNoteMarker";
+  protected Kind getKind() {
+    return Kind.MAKER_NOTE_MARKER;
   }
 }

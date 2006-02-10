@@ -50,12 +50,18 @@ public final class Record extends Entry {
   public Field getDefaultField() throws MetaMetaDataException {
     /** @todo check that there are no other fields - and that there won't be! */
     if (fields.isEmpty()) {
-      Field field = new Field(getName());
-      field.setType(getType());
-      addField(0, field);
+      addField(0, getName());
     }
 
     return fields.get(0);
+  }
+
+
+  private void addField(int index, String name) throws MetaMetaDataException {
+    Field field = new Field(name);
+    field.setType(getType());
+    field.setParent(this);
+    addField(index, field);
   }
 
 
@@ -127,9 +133,7 @@ public final class Record extends Entry {
 
   private Field getField(int index) throws MetaMetaDataException {
     if ((fields == null) || (index >= fields.size()) || (fields.get(index) == null)) {
-      Field field = new Field(unknown(index));
-      field.setType(getType());
-      addField(index, field);
+      addField(index, unknown(index));
     }
 
     return fields.get(index);
@@ -143,8 +147,8 @@ public final class Record extends Entry {
   }
 
 
-  protected String getKind() {
-    return "Record";
+  protected Kind getKind() {
+    return Kind.RECORD;
   }
 
 
