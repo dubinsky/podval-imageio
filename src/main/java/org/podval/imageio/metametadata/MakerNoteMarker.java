@@ -33,13 +33,13 @@ public final class MakerNoteMarker extends Entry {
     if (make != null) {
       String readerClassName = reader.getMetaMetaData().getMakerNoteReaderClassName(make);
       if (readerClassName != null) {
-        read(make, reader, readerClassName, offset, length, tag);
+        instantiate(readerClassName).read(make, reader, offset, length, tag);
       }
     }
   }
 
 
-  private void read(String make, Reader reader, String readerClassName, long offset, int length, int tag)
+  private MakerNoteReader instantiate(String readerClassName)
     throws IOException
   {
     Class clazz;
@@ -49,16 +49,16 @@ public final class MakerNoteMarker extends Entry {
       throw new IOException("Reader class not found: " + readerClassName);
     }
 
-    Object readerInstance;
+    Object result;
     try {
-      readerInstance = clazz.newInstance();
+      result = clazz.newInstance();
     } catch (InstantiationException e) {
       throw new IOException(e.getMessage());
     } catch (IllegalAccessException e) {
       throw new IOException(e.getMessage());
     }
 
-    ((MakerNoteReader) readerInstance).read(make, reader, offset, length, tag);
+    return (MakerNoteReader) result;
   }
 
 
