@@ -2,7 +2,7 @@
 
 package org.podval.imageio.metametadata;
 
-import org.podval.imageio.Rational;
+import org.podval.imageio.metadata.Rational;
 
 import org.podval.imageio.util.Util;
 

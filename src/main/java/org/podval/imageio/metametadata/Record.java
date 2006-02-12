@@ -136,7 +136,7 @@ public final class Record extends Entry {
 
   private Field getField(int index) throws MetaMetaDataException {
     if ((fields == null) || (index >= fields.size()) || (fields.get(index) == null)) {
-      addField(index, unknown(index));
+      addField(index, "unknown-" + index);
     }
 
     return fields.get(index);

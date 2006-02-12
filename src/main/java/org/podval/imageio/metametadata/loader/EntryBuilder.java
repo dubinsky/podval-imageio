@@ -9,9 +9,9 @@ import org.podval.imageio.metametadata.MetaMetaDataException;
 import org.xml.sax.Attributes;
 
 
-public abstract class EntryBuilder<T extends Entry> extends ThingBuilder<T> {
+public abstract class EntryBuilder<T extends Entry> extends Builder<T> {
 
-  protected EntryBuilder(Builder previous, T entry, Attributes attributes)
+  protected EntryBuilder(Builder<?> previous, T entry, Attributes attributes)
     throws MetaMetaDataException
   {
     super(previous, entry);
@@ -24,7 +24,7 @@ public abstract class EntryBuilder<T extends Entry> extends ThingBuilder<T> {
   {
     Type result =  null;
 
-    String typeName = attributes.getValue("type");
+    String typeName = getAttribute("type", attributes);
 
     if (typeName != null) {
       try {

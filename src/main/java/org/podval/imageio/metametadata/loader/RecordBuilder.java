@@ -12,7 +12,7 @@ import org.xml.sax.Attributes;
 
 public final class RecordBuilder extends EntryBuilder<Record> {
 
-  public RecordBuilder(Builder previous, Attributes attributes)
+  public RecordBuilder(Builder<?> previous, Attributes attributes)
     throws MetaMetaDataException
   {
     super(previous, previous.getMetaMetaData().getRecord(getName(attributes)), attributes);
@@ -21,17 +21,17 @@ public final class RecordBuilder extends EntryBuilder<Record> {
     thing.setIsVector(getBooleanAttribute("vector", attributes));
     thing.setSkip(getBooleanAttribute("skip", attributes));
 
-    String conversion = attributes.getValue("conversion");
+    String conversion = getAttribute("conversion", attributes);
     if (conversion != null) {
       thing.getDefaultField().setConversion(conversion);
     }
   }
 
 
-  public Builder startElement(String name, Attributes attributes)
+  public Builder<?> startElement(String name, Attributes attributes)
     throws MetaMetaDataException
   {
-    Builder result = null;
+    Builder<?> result = null;
 
     if ("field".equals(name)) {
       FieldBuilder fieldBuilder = new FieldBuilder(this, attributes, thing);

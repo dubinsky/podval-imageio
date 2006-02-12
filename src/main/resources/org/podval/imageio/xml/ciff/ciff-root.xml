@@ -17,9 +17,9 @@
   <record tag="3" type="U32" name="imageFormat">
     <field type="U32" name="fileFormat">
       <field type="U16" name="fileFormat">
-        <enumeration>
-          <item tag="1" value="JPEG"/>
-          <item tag="2" value="Canon CRW"/>
+        <enumeration class="org.podval.imageio.metadata.FileFormat">
+          <item tag="1" name="JPEG" value="JPEG"/>
+          <item tag="2" name="CRW" value="Canon CRW"/>
         </enumeration>
       </field>
       <field type="U16" name="compressionType">

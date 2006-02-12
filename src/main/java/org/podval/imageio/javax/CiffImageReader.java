@@ -1,6 +1,8 @@
 /* $Id$ */
 
-package org.podval.imageio;
+package org.podval.imageio.javax;
+
+import org.podval.imageio.CiffReader;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;

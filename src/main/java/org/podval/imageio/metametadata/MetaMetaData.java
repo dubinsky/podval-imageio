@@ -22,11 +22,17 @@ public final class MetaMetaData implements Parent {
     MetaMetaData result = name2data.get(name);
 
     if (result == null) {
-      result = MetaMetaDataLoader.loadMetaMetaData(name);
-      name2data.put(name, result);
+      result = new MetaMetaData();
+      new MetaMetaDataLoader(result).loadResource(name + ".list");
+      add(name, result);
     }
 
     return result;
+  }
+
+
+  public static void add(String name, MetaMetaData value) {
+    name2data.put(name, value);
   }
 
 

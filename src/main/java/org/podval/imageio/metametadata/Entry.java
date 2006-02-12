@@ -13,6 +13,11 @@ public abstract class Entry implements Parent {
 
 
   protected Entry(String name) {
+    /** @todo  */
+//    if (name == null) {
+//      throw new MetaMetaDataException("Entry must have a name");
+//    }
+
     this.name = name;
   }
 
@@ -83,11 +88,6 @@ public abstract class Entry implements Parent {
 
   public final String toString() {
     return getKind() + " " + getName() + "::" + getType();
-  }
-
-
-  protected final String unknown(int tag) {
-    return "unknown-" + tag;
   }
 
 

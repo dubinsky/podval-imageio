@@ -21,21 +21,12 @@ import java.io.IOException;
 
 public final class MetaMetaDataLoader {
 
-  public static MetaMetaData loadMetaMetaData(String name)
-    throws ParserConfigurationException, SAXException, IOException
-  {
-    MetaMetaData result = new MetaMetaData();
-    new MetaMetaDataLoader(result).loadResource(name + ".list");
-    return result;
-  }
-
-
-  private MetaMetaDataLoader(MetaMetaData metaMetaData) {
+  public MetaMetaDataLoader(MetaMetaData metaMetaData) {
     this.metaMetaData = metaMetaData;
   }
 
 
-  private void loadResource(String resourceName)
+  public void loadResource(String resourceName)
     throws ParserConfigurationException, SAXException, IOException
   {
     InputStream is = getClass().getClassLoader().getResourceAsStream(resourceName);
@@ -87,7 +78,7 @@ public final class MetaMetaDataLoader {
         throws SAXException
       {
         try {
-          Builder nextBuilder = currentBuilder.startElement(qName, attributes);
+          Builder<?> nextBuilder = currentBuilder.startElement(qName, attributes);
           if (nextBuilder == null) {
             throw new MetaMetaDataException("Unexpected element " + qName + " in " +
               currentBuilder);
@@ -104,7 +95,7 @@ public final class MetaMetaDataLoader {
       {
         try {
           currentBuilder.check();
-          currentBuilder = currentBuilder.getPrevious();
+          currentBuilder = currentBuilder.previous;
         } catch (MetaMetaDataException e) {
           throw new SAXException(calculateExceptionMessage(e));
         }
@@ -116,10 +107,10 @@ public final class MetaMetaDataLoader {
   private String calculateExceptionMessage(MetaMetaDataException e) {
     String result = e.getMessage();
 
-    Builder context = currentBuilder;
+    Builder<?> context = currentBuilder;
     while (!(context instanceof RootBuilder)) {
       result = context + " / " + result;
-      context = context.getPrevious();
+      context = context.previous;
     }
 
     /** @todo print name of the resource being loaded! */
@@ -130,5 +121,5 @@ public final class MetaMetaDataLoader {
   private final MetaMetaData metaMetaData;
 
 
-  private Builder currentBuilder;
+  private Builder<?> currentBuilder;
 }

@@ -1,12 +1,14 @@
 /* $Id$ */
 
-package org.podval.imageio;
+package org.podval.imageio.javax;
 
-import java.util.Locale;
 import javax.imageio.spi.ImageReaderSpi;
 import javax.imageio.stream.ImageInputStream;
-import java.io.IOException;
 import javax.imageio.ImageReader;
+
+import java.util.Locale;
+
+import java.io.IOException;
 
 
 public class CiffImageReaderSpi extends ImageReaderSpi {

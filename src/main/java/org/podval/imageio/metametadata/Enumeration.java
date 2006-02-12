@@ -10,48 +10,48 @@ import java.lang.NoSuchFieldException;
 
 public final class Enumeration {
 
-  public Enumeration(Class enumClass) {
-    this.enumClass = enumClass;
+  public Enumeration(String className) {
+    this.className = className;
   }
 
 
-  public void addValue(int tag, String name) {
-    Object oldValue = getRawValue(tag);
-    if (oldValue != null)
+  public void addItem(int tag, EnumerationItem item) {
+    EnumerationItem oldItem = items.get(tag);
+    if (oldItem != null)
       throw new IllegalArgumentException(
-        "Attempt to change value for " + tag +
-        " from " + oldValue +
-        " to " + name
+        "Attempt to change item for " + tag +
+        " from " + oldItem +
+        " to " + item
       );
 
-    Object value = name;
-    if (enumClass != null) {
-      try {
-        /** @todo check that the field is static... */
-        value = enumClass.getField(name).get(null);
-      } catch (NoSuchFieldException e) {
-        /** @todo ignore? */
-      } catch (IllegalAccessException e) {
-      /** @todo ignore? */
-      }
-    }
-
-    values.put(tag, value);
-  }
-
-
-  private Object getRawValue(int tag) {
-    return values.get(new Integer(tag));
+    items.put(tag, item);
   }
 
 
   public Object getValue(int tag) {
-    Object result = getRawValue(tag);
+    EnumerationItem item = items.get(tag);
 
-    if (result == null) {
-      String unknown = "unknown-" + tag;
-      result = unknown;
-      addValue(tag, unknown);
+    if (item == null) {
+      item = new EnumerationItem(tag);
+      addItem(tag, item);
+    }
+
+    Object result = (item.value != null) ? item.value : item.name;
+
+    if (className != null) {
+      try {
+        Class clazz = Class.forName(className);
+////        Object x = Enum.valueOf(clazz, item.name);
+      } catch (ClassNotFoundException e) {
+      }
+//      try {
+//        /** @todo check that the field is static... */
+//        value = enumClass.getField(name).get(null);
+//      } catch (NoSuchFieldException e) {
+//        /** @todo ignore? */
+//      } catch (IllegalAccessException e) {
+//      /** @todo ignore? */
+//      }
     }
 
     return result;
@@ -67,8 +67,8 @@ public final class Enumeration {
   }
 
 
-  private final Class enumClass;
+  private final String className;
 
 
-  private final Map<Integer, Object> values = new HashMap<Integer, Object>();
+  private final Map<Integer, EnumerationItem> items = new HashMap<Integer, EnumerationItem>();
 }

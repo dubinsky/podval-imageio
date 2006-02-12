@@ -1,6 +1,6 @@
-/* $Id$ */
+/* @(#)$Id$ */
 
-package org.podval.imageio;
+package org.podval.imageio.metadata;
 
 
 public final class Rational {

@@ -125,7 +125,7 @@ public class Heap extends Entry {
       if (result == null) {
         boolean isHeap = (kind == Entry.Kind.HEAP);
 
-        String name = unknown(tag);
+        String name = "unknown-" + tag;
         result = (isHeap) ? new Heap(name) : new Record(name);
         result.setType(type);
         addEntry(tag, result);

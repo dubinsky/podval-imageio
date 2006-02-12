@@ -2,26 +2,26 @@
 
 package org.podval.imageio.metametadata.loader;
 
-import org.xml.sax.Attributes;
-
 import org.podval.imageio.metametadata.MetaMetaDataException;
 
+import org.xml.sax.Attributes;
 
-public final class MakerNoteBuilder extends Builder {
 
-  public MakerNoteBuilder(Builder previous, Attributes attributes)
+public final class MakerNoteBuilder extends Builder<String> {
+
+  public MakerNoteBuilder(Builder<?> previous, Attributes attributes)
     throws MetaMetaDataException
   {
-    super(previous);
+    super(previous, getRequiredAttribute("make", attributes));
 
     getMetaMetaData().addMakerNoteReaderClass(
-      getAttribute("make", attributes),
-      getAttribute("class", attributes)
+      thing,
+      getRequiredAttribute("class", attributes)
     );
   }
 
 
-  public Builder startElement(String name, Attributes attributes) {
+  public Builder<?> startElement(String name, Attributes attributes) {
     return null;
   }
 }

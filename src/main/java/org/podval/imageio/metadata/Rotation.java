@@ -1,6 +1,6 @@
 /* @(#)$Id$*/
 
-package org.podval.imageio;
+package org.podval.imageio.metadata;
 
 
 public enum Rotation {

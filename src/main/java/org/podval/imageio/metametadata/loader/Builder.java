@@ -2,27 +2,22 @@
 
 package org.podval.imageio.metametadata.loader;
 
-import org.podval.imageio.metametadata.Type;
 import org.podval.imageio.metametadata.MetaMetaData;
 import org.podval.imageio.metametadata.MetaMetaDataException;
 
 import org.xml.sax.Attributes;
 
 
-public abstract class Builder {
+public abstract class Builder<T> {
 
-  protected Builder(Builder previous) {
+  protected Builder(Builder<?> previous, T thing) {
     this.previous = previous;
+    this.thing = thing;
   }
 
 
-  public abstract Builder startElement(String name, Attributes attributes)
+  public abstract Builder<?> startElement(String name, Attributes attributes)
     throws MetaMetaDataException;
-
-
-  public final Builder getPrevious() {
-    return previous;
-  }
 
 
   protected void check() throws MetaMetaDataException {
@@ -30,23 +25,24 @@ public abstract class Builder {
 
 
   protected final MetaMetaData getMetaMetaData() {
-    Builder candidate = this;
-    while (!(candidate instanceof DocumentBuilder)) {
+    Builder<?> candidate = this;
+    while (!(candidate instanceof RootBuilder)) {
       candidate = candidate.previous;
     }
-    return ((DocumentBuilder) candidate).thing;
+    return ((RootBuilder) candidate).thing;
   }
 
 
-  protected final static String getName(Attributes attributes) throws MetaMetaDataException {
-    return getAttribute("name", attributes);
+  protected static String getName(Attributes attributes) throws MetaMetaDataException {
+    return getRequiredAttribute("name", attributes);
   }
 
 
-  protected final static String getAttribute(String name, Attributes attributes)
+  /** @todo eliminate; throw exceptions from the MetaMetaData objects themselves... */
+  protected static String getRequiredAttribute(String name, Attributes attributes)
     throws MetaMetaDataException
   {
-    String result = attributes.getValue(name);
+    String result = getAttribute(name, attributes);
 
     if (result == null) {
       throw new MetaMetaDataException("Missing required attribute " + name);
@@ -56,8 +52,13 @@ public abstract class Builder {
   }
 
 
+  protected static String getAttribute(String name, Attributes attributes) {
+    return attributes.getValue(name);
+  }
+
+
   protected final boolean getBooleanAttribute(String name, Attributes attributes) {
-    return Boolean.valueOf(attributes.getValue(name));
+    return Boolean.valueOf(getAttribute(name, attributes));
   }
 
 
@@ -65,7 +66,7 @@ public abstract class Builder {
     throws MetaMetaDataException
   {
     try {
-      String value = attributes.getValue(name);
+      String value = getAttribute(name, attributes);
       return (value == null) ? 0 : Integer.valueOf(value);
     } catch (NumberFormatException e) {
       throw new MetaMetaDataException(e);
@@ -73,5 +74,13 @@ public abstract class Builder {
   }
 
 
-  private Builder previous;
+  public final String toString() {
+    return thing.toString();
+  }
+
+
+  public final Builder previous;
+
+
+  public final T thing;
 }

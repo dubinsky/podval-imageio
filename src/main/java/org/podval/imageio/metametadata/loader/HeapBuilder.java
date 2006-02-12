@@ -2,22 +2,22 @@
 
 package org.podval.imageio.metametadata.loader;
 
-import org.xml.sax.Attributes;
-
 import org.podval.imageio.metametadata.Heap;
 import org.podval.imageio.metametadata.MetaMetaDataException;
+
+import org.xml.sax.Attributes;
 
 
 public final class HeapBuilder extends EntryBuilder<Heap> {
 
-  public HeapBuilder(Builder previous, Attributes attributes)
+  public HeapBuilder(Builder<?> previous, Attributes attributes)
     throws MetaMetaDataException
   {
     super(previous, previous.getMetaMetaData().getHeap(getName(attributes)), attributes);
   }
 
 
-  public Builder startElement(String name, Attributes attributes)
+  public Builder<?> startElement(String name, Attributes attributes)
     throws MetaMetaDataException
   {
     EntryBuilder<?> result = null;

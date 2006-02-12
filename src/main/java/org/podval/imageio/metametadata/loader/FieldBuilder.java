@@ -11,7 +11,7 @@ import org.xml.sax.Attributes;
 
 public final class FieldBuilder extends EntryBuilder<Field> {
 
-  public FieldBuilder(Builder previous, Attributes attributes, Entry parent)
+  public FieldBuilder(Builder<?> previous, Attributes attributes, Entry parent)
     throws MetaMetaDataException
   {
     super(previous, new Field(getName(attributes)), attributes);
@@ -21,14 +21,14 @@ public final class FieldBuilder extends EntryBuilder<Field> {
     }
 
     thing.setSkip(getBooleanAttribute("skip", attributes));
-    thing.setConversion(attributes.getValue("conversion"));
+    thing.setConversion(getAttribute("conversion", attributes));
   }
 
 
-  public Builder startElement(String name, Attributes attributes)
+  public Builder<?> startElement(String name, Attributes attributes)
     throws MetaMetaDataException
   {
-    Builder result = null;
+    Builder<?> result = null;
 
     if ("field".equals(name)) {
       FieldBuilder fieldBuilder = new FieldBuilder(this, attributes, thing);
