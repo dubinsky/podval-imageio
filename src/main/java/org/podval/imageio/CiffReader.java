@@ -4,6 +4,7 @@ package org.podval.imageio;
 
 import org.podval.imageio.metametadata.Type;
 import org.podval.imageio.metametadata.Entry;
+import org.podval.imageio.metametadata.MetaMetaData;
 
 import org.podval.imageio.util.Util;
 
@@ -32,9 +33,9 @@ public class CiffReader extends Reader {
   }
 
 
-  protected void read() throws IOException {
+  protected void read(MetaMetaData metaMetaData) throws IOException {
     int heapLength = Util.toInt(in.length() - headerLength);
-    readRootHeap(headerLength, heapLength, 0, false);
+    metaMetaData.getHeap("ciff-root").read(this, headerLength, heapLength, 0, false);
   }
 
 

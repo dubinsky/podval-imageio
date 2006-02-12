@@ -10,9 +10,7 @@ import java.io.IOException;
 
 public final class MakerNoteMarker extends Entry {
 
-  public MakerNoteMarker() throws MetaMetaDataException {
-    /** @todo we do not really need a name here... */
-    /** @todo we do not really need a type here either!!! */
+  public MakerNoteMarker() {
     super("makerNoteMarker");
   }
 
@@ -31,9 +29,10 @@ public final class MakerNoteMarker extends Entry {
     String make = ((ExifReader) reader).getMake();
 
     if (make != null) {
-      String readerClassName = reader.getMetaMetaData().getMakerNoteReaderClassName(make);
+      MetaMetaData metaMetaData = getMetaMetaData();
+      String readerClassName = metaMetaData.getMakerNoteReaderClassName(make);
       if (readerClassName != null) {
-        instantiate(readerClassName).read(make, reader, offset, length, tag);
+        instantiate(readerClassName).read(make, metaMetaData, reader, offset, length, tag);
       }
     }
   }

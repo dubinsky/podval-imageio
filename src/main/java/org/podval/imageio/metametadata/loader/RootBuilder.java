@@ -7,7 +7,7 @@ import org.podval.imageio.metametadata.MetaMetaDataException;
 import org.xml.sax.Attributes;
 
 
-public class RootBuilder extends Builder {
+public final class RootBuilder extends Builder {
 
   public RootBuilder(DocumentBuilder previous) {
     super(previous);
@@ -33,7 +33,4 @@ public class RootBuilder extends Builder {
 
     return result;
   }
-
-
-  /** @todo print name of the resource being loaded! */
 }

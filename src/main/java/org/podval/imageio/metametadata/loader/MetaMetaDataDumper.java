@@ -23,25 +23,26 @@ import javax.xml.transform.TransformerFactoryConfigurationError;
 import org.xml.sax.helpers.AttributesImpl;
 
 
-public class MetaMetaDataDumper extends SaxDumper {
+public final class MetaMetaDataDumper extends SaxDumper {
 
-  public static void dump(MetaMetaData metaMetaData, OutputStream os)
+  public static void dump(MetaMetaData metaMetaData, String heapName, OutputStream os)
     throws
     TransformerFactoryConfigurationError,
     TransformerException,
     IllegalArgumentException
   {
-    new MetaMetaDataDumper(metaMetaData).dump(os);
+    new MetaMetaDataDumper(metaMetaData, heapName).dump(os);
   }
 
 
-  private MetaMetaDataDumper(MetaMetaData metaMetadata) {
+  private MetaMetaDataDumper(MetaMetaData metaMetadata, String heapName) {
     this.metaMetadata = metaMetadata;
+    this.heapName = heapName;
   }
 
 
   protected void dump() {
-    dumpHeap(metaMetadata.getRootHeap(), null);
+    dumpHeap(metaMetadata.getHeap(heapName), null);
   }
 
 
@@ -137,4 +138,7 @@ public class MetaMetaDataDumper extends SaxDumper {
 
 
   private final MetaMetaData metaMetadata;
+
+
+  private final String heapName;
 }

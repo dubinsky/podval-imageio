@@ -7,26 +7,16 @@ import org.podval.imageio.metametadata.MetaMetaDataException;
 import org.xml.sax.Attributes;
 
 
-public class EnumerationItemBuilder extends Builder {
+public final class EnumerationItemBuilder extends ThingBuilder<String> {
 
   public EnumerationItemBuilder(Builder previous, Attributes attributes)
     throws MetaMetaDataException
   {
-    super(previous);
-
-    value = attributes.getValue("value");
+    super(previous, attributes.getValue("value"));
   }
 
 
   public Builder startElement(String name, Attributes attributes) {
     return null;
   }
-
-
-  public String toString() {
-    return value;
-  }
-
-
-  public final String value;
 }

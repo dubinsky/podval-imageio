@@ -2,24 +2,26 @@
 
 package org.podval.imageio.metametadata.loader;
 
-import org.podval.imageio.metametadata.Type;
 import org.podval.imageio.metametadata.Field;
+import org.podval.imageio.metametadata.Entry;
 import org.podval.imageio.metametadata.MetaMetaDataException;
 
 import org.xml.sax.Attributes;
 
 
-public class FieldBuilder extends Builder {
+public final class FieldBuilder extends EntryBuilder<Field> {
 
-  public FieldBuilder(Builder previous, Attributes attributes)
+  public FieldBuilder(Builder previous, Attributes attributes, Entry parent)
     throws MetaMetaDataException
   {
-    super(previous);
+    super(previous, new Field(getName(attributes)), attributes);
 
-    this.field = new Field(getName(attributes));
-    field.setType(getType(attributes));
-    field.setSkip(getBooleanAttribute("skip", attributes));
-    field.setConversion(attributes.getValue("conversion"));
+    if (thing.getType() == null) {
+      thing.setType(parent.getType());
+    }
+
+    thing.setSkip(getBooleanAttribute("skip", attributes));
+    thing.setConversion(attributes.getValue("conversion"));
   }
 
 
@@ -29,21 +31,13 @@ public class FieldBuilder extends Builder {
     Builder result = null;
 
     if ("field".equals(name)) {
-      FieldBuilder fieldBuilder = new FieldBuilder(this, attributes);
-      Field subField = fieldBuilder.field;
-
-      if (subField.getType() == null) {
-        subField.setType(field.getType());
-      }
-
-      field.addSubField(subField);
+      FieldBuilder fieldBuilder = new FieldBuilder(this, attributes, thing);
+      thing.addSubField(fieldBuilder.thing);
       result = fieldBuilder;
     } else
 
     if ("enumeration".equals(name)) {
-      EnumerationBuilder enumerationBuilder = new EnumerationBuilder(this, attributes);
-      field.setEnumeration(enumerationBuilder.enumeration);
-      result = enumerationBuilder;
+      result = new EnumerationBuilder(this, attributes, thing);
     }
 
     return result;
@@ -51,14 +45,6 @@ public class FieldBuilder extends Builder {
 
 
   protected void check() throws MetaMetaDataException {
-    field.checkSubFields();
+    thing.checkSubFields();
   }
-
-
-  public String toString() {
-    return field.toString();
-  }
-
-
-  public final Field field;
 }

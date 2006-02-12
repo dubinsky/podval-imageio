@@ -10,28 +10,21 @@ import org.podval.imageio.metametadata.MetaMetaDataException;
 import org.xml.sax.Attributes;
 
 
-public class RecordBuilder extends EntryBuilder {
+public final class RecordBuilder extends EntryBuilder<Record> {
 
   public RecordBuilder(Builder previous, Attributes attributes)
     throws MetaMetaDataException
   {
-    super(previous);
+    super(previous, previous.getMetaMetaData().getRecord(getName(attributes)), attributes);
 
-    this.record = getMetaMetaData().getRecord(getName(attributes));
-    record.setType(getType(attributes));
     /** @todo count */
-    record.setIsVector(getBooleanAttribute("vector", attributes));
-    record.setSkip(getBooleanAttribute("skip", attributes));
+    thing.setIsVector(getBooleanAttribute("vector", attributes));
+    thing.setSkip(getBooleanAttribute("skip", attributes));
 
     String conversion = attributes.getValue("conversion");
     if (conversion != null) {
-      record.getDefaultField().setConversion(conversion);
+      thing.getDefaultField().setConversion(conversion);
     }
-  }
-
-
-  public Entry getEntry() {
-    return record;
   }
 
 
@@ -41,30 +34,21 @@ public class RecordBuilder extends EntryBuilder {
     Builder result = null;
 
     if ("field".equals(name)) {
-      FieldBuilder fieldBuilder = new FieldBuilder(this, attributes);
-      Field field = fieldBuilder.field;
-      if (field.getType() == null) {
-        field.setType(record.getType());
-      }
+      FieldBuilder fieldBuilder = new FieldBuilder(this, attributes, thing);
       if (attributes.getValue("index") != null) {
         index = getIntegerAttribute("index", attributes);
       }
-      record.addField(index, field);
+      thing.addField(index, fieldBuilder.thing);
       index++;
       result = fieldBuilder;
     } else
 
     if ("enumeration".equals(name)) {
-      EnumerationBuilder enumerationBuilder = new EnumerationBuilder(this, attributes);
-      record.getDefaultField().setEnumeration(enumerationBuilder.enumeration);
-      result = enumerationBuilder;
+      result = new EnumerationBuilder(this, attributes, thing.getDefaultField());
     }
 
     return result;
   }
-
-
-  private final Record record;
 
 
   private int index;

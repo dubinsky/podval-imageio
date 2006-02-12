@@ -8,6 +8,6 @@ import org.podval.imageio.metametadata.MetaMetaData;
 public class Test {
 
   public static void main(String[] args) throws Exception {
-    MetaMetaDataDumper.dump(MetaMetaData.get("ciff"), System.out);
+    MetaMetaDataDumper.dump(MetaMetaData.get("ciff"), "ciff-root", System.out);
   }
 }

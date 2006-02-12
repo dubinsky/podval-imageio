@@ -4,32 +4,23 @@ package org.podval.imageio.metametadata.loader;
 
 import org.xml.sax.Attributes;
 
-import org.podval.imageio.metametadata.Entry;
 import org.podval.imageio.metametadata.Heap;
 import org.podval.imageio.metametadata.MetaMetaDataException;
 
 
-public final class HeapBuilder extends EntryBuilder {
+public final class HeapBuilder extends EntryBuilder<Heap> {
 
   public HeapBuilder(Builder previous, Attributes attributes)
     throws MetaMetaDataException
   {
-    super(previous);
-
-    heap = getMetaMetaData().getHeap(getName(attributes));
-    heap.setType(getType(attributes));
-  }
-
-
-  public Entry getEntry() {
-    return heap;
+    super(previous, previous.getMetaMetaData().getHeap(getName(attributes)), attributes);
   }
 
 
   public Builder startElement(String name, Attributes attributes)
     throws MetaMetaDataException
   {
-    EntryBuilder result = null;
+    EntryBuilder<?> result = null;
 
     if ("directory".equals(name)) {
       result = new HeapBuilder(this, attributes);
@@ -44,12 +35,9 @@ public final class HeapBuilder extends EntryBuilder {
     }
 
     if (result != null) {
-      heap.addEntry(getIntegerAttribute("tag", attributes), result.getEntry());
+      thing.addEntry(getIntegerAttribute("tag", attributes), result.thing);
     }
 
     return result;
   }
-
-
-  private final Heap heap;
 }

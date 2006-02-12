@@ -50,7 +50,7 @@ public abstract class Reader implements ReaderHandler {
 
 
   public final void read(ImageInputStream in, ReaderHandler handler) throws IOException {
-    read(in, handler, new MetaMetaData(""));
+    read(in, handler, new MetaMetaData());
   }
 
 
@@ -71,11 +71,10 @@ public abstract class Reader implements ReaderHandler {
 
     this.in = in;
     this.handler = handler;
-    this.metaMetaData = metaMetaData;
 
     readPrologue();
 
-    read();
+    read(metaMetaData);
   }
 
 
@@ -86,11 +85,6 @@ public abstract class Reader implements ReaderHandler {
 
   public final ReaderHandler getHandler() {
     return handler;
-  }
-
-
-  public final MetaMetaData getMetaMetaData() {
-    return metaMetaData;
   }
 
 
@@ -107,7 +101,7 @@ public abstract class Reader implements ReaderHandler {
    *
    * @throws IOException
    */
-  protected abstract void read() throws IOException;
+  protected abstract void read(MetaMetaData metaMetaData) throws IOException;
 
 
   /**
@@ -147,20 +141,6 @@ public abstract class Reader implements ReaderHandler {
     }
 
     return result;
-  }
-
-
-  public final boolean readRootHeap(int tag, boolean seekAfter)
-    throws IOException
-  {
-    return readRootHeap(0, 0, tag, seekAfter);
-  }
-
-
-  public final boolean readRootHeap(long offset, int length, int tag, boolean seekAfter)
-    throws IOException
-  {
-    return metaMetaData.getRootHeap().read(this, offset, length, tag, seekAfter);
   }
 
 
@@ -229,7 +209,4 @@ public abstract class Reader implements ReaderHandler {
 
 
   private ReaderHandler handler;
-
-
-  private MetaMetaData metaMetaData;
 }

@@ -2,33 +2,22 @@
 
 package org.podval.imageio.metametadata.loader;
 
-import org.podval.imageio.metametadata.Entry;
 import org.podval.imageio.metametadata.MakerNoteMarker;
 import org.podval.imageio.metametadata.MetaMetaDataException;
 
 import org.xml.sax.Attributes;
 
 
-public final class MakerNoteMarkerBuilder extends EntryBuilder {
+public final class MakerNoteMarkerBuilder extends EntryBuilder<MakerNoteMarker> {
 
   public MakerNoteMarkerBuilder(Builder previous, Attributes attributes)
     throws MetaMetaDataException
   {
-    super(previous);
-    this.makerNoteMarker = new MakerNoteMarker();
-    this.makerNoteMarker.setType(getType(attributes));
-  }
-
-
-  public Entry getEntry() {
-    return makerNoteMarker;
+    super(previous, new MakerNoteMarker(), attributes);
   }
 
 
   public Builder startElement(String name, Attributes attributes) {
     return null;
   }
-
-
-  private final MakerNoteMarker makerNoteMarker;
 }

@@ -3,19 +3,38 @@
 package org.podval.imageio.metametadata.loader;
 
 import org.podval.imageio.metametadata.Entry;
+import org.podval.imageio.metametadata.Type;
+import org.podval.imageio.metametadata.MetaMetaDataException;
+
+import org.xml.sax.Attributes;
 
 
-public abstract class EntryBuilder extends Builder {
+public abstract class EntryBuilder<T extends Entry> extends ThingBuilder<T> {
 
-  public EntryBuilder(Builder previous) {
-    super(previous);
+  protected EntryBuilder(Builder previous, T entry, Attributes attributes)
+    throws MetaMetaDataException
+  {
+    super(previous, entry);
+    thing.setType(getType(attributes));
   }
 
 
-  protected abstract Entry getEntry();
+  private static Type getType(Attributes attributes)
+    throws MetaMetaDataException
+  {
+    Type result =  null;
 
+    String typeName = attributes.getValue("type");
 
-  public final String toString() {
-    return getEntry().toString();
+    if (typeName != null) {
+      try {
+        typeName = typeName.toUpperCase();
+        result = Type.valueOf(typeName);
+      } catch (IllegalArgumentException e) {
+        throw new MetaMetaDataException("Unknown type " + typeName);
+      }
+    }
+
+    return result;
   }
 }

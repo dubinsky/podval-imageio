@@ -3,16 +3,19 @@
 package org.podval.imageio.metametadata.loader;
 
 import org.podval.imageio.metametadata.Enumeration;
+import org.podval.imageio.metametadata.Field;
 import org.podval.imageio.metametadata.MetaMetaDataException;
 
 import org.xml.sax.Attributes;
 
 
-public class EnumerationBuilder extends Builder {
+public final class EnumerationBuilder extends ThingBuilder<Enumeration> {
 
-  public EnumerationBuilder(Builder previous, Attributes attributes) {
-    super(previous);
-    this.enumeration = new Enumeration(null /** @todo class!!! */);
+  public EnumerationBuilder(Builder previous, Attributes attributes, Field field)
+    throws MetaMetaDataException
+  {
+    super(previous, new Enumeration(null /** @todo class!!! */));
+    field.setEnumeration(thing);
   }
 
 
@@ -24,9 +27,9 @@ public class EnumerationBuilder extends Builder {
     if ("item".equals(name)) {
       EnumerationItemBuilder next = new EnumerationItemBuilder(this, attributes);
 
-      enumeration.addValue(
+      thing.addValue(
         getIntegerAttribute("tag", attributes),
-        next.value
+        next.thing
       );
 
       result = next;
@@ -34,12 +37,4 @@ public class EnumerationBuilder extends Builder {
 
     return result;
   }
-
-
-  public String toString() {
-    return enumeration.toString();
-  }
-
-
-  public final Enumeration enumeration;
 }

@@ -7,24 +7,14 @@ import org.podval.imageio.metametadata.MetaMetaData;
 import org.xml.sax.Attributes;
 
 
-public class DocumentBuilder extends Builder {
+public final class DocumentBuilder extends ThingBuilder<MetaMetaData> {
 
   public DocumentBuilder(MetaMetaData metaMetaData) {
-    super(null);
-    this.metaMetaData = metaMetaData;
+    super(null, metaMetaData);
   }
 
 
   public Builder startElement(String name, Attributes attributes) {
-    Builder result = null;
-
-    if ("meta-metadata".equals(name)) {
-      result = new RootBuilder(this);
-    }
-
-    return result;
+    return ("meta-metadata".equals(name)) ? new RootBuilder(this) : null;
   }
-
-
-  public final MetaMetaData metaMetaData;
 }

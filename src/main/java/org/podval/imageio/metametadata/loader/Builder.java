@@ -34,16 +34,16 @@ public abstract class Builder {
     while (!(candidate instanceof DocumentBuilder)) {
       candidate = candidate.previous;
     }
-    return ((DocumentBuilder) candidate).metaMetaData;
+    return ((DocumentBuilder) candidate).thing;
   }
 
 
-  protected final String getName(Attributes attributes) throws MetaMetaDataException {
+  protected final static String getName(Attributes attributes) throws MetaMetaDataException {
     return getAttribute("name", attributes);
   }
 
 
-  protected final String getAttribute(String name, Attributes attributes)
+  protected final static String getAttribute(String name, Attributes attributes)
     throws MetaMetaDataException
   {
     String result = attributes.getValue(name);
@@ -70,26 +70,6 @@ public abstract class Builder {
     } catch (NumberFormatException e) {
       throw new MetaMetaDataException(e);
     }
-  }
-
-
-  protected static Type getType(Attributes attributes)
-    throws MetaMetaDataException
-  {
-    Type result =  null;
-
-    String typeName = attributes.getValue("type");
-
-    if (typeName != null) {
-      try {
-        typeName = typeName.toUpperCase();
-        result = Type.valueOf(typeName);
-      } catch (IllegalArgumentException e) {
-        throw new MetaMetaDataException("Unknown type " + typeName);
-      }
-    }
-
-    return result;
   }
 
 

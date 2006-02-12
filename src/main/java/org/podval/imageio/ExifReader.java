@@ -4,6 +4,8 @@ package org.podval.imageio;
 
 import org.podval.imageio.metametadata.Type;
 import org.podval.imageio.metametadata.Entry;
+import org.podval.imageio.metametadata.Heap;
+import org.podval.imageio.metametadata.MetaMetaData;
 
 import javax.imageio.stream.ImageInputStream;
 
@@ -30,12 +32,13 @@ public class ExifReader extends Reader {
   }
 
 
-  protected void read() throws IOException {
+  protected void read(MetaMetaData metaMetaData) throws IOException {
     // Since virtually all the tags (except 513 and 514) seem to be allowed
     // both in IFD0 and IFD1 (including EXIF and GPS IFDs),
     // the same directory descriptor can be used for IFD1 too.
-    if (readRootHeap(0, true)) {
-      readRootHeap(1, false);
+    Heap rootHeap = metaMetaData.getHeap("exif-root");
+    if (rootHeap.read(this, 0, 0, 0, true)) {
+      rootHeap.read(this, 0, 0, 1, false);
     }
   }
 

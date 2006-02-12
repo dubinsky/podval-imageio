@@ -13,7 +13,7 @@ public abstract class HeapMakerNoteReader implements MakerNoteReader {
   }
 
 
-  public void read(String make, Reader reader, long offset, int length, int tag)
+  public void read(String make,  MetaMetaData metaMetaData, Reader reader, long offset, int length, int tag)
     throws IOException
   {
     reader.getInputStream().seek(offset);
@@ -24,7 +24,7 @@ public abstract class HeapMakerNoteReader implements MakerNoteReader {
 
     String heapName = make.toLowerCase() + "-maker-note";
 
-    reader.getMetaMetaData().getHeap(heapName).readInPlace(reader, offset, length, tag, false);
+    metaMetaData.getHeap(heapName).readInPlace(reader, offset, length, tag, false);
   }
 
 
