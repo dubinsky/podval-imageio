@@ -7,12 +7,12 @@
   <field index="2" name="iso">
     <!-- Where is 50? There are doubts about 1600. ISO = (50*2^n/32)/16 -->
     <enumeration>
-      <item tag="160" value="100"/>
-      <item tag="192" value="200"/>
-      <item tag="224" value="400"/>
-      <item tag="256" value="800"/>
-      <item tag="258" value="1000"/>
-      <item tag="288" value="1600"/>
+      <item tag="160" description="100"/>
+      <item tag="192" description="200"/>
+      <item tag="224" description="400"/>
+      <item tag="256" description="800"/>
+      <item tag="258" description="1000"/>
+      <item tag="288" description="1600"/>
     </enumeration>
   </field>
 
@@ -23,13 +23,13 @@
 
   <field index="7" name="whiteBalance">
     <enumeration>
-      <item tag="0" value="Auto"/>
-      <item tag="1" value="Daylight"/>
-      <item tag="2" value="Cloudy"/>
-      <item tag="3" value="Tungsten"/>
-      <item tag="4" value="Fluorescent"/>
-      <item tag="5" value="Flash"/>
-      <item tag="6" value="Other/Preset/Custom"/>
+      <item tag="0" description="Auto"/>
+      <item tag="1" description="Daylight"/>
+      <item tag="2" description="Cloudy"/>
+      <item tag="3" description="Tungsten"/>
+      <item tag="4" description="Fluorescent"/>
+      <item tag="5" description="Flash"/>
+      <item tag="6" description="Other/Preset/Custom"/>
     </enumeration>
   </field>
 

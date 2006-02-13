@@ -11,7 +11,7 @@ import java.io.IOException;
 public final class MakerNoteMarker extends Entry {
 
   public MakerNoteMarker() {
-    super("makerNoteMarker");
+    super(null);
   }
 
 

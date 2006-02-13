@@ -5,19 +5,21 @@ package org.podval.imageio.metametadata;
 
 public class EnumerationItem {
 
-  public EnumerationItem(String name, String value) throws MetaMetaDataException {
-    if ((name == null) && (value == null)) {
-      throw new MetaMetaDataException("Name or value must be present");
+  public EnumerationItem(String name, String description)
+    throws MetaMetaDataException
+  {
+    if ((name == null) && (description == null)) {
+      throw new MetaMetaDataException("Name or description must be present");
     }
 
     this.name = name;
-    this.value = value;
+    this.description = description;
   }
 
 
   public EnumerationItem(int tag) {
     this.name = null;
-    this.value = "unknown-" + tag;
+    this.description = "unknown-" + tag;
     /** @todo mark as 'learned' */
   }
 
@@ -25,5 +27,5 @@ public class EnumerationItem {
   public final String name;
 
 
-  public final String value;
+  public final String description;
 }

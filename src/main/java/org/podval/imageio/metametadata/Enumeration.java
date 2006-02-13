@@ -4,21 +4,33 @@ package org.podval.imageio.metametadata;
 
 import java.util.Map;
 import java.util.HashMap;
-
-import java.lang.NoSuchFieldException;
+import java.util.Collection;
+import java.util.Collections;
 
 
 public final class Enumeration {
 
   public Enumeration(String className) {
+    /** @todo check (and split) the className */
     this.className = className;
   }
 
 
-  public void addItem(int tag, EnumerationItem item) {
-    EnumerationItem oldItem = items.get(tag);
+  public String getClassName() {
+    return className;
+  }
+
+
+  public void addItem(int tag, EnumerationItem item)
+    throws MetaMetaDataException
+  {
+    if ((className != null) && (item.name == null)) {
+      throw new MetaMetaDataException("For enumeration associated with a Java class, all items must have names");
+    }
+
+    EnumerationItem oldItem = getItem(tag);
     if (oldItem != null)
-      throw new IllegalArgumentException(
+      throw new MetaMetaDataException(
         "Attempt to change item for " + tag +
         " from " + oldItem +
         " to " + item
@@ -29,29 +41,27 @@ public final class Enumeration {
 
 
   public Object getValue(int tag) {
-    EnumerationItem item = items.get(tag);
+    EnumerationItem item = getItem(tag);
 
     if (item == null) {
       item = new EnumerationItem(tag);
-      addItem(tag, item);
+      items.put(tag, item);
     }
 
-    Object result = (item.value != null) ? item.value : item.name;
+    Object result = (item.description != null) ? item.description : item.name;
 
-    if (className != null) {
+    if ((className != null) && (item.name != null)) {
       try {
-        Class clazz = Class.forName(className);
-////        Object x = Enum.valueOf(clazz, item.name);
+        Class<Enum> clazz = (Class<Enum>) Class.forName(className);
+        Enum<?> candidate = Enum.valueOf(clazz, item.name);
+        if (candidate != null) {
+          result = candidate;
+        }
       } catch (ClassNotFoundException e) {
+        /** @todo  */
+      } catch (ClassCastException e) {
+        /** @todo  */
       }
-//      try {
-//        /** @todo check that the field is static... */
-//        value = enumClass.getField(name).get(null);
-//      } catch (NoSuchFieldException e) {
-//        /** @todo ignore? */
-//      } catch (IllegalAccessException e) {
-//      /** @todo ignore? */
-//      }
     }
 
     return result;
@@ -64,6 +74,21 @@ public final class Enumeration {
     }
 
     return result;
+  }
+
+
+  public Collection<Integer> getTags() {
+    return Collections.unmodifiableCollection(items.keySet());
+  }
+
+
+  public Collection<EnumerationItem> getItems() {
+    return Collections.unmodifiableCollection(items.values());
+  }
+
+
+  public EnumerationItem getItem(int tag) {
+    return items.get(tag);
   }
 
 

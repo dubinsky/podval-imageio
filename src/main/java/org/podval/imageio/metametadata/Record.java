@@ -47,10 +47,15 @@ public final class Record extends Entry {
   }
 
 
+  public boolean hasDefaultField() {
+    return hasDefaultField;
+  }
+
+
   public Field getDefaultField() throws MetaMetaDataException {
-    /** @todo check that there are no other fields - and that there won't be! */
     if (fields.isEmpty()) {
       addField(0, getName());
+      hasDefaultField = true;
     }
 
     return fields.get(0);
@@ -58,6 +63,10 @@ public final class Record extends Entry {
 
 
   private void addField(int index, String name) throws MetaMetaDataException {
+    if (hasDefaultField()) {
+      throw new MetaMetaDataException("Fields can not be added to a record with a default field");
+    }
+
     addField(index, new Field(name));
   }
 
@@ -162,4 +171,7 @@ public final class Record extends Entry {
 
 
   private ArrayList<Field> fields = new ArrayList<Field>(1);
+
+
+  private boolean hasDefaultField;
 }

@@ -16,16 +16,16 @@
 
   <record tag="259" name="compression" type="U16" skip="true">
     <enumeration>
-      <item tag="1" value="Uncompressed"/>
-      <item tag="6" value="JPEG compression"/>
+      <item tag="1" description="Uncompressed"/>
+      <item tag="6" description="JPEG compression"/>
     </enumeration>
   </record>
 
   <record tag="262" name="photometricInterpretation" type="U16" skip="true">
     <enumeration>
-      <!-- XXXX: <item tag="1" value="Monochrome"/>-->
-      <item tag="2" value="RGB"/>
-      <item tag="6" value="YCbCr"/>
+      <!-- XXXX: <item tag="1" description="Monochrome"/>-->
+      <item tag="2" description="RGB"/>
+      <item tag="6" description="YCbCr"/>
     </enumeration>
   </record>
 
@@ -36,7 +36,7 @@
   <record tag="272" name="model" type="string"/>
 
   <!-- XXX -->
-  <record tag="273" name="stripOffsets" type="U16_or_U32" count="any" skip="true"/>
+  <record tag="273" name="stripOffsets" type="U16_or_U32" skip="true"/>
 
   <!-- What row of the image is in the top (0th) row -
        and what column in the left (0th) column.
@@ -45,15 +45,15 @@
        image to bring it into normal position.
   -->
   <record tag="274" name="orientation" type="U16"> <!-- orientation -->
-    <enumeration enumClass="org.podval.imageio.Orientation">
-      <item tag="1" value="TOP_LEFT"    />
-      <item tag="2" value="TOP_RIGHT"   />
-      <item tag="3" value="BOTTOM_RIGHT"/>
-      <item tag="4" value="BOTTOM_LEFT" />
-      <item tag="5" value="LEFT_TOP"    />
-      <item tag="6" value="RIGHT_TOP"   />
-      <item tag="7" value="RIGHT_BOTTOM"/>
-      <item tag="8" value="LEFT_BOTTOM" />
+    <enumeration class="org.podval.imageio.metadata.Orientation">
+      <item tag="1" name="TOP_LEFT"    />
+      <item tag="2" name="TOP_RIGHT"   />
+      <item tag="3" name="BOTTOM_RIGHT"/>
+      <item tag="4" name="BOTTOM_LEFT" />
+      <item tag="5" name="LEFT_TOP"    />
+      <item tag="6" name="RIGHT_TOP"   />
+      <item tag="7" name="RIGHT_BOTTOM"/>
+      <item tag="8" name="LEFT_BOTTOM" />
     </enumeration>
   </record>
 
@@ -62,7 +62,7 @@
   <record tag="278" name="rowsPerStrip" type="U16_or_U32" skip="true"/>
 
   <!-- XXX -->
-  <record tag="279" name="stripByteCounts" type="U16_or_U32" count="any" skip="true"/>
+  <record tag="279" name="stripByteCounts" type="U16_or_U32" skip="true"/>
 
   <record tag="282" name="xResolution" type="rational"/> <!-- default 72 dpi -->
 
@@ -70,17 +70,17 @@
 
   <record tag="284" name="planarConfiguration" type="U16" skip="true"> <!-- default 1 -->
     <enumeration>
-      <item tag="1" value="Chunky"/>
-      <item tag="2" value="Planar"/>
+      <item tag="1" description="Chunky"/>
+      <item tag="2" description="Planar"/>
     </enumeration>
   </record>
 
   <!-- see also exif/41488 -->
   <record tag="296" name="resolutionUnit" type="U16"> <!-- default 2 -->
     <enumeration>
-      <!--<item tag="1" value="Undefined"/>-->
-      <item tag="2" value="Inch"/>
-      <item tag="3" value="Centimeter"/>
+      <!--<item tag="1" description="Undefined"/>-->
+      <item tag="2" description="Inch"/>
+      <item tag="3" description="Centimeter"/>
     </enumeration>
   </record>
 
@@ -125,16 +125,16 @@
     <field name="YCbCrSubsampling1"/> <!-- value 2 -->
     <field name="YCbCrSubsampling">
       <enumeration>
-        <item tag="1" value="YCbCr4:2:2"/>
-        <item tag="2" value="YCbCr4:2:0"/>
+        <item tag="1" description="YCbCr4:2:2"/>
+        <item tag="2" description="YCbCr4:2:0"/>
       </enumeration>
     </field>
   </record>
 
   <record tag="531" name="YCbCrPositioning" type="U16" skip="true"> <!-- default 1 -->
     <enumeration>
-      <item tag="1" value="Centered"/>
-      <item tag="2" value="Co-sited"/>
+      <item tag="1" description="Centered"/>
+      <item tag="2" description="Co-sited"/>
     </enumeration>
   </record>
 

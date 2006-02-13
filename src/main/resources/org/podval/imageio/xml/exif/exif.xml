@@ -10,15 +10,15 @@
 
   <record tag="34850" name="exposureProgram" type="U16"> <!-- G2 does not put this into .THM file. -->
     <enumeration> <!-- Names from EXIF 2.2 specification are given in comments: -->
-     <item tag="0" value="Undefined"/> <!-- Not definied -->
-      <item tag="1" value="Manual"/>
-      <item tag="2" value="Auto"/> <!-- Normal program -->
-      <item tag="3" value="Aperture priority"/>
-      <item tag="4" value="Shutter priority"/>
-      <item tag="5" value="Creative"/> <!-- Creative program (biased towards depth of field) -->
-      <item tag="6" value="Action"/> <!-- Action program (biased towards fast shutter speed)-->
-      <item tag="7" value="Portrait"/> <!-- Portrait mode (for closeup photos with the background out of focus) -->
-      <item tag="8" value="Landscape"/> <!-- Landscape mode (for landscape photos with the background in focus) -->
+      <item tag="0" description="Undefined"/> <!-- Not definied -->
+      <item tag="1" description="Manual"/>
+      <item tag="2" description="Auto"/> <!-- Normal program -->
+      <item tag="3" description="Aperture priority"/>
+      <item tag="4" description="Shutter priority"/>
+      <item tag="5" description="Creative"/> <!-- Creative program (biased towards depth of field) -->
+      <item tag="6" description="Action"/> <!-- Action program (biased towards fast shutter speed)-->
+      <item tag="7" description="Portrait"/> <!-- Portrait mode (for closeup photos with the background out of focus) -->
+      <item tag="8" description="Landscape"/> <!-- Landscape mode (for landscape photos with the background in focus) -->
     </enumeration>
   </record>
 
@@ -58,46 +58,46 @@
 
     <field name="component1" type="X8">
       <enumeration>
-        <item tag="0" value="-"/>
-        <item tag="1" value="Y"/>
-        <item tag="2" value="Cb"/>
-        <item tag="3" value="Cr"/>
-        <item tag="4" value="R"/>
-        <item tag="5" value="G"/>
-        <item tag="6" value="B"/>
+        <item tag="0" description="-"/>
+        <item tag="1" description="Y"/>
+        <item tag="2" description="Cb"/>
+        <item tag="3" description="Cr"/>
+        <item tag="4" description="R"/>
+        <item tag="5" description="G"/>
+        <item tag="6" description="B"/>
       </enumeration>
     </field>
     <field name="component2" type="X8">
       <enumeration>
-        <item tag="0" value="-"/>
-        <item tag="1" value="Y"/>
-        <item tag="2" value="Cb"/>
-        <item tag="3" value="Cr"/>
-        <item tag="4" value="R"/>
-        <item tag="5" value="G"/>
-        <item tag="6" value="B"/>
+        <item tag="0" description="-"/>
+        <item tag="1" description="Y"/>
+        <item tag="2" description="Cb"/>
+        <item tag="3" description="Cr"/>
+        <item tag="4" description="R"/>
+        <item tag="5" description="G"/>
+        <item tag="6" description="B"/>
       </enumeration>
     </field>
     <field name="component3" type="X8">
       <enumeration>
-        <item tag="0" value="-"/>
-        <item tag="1" value="Y"/>
-        <item tag="2" value="Cb"/>
-        <item tag="3" value="Cr"/>
-        <item tag="4" value="R"/>
-        <item tag="5" value="G"/>
-        <item tag="6" value="B"/>
+        <item tag="0" description="-"/>
+        <item tag="1" description="Y"/>
+        <item tag="2" description="Cb"/>
+        <item tag="3" description="Cr"/>
+        <item tag="4" description="R"/>
+        <item tag="5" description="G"/>
+        <item tag="6" description="B"/>
       </enumeration>
     </field>
     <field name="component4" type="X8">
       <enumeration>
-        <item tag="0" value="-"/>
-        <item tag="1" value="Y"/>
-        <item tag="2" value="Cb"/>
-        <item tag="3" value="Cr"/>
-        <item tag="4" value="R"/>
-        <item tag="5" value="G"/>
-        <item tag="6" value="B"/>
+        <item tag="0" description="-"/>
+        <item tag="1" description="Y"/>
+        <item tag="2" description="Cb"/>
+        <item tag="3" description="Cr"/>
+        <item tag="4" description="R"/>
+        <item tag="5" description="G"/>
+        <item tag="6" description="B"/>
       </enumeration>
     </field>
   -->
@@ -127,40 +127,40 @@
 
   <record tag="37383" name="meteringMode" type="U16">
     <enumeration>   <!-- default 0 -->
-      <item tag="0" value="Unknown"/>
-      <item tag="1" value="Average"/>
-      <item tag="2" value="Center-weighted average"/>
-      <item tag="3" value="Spot"/>
-      <item tag="4" value="Multispot"/>
-      <item tag="5" value="Evaluative"/> <!-- In EXIF specification: 'Pattern'. In reality (and Canon maker note): 'Matrix'?-->
-      <item tag="6" value="Partial"/>
-      <item tag="255" value="Other"/>
+      <item tag="0" description="Unknown"/>
+      <item tag="1" description="Average"/>
+      <item tag="2" description="Center-weighted average"/>
+      <item tag="3" description="Spot"/>
+      <item tag="4" description="Multispot"/>
+      <item tag="5" description="Evaluative"/> <!-- In EXIF specification: 'Pattern'. In reality (and Canon maker note): 'Matrix'?-->
+      <item tag="6" description="Partial"/>
+      <item tag="255" description="Other"/>
     </enumeration>
   </record>
 
   <record tag="37384" name="lightSource" type="U16"> <!-- G2 does not put this into .THM file. -->
     <enumeration> <!-- default 0 -->
-      <item tag="0" value="Unknown"/>
-      <item tag="1" value="Daylight"/>
-      <item tag="2" value="Fluorescent"/>
-      <item tag="3" value="Tungsten (incandescent light)"/>
-      <item tag="4" value="Flash"/>
-      <item tag="9" value="Fine weather"/>
-      <item tag="10" value="Cloudy weather"/>
-      <item tag="11" value="Shade"/>
-      <item tag="12" value="Daylight fluorescent (D 5700-7100K)"/>
-      <item tag="13" value="Day white fluorescent (N 4600-5400K)"/>
-      <item tag="14" value="Cool white fluorescent (W 3900-4500K)"/>
-      <item tag="15" value="White fluorescent (WW 3200-3700K)"/>
-      <item tag="17" value="Standard light A"/>
-      <item tag="18" value="Standard light B"/>
-      <item tag="19" value="Standard light C"/>
-      <item tag="20" value="D55"/>
-      <item tag="21" value="D65"/>
-      <item tag="22" value="D75"/>
-      <item tag="23" value="D50"/>
-      <item tag="24" value="ISO studio tungsten"/>
-      <item tag="255" value="Other"/>
+      <item tag="0" description="Unknown"/>
+      <item tag="1" description="Daylight"/>
+      <item tag="2" description="Fluorescent"/>
+      <item tag="3" description="Tungsten (incandescent light)"/>
+      <item tag="4" description="Flash"/>
+      <item tag="9" description="Fine weather"/>
+      <item tag="10" description="Cloudy weather"/>
+      <item tag="11" description="Shade"/>
+      <item tag="12" description="Daylight fluorescent (D 5700-7100K)"/>
+      <item tag="13" description="Day white fluorescent (N 4600-5400K)"/>
+      <item tag="14" description="Cool white fluorescent (W 3900-4500K)"/>
+      <item tag="15" description="White fluorescent (WW 3200-3700K)"/>
+      <item tag="17" description="Standard light A"/>
+      <item tag="18" description="Standard light B"/>
+      <item tag="19" description="Standard light C"/>
+      <item tag="20" description="D55"/>
+      <item tag="21" description="D65"/>
+      <item tag="22" description="D75"/>
+      <item tag="23" description="D50"/>
+      <item tag="24" description="ISO studio tungsten"/>
+      <item tag="255" description="Other"/>
     </enumeration>
   </record>
 
@@ -214,8 +214,8 @@
 
   <record tag="40961" name="colorSpace" type="U16">
     <enumeration>
-      <item tag="1" value="sRGB"/>
-      <item tag="65535" value="Uncalibrated"/> <!-- 0xFFFF -->
+      <item tag="1" description="sRGB"/>
+      <item tag="65535" description="Uncalibrated"/> <!-- 0xFFFF -->
     </enumeration>
   </record>
 
@@ -252,12 +252,12 @@
 
   <record tag="41488" name="focalPlaneResolutionUnit" type="U16"> <!-- same value as resolutionUnit -->
     <enumeration> <!-- XXXX: Only 2 and 3 are mentioned in EXIF specification -->
-      <item tag="1" value="Inch"/> <!-- 25.4f -->
-      <item tag="2" value="Inch"/> <!-- 25.4f -->
- <!-- <item tag="2" value="Meter" --> <!-- 1000.0f -->
-      <item tag="3" value="Centimeter"/> <!-- 10.0f -->
-      <item tag="4" value="Millimeter"/> <!-- 1.0f -->
-      <item tag="5" value="Micrometer"/> <!-- 0.001f -->
+      <item tag="1" description="Inch"/> <!-- 25.4f -->
+      <item tag="2" description="Inch"/> <!-- 25.4f -->
+ <!-- <item tag="2" description="Meter" --> <!-- 1000.0f -->
+      <item tag="3" description="Centimeter"/> <!-- 10.0f -->
+      <item tag="4" description="Millimeter"/> <!-- 1.0f -->
+      <item tag="5" description="Micrometer"/> <!-- 0.001f -->
     </enumeration>
   </record>
 
@@ -270,25 +270,25 @@
 
   <record tag="41495" name="sensingMethod" type="U16" skip="true">
     <enumeration>
-      <item tag="1" value="Unknown"/>
-      <item tag="2" value="One-chip color area sensor"/>
-      <item tag="3" value="Two-chip color area sensor"/>
-      <item tag="4" value="Three-chip color area sensor"/>
-      <item tag="5" value="Color sequential area sensor"/>
-      <item tag="7" value="Trilinear sensor"/>
-      <item tag="8" value="Color sequential linear sensor"/>
+      <item tag="1" description="Unknown"/>
+      <item tag="2" description="One-chip color area sensor"/>
+      <item tag="3" description="Two-chip color area sensor"/>
+      <item tag="4" description="Three-chip color area sensor"/>
+      <item tag="5" description="Color sequential area sensor"/>
+      <item tag="7" description="Trilinear sensor"/>
+      <item tag="8" description="Color sequential linear sensor"/>
     </enumeration>
   </record>
 
   <record tag="41728" name="fileSource" type="X8" count="1" skip="true">
     <enumeration>
-      <item tag="3" value="DSC"/>
+      <item tag="3" description="DSC"/>
     </enumeration>
   </record>
 
   <record tag="41729" name="sceneType" type="X8" count="1" skip="true">
     <enumeration>
-      <item tag="1" value="Directly photographed image"/>
+      <item tag="1" description="Directly photographed image"/>
     </enumeration>
   </record>
 
@@ -310,23 +310,23 @@
 
   <record tag="41985" name="customRendered" type="U16" skip="true">
     <enumeration> <!-- default 0 -->
-      <item tag="0" value="Normal process"/>
-      <item tag="1" value="Custom process"/>
+      <item tag="0" description="Normal process"/>
+      <item tag="1" description="Custom process"/>
     </enumeration>
   </record>
 
   <record tag="41986" name="exposureMode" type="U16">
     <enumeration>
-      <item tag="0" value="Auto"/>
-      <item tag="1" value="Manual"/>
-      <item tag="2" value="Auto bracket"/>
+      <item tag="0" description="Auto"/>
+      <item tag="1" description="Manual"/>
+      <item tag="2" description="Auto bracket"/>
     </enumeration>
   </record>
 
   <record tag="41987" name="whiteBalance" type="U16">
     <enumeration>
-      <item tag="0" value="Auto"/>
-      <item tag="1" value="Manual"/>
+      <item tag="0" description="Auto"/>
+      <item tag="1" description="Manual"/>
     </enumeration>
   </record>
 
@@ -336,44 +336,44 @@
 
   <record tag="41990" name="sceneCapturedType" type="U16">
     <enumeration>
-      <item tag="0" value="Standard"/>
-      <item tag="1" value="Landscape"/>
-      <item tag="2" value="Portrait"/>
-      <item tag="3" value="Night scene"/>
+      <item tag="0" description="Standard"/>
+      <item tag="1" description="Landscape"/>
+      <item tag="2" description="Portrait"/>
+      <item tag="3" description="Night scene"/>
     </enumeration>
   </record>
 
   <record tag="41991" name="gainControl" type="U16">
     <enumeration>
-      <item tag="0" value="None"/>
-      <item tag="1" value="Low gain up"/>
-      <item tag="2" value="High gain up"/>
-      <item tag="3" value="Low gain down"/>
-      <item tag="4" value="High gain down"/>
+      <item tag="0" description="None"/>
+      <item tag="1" description="Low gain up"/>
+      <item tag="2" description="High gain up"/>
+      <item tag="3" description="Low gain down"/>
+      <item tag="4" description="High gain down"/>
     </enumeration>
   </record>
 
   <record tag="41992" name="contrast" type="U16">
     <enumeration> <!-- Default 0 -->
-      <item tag="0" value="Normal"/>
-      <item tag="1" value="Soft"/>
-      <item tag="2" value="Hard"/>
+      <item tag="0" description="Normal"/>
+      <item tag="1" description="Soft"/>
+      <item tag="2" description="Hard"/>
     </enumeration>
   </record>
 
   <record tag="41993" name="saturation" type="U16">
     <enumeration> <!-- Default 0 -->
-      <item tag="0" value="Normal"/>
-      <item tag="1" value="Low"/>
-      <item tag="2" value="High"/>
+      <item tag="0" description="Normal"/>
+      <item tag="1" description="Low"/>
+      <item tag="2" description="High"/>
     </enumeration>
   </record>
 
   <record tag="41994" name="sharpness" type="U16">
     <enumeration> <!-- Default 0 -->
-      <item tag="0" value="Normal"/>
-      <item tag="1" value="Soft"/>
-      <item tag="2" value="Hard"/>
+      <item tag="0" description="Normal"/>
+      <item tag="1" description="Soft"/>
+      <item tag="2" description="Hard"/>
     </enumeration>
   </record>
 
@@ -382,10 +382,10 @@
 
   <record tag="41996" name="subjectDistanceRange" type="U16">
     <enumeration>
-      <item tag="0" value="Unknown"/>
-      <item tag="1" value="Macro"/>
-      <item tag="2" value="Close view"/>
-      <item tag="3" value="Distant view"/>
+      <item tag="0" description="Unknown"/>
+      <item tag="1" description="Macro"/>
+      <item tag="2" description="Close view"/>
+      <item tag="3" description="Distant view"/>
     </enumeration>
   </record>
 

@@ -10,6 +10,7 @@ import java.lang.reflect.InvocationTargetException;
 
 import java.util.List;
 import java.util.LinkedList;
+import java.util.Collections;
 
 import java.io.IOException;
 
@@ -34,12 +35,17 @@ public final class Field extends Entry {
 
   public void setConversion(String value) throws MetaMetaDataException {
     if ((value != null) && (conversion != null) && (value != conversion)) {
-        throw new IllegalArgumentException("Attempt to change conversion");
+        throw new MetaMetaDataException("Attempt to change conversion");
     }
 
     conversion = value;
 
     check();
+  }
+
+
+  public String getConversion() {
+    return conversion;
   }
 
 
@@ -87,6 +93,11 @@ public final class Field extends Entry {
         throw new MetaMetaDataException("Wrong total length of sub-fields in " + this);
       }
     }
+  }
+
+
+  public List<Field> getSubFields() {
+    return (subFields == null) ? null : Collections.unmodifiableList(subFields);
   }
 
 

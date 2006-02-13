@@ -47,8 +47,8 @@ public class SaxDumpingHandler extends SaxDumper implements ReaderHandler {
 
   public boolean startFolder(int tag, String name) {
     AttributesImpl attributes = new AttributesImpl();
-    addAttribute(attributes, "tag", Integer.toString(tag));
-    addNameAttribute(attributes, name);
+    addIntegerAttribute(attributes, "tag", tag);
+    addNullableAttribute(attributes, "name", name);
     startElement("folder", attributes);
     return true;
   }
@@ -82,16 +82,16 @@ public class SaxDumpingHandler extends SaxDumper implements ReaderHandler {
   private void handleItem(int tag, String name, int count, Object value) {
     AttributesImpl attributes = new AttributesImpl();
 
-    addAttribute(attributes, "tag", Integer.toString(tag));
+    addIntegerAttribute(attributes, "tag", tag);
 
-    addNameAttribute(attributes, name);
+    addNullableAttribute(attributes, "name", name);
 
     if (count != 1) {
-      addAttribute(attributes, "count", Integer.toString(count));
+      addIntegerAttribute(attributes, "count", count);
     }
 
     if (value != null) {
-      addAttribute(attributes, "value", valueToString(value));
+      addNullableAttribute(attributes, "value", valueToString(value));
     }
 
     try {

@@ -15,7 +15,7 @@ public final class EnumerationItemBuilder extends Builder<EnumerationItem> {
   {
     super(previous, new EnumerationItem(
       getAttribute("name", attributes),
-      getAttribute("value", attributes))
+      getAttribute("description", attributes))
     );
   }
 

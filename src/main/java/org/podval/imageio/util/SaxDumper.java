@@ -131,15 +131,15 @@ public abstract class SaxDumper implements XMLReader {
   protected abstract void dump() throws IOException;
 
 
-  protected final void addNameAttribute(AttributesImpl attributes, String name) {
-    if (name != null) {
-      addAttribute(attributes, "name", name);
+  protected final void addNullableAttribute(AttributesImpl attributes, String name, Object value) {
+    if (value != null) {
+      attributes.addAttribute(null, null, name, "string", value.toString());
     }
   }
 
 
-  protected final void addAttribute(AttributesImpl attributes, String name, String value) {
-    attributes.addAttribute(null, null, name, "string", value);
+  protected final void addIntegerAttribute(AttributesImpl attributes, String name, int value) {
+    addNullableAttribute(attributes, name, Integer.toString(value));
   }
 
 

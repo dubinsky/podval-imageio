@@ -18,16 +18,16 @@
     <field type="U32" name="fileFormat">
       <field type="U16" name="fileFormat">
         <enumeration class="org.podval.imageio.metadata.FileFormat">
-          <item tag="1" name="JPEG" value="JPEG"/>
-          <item tag="2" name="CRW" value="Canon CRW"/>
+          <item tag="1" name="JPEG" description="JPEG"/>
+          <item tag="2" name="CRW" description="Canon CRW"/>
         </enumeration>
       </field>
       <field type="U16" name="compressionType">
         <enumeration>
-          <item tag="0" value="Lossy JPEG"/>
-          <item tag="1" value="None (CRW)"/>
-          <item tag="2" value="Non-quantization JPEG"/>
-          <item tag="3" value="Lossy/non-quantization JPEG depending on picture/text switch (Canon PS600)"/>
+          <item tag="0" description="Lossy JPEG"/>
+          <item tag="1" description="None (CRW)"/>
+          <item tag="2" description="Non-quantization JPEG"/>
+          <item tag="3" description="Lossy/non-quantization JPEG depending on picture/text switch (Canon PS600)"/>
         </enumeration>
       </field>
     </field>
@@ -44,8 +44,8 @@
   <record tag="10" type="U16" name="targetImageType" skip="true">
     <field name="targetImageType">
       <enumeration>
-        <item tag="0" value="Real-world subject"/>
-        <item tag="1" value="Written document"/>
+        <item tag="0" description="Real-world subject"/>
+        <item tag="1" description="Written document"/>
       </enumeration>
     </field>
     <field name="reserved" skip="true"/>
@@ -76,14 +76,14 @@
       <field type="U8" name="reserved" skip="true"/>
       <field type="U8" name="pixelAaspectRatioConversionNeeded">
         <enumeration>
-          <item tag="0" value="No"/>
-          <item tag="1" value="Yes"/>
+          <item tag="0" description="No"/>
+          <item tag="1" description="Yes"/>
         </enumeration>
       </field>
       <field type="U8" name="colorBW">
         <enumeration>
-          <item tag="0" value="Grayscale"/>
-          <item tag="1" value="Color"/>
+          <item tag="0" description="Grayscale"/>
+          <item tag="1" description="Color"/>
         </enumeration>
       </field>
     </field>
@@ -118,8 +118,8 @@
   <record tag="16" type="U16" name="releaseMethod">
     <field type="U16" name="releaseMethod">
       <enumeration>
-        <item tag="0" value="Single shot"/>
-        <item tag="1" value="Continuous/successive exposures"/>
+        <item tag="0" description="Single shot"/>
+        <item tag="1" description="Continuous/successive exposures"/>
       </enumeration>
     </field>
     <field type="U16" name="reserved" skip="true"/>
@@ -130,8 +130,8 @@
   <record tag="17" type="U16" name="releaseTiming">
     <field type="U16" name="releaseTiming">
       <enumeration>
-        <item tag="0" value="Priority on shutter"/>
-        <item tag="1" value="Priority on focus"/>
+        <item tag="0" description="Priority on shutter"/>
+        <item tag="1" description="Priority on focus"/>
       </enumeration>
     </field>
     <field type="U16" name="reserved" skip="true"/>
