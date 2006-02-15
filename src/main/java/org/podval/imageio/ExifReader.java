@@ -53,13 +53,10 @@ public class ExifReader extends Reader {
   }
 
 
-  public HeapInformation readHeapInformation(long offset, int length)
+  public int readNumberOfHeapEntries(long offset, int length)
     throws IOException
   {
-    int numEntries = in.readUnsignedShort();
-    long entriesOffset = in.getStreamPosition();
-
-    return new HeapInformation(entriesOffset, numEntries);
+    return in.readUnsignedShort();
   }
 
 

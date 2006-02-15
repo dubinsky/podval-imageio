@@ -44,7 +44,7 @@ public class CiffReader extends Reader {
   }
 
 
-  public HeapInformation readHeapInformation(long offset, int length)
+  public int readNumberOfHeapEntries(long offset, int length)
     throws IOException
   {
     in.seek(offset + length - 4);
@@ -52,10 +52,7 @@ public class CiffReader extends Reader {
     int offsetTblOffset = readUnsignedInt();
     in.seek(offset + offsetTblOffset);
 
-    int numEntries = in.readUnsignedShort();
-    long entriesOffset = in.getStreamPosition();
-
-    return new HeapInformation(entriesOffset, numEntries);
+    return in.readUnsignedShort();
   }
 
 

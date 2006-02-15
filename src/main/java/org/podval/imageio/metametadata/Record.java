@@ -129,9 +129,8 @@ public final class Record extends Entry {
             throw new IOException(e.getMessage());
           }
         }
+        reader.endFolder();
       }
-
-      reader.endFolder();
 
     } else {
       try {

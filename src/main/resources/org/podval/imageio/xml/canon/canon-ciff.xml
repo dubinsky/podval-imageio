@@ -51,9 +51,9 @@
   <record tag="52" type="U32" name="canonRawProperties-52" count="2"/>
 
   <record tag="53" type="U32" name="decodeTable">
+    <field type="U32" name="decodeTable-0"/>
     <field type="U32" name="decodeTable-1"/>
     <field type="U32" name="decodeTable-2"/>
-    <field type="U32" name="decodeTable-3"/>
     <field type="U32" name="looksLikeOffset"/>
   </record>
 

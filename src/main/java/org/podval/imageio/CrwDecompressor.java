@@ -32,7 +32,7 @@ public class CrwDecompressor {
       crwInformation.decodeTableNumber,
       crwInformation.width,
       crwInformation.height
-    ).decompress();
+    ).decompress(crwInformation.crwOffset+crwInformation.bytesToSkip);
   }
 
 
@@ -49,11 +49,6 @@ public class CrwDecompressor {
     this.rawHeight = rawHeight;
     this.numLowBits = 0;
     this.shift = 4 - 2*numLowBits; /** @todo ? */
-    /**
-     * @todo and not where the image starts?
-     * It seems that decodeTable[3] gives offset of the image from the offsetBase...
-     **/
-    in.seek(540 + numLowBits*rawHeight*rawWidth/4);
   }
 
 
@@ -62,7 +57,9 @@ public class CrwDecompressor {
    *  */
 
 
-  private BufferedImage decompress() throws IOException {
+  private BufferedImage decompress(long offset) throws IOException {
+    in.seek(offset + numLowBits*rawHeight*rawWidth/4);
+
     BufferedImage result = createImage(width, height);
     WritableRaster raster = result.getRaster();
 
@@ -71,6 +68,8 @@ public class CrwDecompressor {
       decompressBlock();
       writeBlock(raster);
     } while (numPixelsDone < numPixels);
+
+    /** @todo low bits */
 
     black = (int) ((long) black << shift) / numBlack;
 
@@ -157,6 +156,27 @@ public class CrwDecompressor {
 
 
 
+  /*
+     A rough description of Canon's compression algorithm:
+
+  +  Each pixel outputs a 10-bit sample, from 0 to 1023.
+  +  Split the data into blocks of 64 samples each.
+  +  Subtract from each sample the value of the sample two positions
+     to the left, which has the same color filter.  From the two
+     leftmost samples in each row, subtract 512.
+  +  For each nonzero sample, make a token consisting of two four-bit
+     numbers.  The low nibble is the number of bits required to
+     represent the sample, and the high nibble is the number of
+     zero samples preceding this sample.
+  +  Output this token as a variable-length bitstring using
+     one of three tablesets.  Follow it with a fixed-length
+     bitstring containing the sample.
+
+     The "first_decode" table is used for the first sample in each
+     block, and the "second_decode" table is used for the others.
+   */
+
+
   private void decompressBlock() throws IOException {
     clearBlock();
     readBlock();
@@ -192,8 +212,15 @@ public class CrwDecompressor {
 
         if (sampleLength != 0) {
           int sample = readSample(sampleLength);
-          if (i < BLOCK_LENGTH)
+
+//?
+//          if ((sample & (1 << (sampleLength-1))) == 0) {
+//            sample -= (1 << sampleLength) - 1;
+//          }
+
+          if (i < BLOCK_LENGTH) {
             block[i] = sample;
+          }
         }
       }
     }

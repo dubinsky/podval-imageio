@@ -3,7 +3,6 @@
 package org.podval.imageio.metametadata;
 
 import org.podval.imageio.Reader;
-import org.podval.imageio.HeapInformation;
 import org.podval.imageio.EntryInformation;
 
 import java.util.Map;
@@ -85,9 +84,8 @@ public class Heap extends Entry {
     throws IOException
   {
     if (reader.startFolder(tag, getName())) {
-      HeapInformation heapInformation = reader.readHeapInformation(offset, length);
-      long entriesOffset = heapInformation.entriesOffset;
-      int numEntries = heapInformation.numEntries;
+      int numEntries = reader.readNumberOfHeapEntries(offset, length);
+      long entriesOffset = reader.getInputStream().getStreamPosition();
 
       for (int i = 0; i < numEntries; i++) {
         seekToEntry(reader, entriesOffset, i);

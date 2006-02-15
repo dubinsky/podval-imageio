@@ -53,7 +53,7 @@ public class CrwInformationExtractor {
       public ValueAction atValue(int tag, String name, int count) {
         ValueAction result = ValueAction.SKIP;
 
-        if (isWidthValue(tag) || isHeightValue(tag) || isDecodeTableValue(tag)) {
+        if (isWidthValue(tag) || isHeightValue(tag) || isDecodeTableValue(tag) || isBytesToSkip(tag)) {
           result = ValueAction.VALUE;
         } else
 
@@ -76,6 +76,10 @@ public class CrwInformationExtractor {
 
         if (isDecodeTableValue(tag)) {
           decodeTableNumber = (Integer) value;
+        } else
+
+        if (isBytesToSkip(tag)) {
+          bytesToSkip = (Integer) value;
         }
       }
 
@@ -107,7 +111,12 @@ public class CrwInformationExtractor {
 
 
   private boolean isDecodeTableValue(int tag) {
-    return inDecodeTable && (tag == 1);
+    return inDecodeTable && (tag == 0); // 1?
+  }
+
+
+  private boolean isBytesToSkip(int tag) {
+    return inDecodeTable && (tag == 2);
   }
 
 
@@ -130,4 +139,7 @@ public class CrwInformationExtractor {
 
 
   public long crwOffset;
+
+
+  public int bytesToSkip;
 }

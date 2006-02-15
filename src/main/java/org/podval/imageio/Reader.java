@@ -144,7 +144,7 @@ public abstract class Reader implements ReaderHandler {
   }
 
 
-  public abstract HeapInformation readHeapInformation(long offset, int length)
+  public abstract int readNumberOfHeapEntries(long offset, int length)
     throws IOException;
 
 
