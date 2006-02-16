@@ -5,7 +5,6 @@ package org.podval.imageio.util;
 import java.io.IOException;
 
 import javax.imageio.stream.ImageInputStream;
-import org.podval.imageio.Reader;
 
 
 public final class Util {

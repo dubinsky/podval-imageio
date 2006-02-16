@@ -92,27 +92,37 @@ public final class Cli {
 //      System.err.print("bilinearily interpolating...");
 //      Demosaicker.bilinear(result.getRaster());
 //
-//      System.err.print("writing...");
-//      write(result, file, name, "tiff");
+    System.err.print("writing...");
+    write(result, "/tmp/" + getShortPathName(path), "png");
 
     System.err.print("done!");
   }
 
 
-//  private static void write(BufferedImage result, File file, String name, String suffix)
-//    throws IOException
-//  {
-//    Iterator writers = ImageIO.getImageWritersBySuffix(suffix);
-//    ImageWriter writer = (ImageWriter) writers.next();
-//
-//    File newFile = new File(file.getParentFile(), name + "." + suffix);
-//    ImageOutputStream out = ImageIO.createImageOutputStream(newFile);
-//
-//    writer.setOutput(out);
-//    writer.write(result);
-//    out.close();
-//    writer.dispose();
-//  }
+  private static void write(BufferedImage result, String name, String suffix)
+    throws IOException
+  {
+    Iterator writers = ImageIO.getImageWritersBySuffix(suffix);
+    ImageWriter writer = (ImageWriter) writers.next();
+
+    File newFile = new File(name + "." + suffix);
+    ImageOutputStream out = ImageIO.createImageOutputStream(newFile);
+
+    writer.setOutput(out);
+    writer.write(result);
+    out.close();
+    writer.dispose();
+  }
+
+
+  private static String getShortPathName(String path) {
+    String result = getPathName(path);
+    int slash = result.lastIndexOf("/");
+    if (slash != -1) {
+      result = result.substring(slash+1, result.length());
+    }
+    return result;
+  }
 
 
   private static String getPathName(String path) {

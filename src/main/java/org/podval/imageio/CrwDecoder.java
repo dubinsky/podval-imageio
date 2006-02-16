@@ -11,7 +11,7 @@ public abstract class CrwDecoder {
   public abstract boolean hasNext();
 
 
-  public abstract CrwDecoder getNext(boolean isZero);
+  public abstract CrwDecoder getNext(boolean isOne);
 
 
   public abstract int getValue();
@@ -34,8 +34,8 @@ public abstract class CrwDecoder {
     }
 
 
-    public CrwDecoder getNext(boolean isZero) {
-      return (isZero) ? zero : one;
+    public CrwDecoder getNext(boolean isOne) {
+      return (isOne) ? one : zero;
     }
 
 
@@ -67,7 +67,7 @@ public abstract class CrwDecoder {
     }
 
 
-    public CrwDecoder getNext(boolean isZero) {
+    public CrwDecoder getNext(boolean isOne) {
       throw new UnsupportedOperationException("No branches on the leaves.");
     }
 
@@ -141,11 +141,13 @@ public abstract class CrwDecoder {
   public static CrwDecoder getInstance(int tableNumber, boolean first) {
     CrwDecoder result = null;
 
-    if (tableNumber > 2)
+    if (tableNumber > 2) {
       tableNumber = 2;
+    }
 
-    if (tableNumber >= 0)
+    if (tableNumber >= 0) {
       result = decoders[tableNumber][(first) ? 0 : 1];
+    }
 
     return result;
   }

@@ -95,8 +95,6 @@ public class CrwInformationExtractor {
         return null;
       }
     });
-
-    in.close();
   }
 
 
