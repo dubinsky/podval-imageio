@@ -72,10 +72,9 @@ public final class Cli {
 
 
   private static void dump(String path) throws Exception {
-    boolean crw = path.endsWith(".crw");
-
     ImageInputStream is = new FileImageInputStream(new File(path));
 
+    boolean crw = path.endsWith(".crw");
     SaxDumpingHandler.dump(
       crw ? new CiffReader() : new ExifReader(),
       crw ? is : ExifStream.fromJpegStream(is),

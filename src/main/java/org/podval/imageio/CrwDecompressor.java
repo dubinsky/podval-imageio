@@ -57,10 +57,10 @@ public class CrwDecompressor {
 
 
   private BufferedImage decompress(long offset) throws IOException {
-    in.seek(offset + numLowBits*rawHeight*rawWidth/4);
-
     BufferedImage result = createImage(width, height);
     WritableRaster raster = result.getRaster();
+
+    in.seek(offset + numLowBits*rawHeight*rawWidth/4);
 
     int numPixels = rawWidth*rawHeight;
     do {
@@ -100,29 +100,16 @@ public class CrwDecompressor {
 
 
   private void decompressBlock() throws IOException {
-    clearBlock();
-    readBlock();
-
-    block[0] += carry;
-    carry = block[0];
-
-    inflateBlock();
-  }
-
-
-  private void clearBlock() {
-    for (int i = 0; i<BLOCK_LENGTH; i++) {
-      block[i] = 0;
+    for (int numSample = 0; numSample < BLOCK_LENGTH; numSample++) {
+      block[numSample] = 0;
     }
-  }
 
-
-  private void readBlock() throws IOException {
-    for (int i = 0; i<BLOCK_LENGTH; i++) {
-      CrwDecoder decoder = (i == 0) ? firstDecoder : secondDecoder;
+    for (int numSample = 0; numSample < BLOCK_LENGTH; numSample++) {
+      boolean firstSample = (numSample == 0);
+      CrwDecoder decoder = firstSample ? firstDecoder : secondDecoder;
       int token = readToken(decoder);
 
-      if ((token == 0) && (i != 0)) {
+      if ((token == 0) && firstSample) {
         break;
       }
 
@@ -130,35 +117,31 @@ public class CrwDecompressor {
         int numSkipped = (token >> 4) & 0x0F;
         int sampleLength = token & 0x0F;
 
-        i += numSkipped;
+        numSample += numSkipped;
 
         if (sampleLength != 0) {
           int sample = readSample(sampleLength);
-
-//?
-//          if ((sample & (1 << (sampleLength-1))) == 0) {
+//          if ((sample & (1 << (sampleLength-1))) == 0)
 //            sample -= (1 << sampleLength) - 1;
-//          }
-
-          if (i < BLOCK_LENGTH) {
-            block[i] = sample;
+          if (numSample < BLOCK_LENGTH) {
+            block[numSample] = sample;
           }
         }
       }
     }
-  }
 
+    block[0] += carry;
+    carry = block[0];
 
-  private void inflateBlock() {
-    for (int i=0; i < BLOCK_LENGTH; i++) {
+    for (int numSample = 0; numSample < BLOCK_LENGTH; numSample++) {
       if (numPixelsDone % rawWidth == 0) {
         base[0] = 512;
         base[1] = 512;
       }
 
-      int baseIndex = i & 1;
-      base[baseIndex] += block[i];
-      block[i] = base[baseIndex];
+      int baseIndex = numSample & 1;
+      base[baseIndex] += block[numSample];
+      block[numSample] = base[baseIndex];
 
       numPixelsDone++;
     }
@@ -463,58 +446,4 @@ public class CrwDecompressor {
 
 
   private int numBlack = 0;
-
-
-//  void canon_compressed_load_raw() {
-//    /* Set the width of the black borders */
-//    switch (raw_width) {
-//      case 2144:  top = 8;  left =  4;  break;	/* G1 */
-//      case 2224:  top = 6;  left = 48;  break;	/* EOS D30 */
-//      case 2376:  top = 6;  left = 12;  break;	/* G2 or G3 */
-//      case 2672:  top = 6;  left = 12;  break;	/* S50 */
-//      case 3152:  top =12;  left = 64;  break;	/* EOS D60 */
-//    }
-
-//    int[] outbuf = new int[raw_width*8];
-
-//    shift = 4 - numLowBits*2;
-//    for (row = 0; row < raw_height; row += 8) {
-//      for (int numBlocks = raw_width/8; numBlocks > 0; numBlocks--) {
-//        decompress();		/* Get eight rows */
-//      handleLowBits();
-//      bordersAndStuff();
-//    }
-//    free(outbuf);
-//    black = ((INT64) black << shift) / ((raw_width - width) * height);
-//  }
-
-
-//  private void bordersAndStuff() {
-//    for (int r=0; r < 8; r++)
-//      for (int col = 0; col < raw_width; col++) {
-//        irow = row+r-top;
-//        icol = col-left;
-//        if (irow >= height) continue;
-//        if (icol < width)
-//          image[irow*width+icol][FC(irow,icol)] =
-//            outbuf[r*raw_width+col] << shift;
-//        else
-//          black += outbuf[r*raw_width+col];
-//      }
-//  }
-
-
-//  private void handleLowBits() throws IOException {
-//    if (numLowBits > 0) {
-//      in.mark();
-//      in.seek(26+row*raw_width /* seq. number of the pixel at the beginning of outbuf. */ /4);
-//      for (int i = 0; i < raw_width*2; i++) {
-//        int b = in.readByte();
-//        for (int r = 0; r < 8; r += 2) {
-//          outbuf[i] = (outbuf[i/*+1?*/] << 2) + ((b >> r) & 3);
-//        }
-//      }
-//      in.reset();
-//    }
-//  }
 }
