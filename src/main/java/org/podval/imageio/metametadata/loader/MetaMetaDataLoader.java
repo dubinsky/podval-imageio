@@ -107,7 +107,7 @@ public final class MetaMetaDataLoader {
   private String calculateExceptionMessage(MetaMetaDataException e) {
     String result = e.getMessage();
 
-    Builder<?> context = currentBuilder;
+    Builder context = currentBuilder;
     while (!(context instanceof RootBuilder)) {
       result = context + " / " + result;
       context = context.previous;

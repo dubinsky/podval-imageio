@@ -25,7 +25,7 @@ public abstract class Builder<T> {
 
 
   protected final MetaMetaData getMetaMetaData() {
-    Builder<?> candidate = this;
+    Builder candidate = this;
     while (!(candidate instanceof RootBuilder)) {
       candidate = candidate.previous;
     }

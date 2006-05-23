@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project basedir="." default="rebuild" name="imageio.jpx">
+
+  <property name="dest" location="dist"/>
+
+  <path id="classpath">
+    <pathelement path="/usr/share/java/junit.jar"/>
+  </path>
+
+  <target name="clean">
+    <delete file="target/imageio.jar"/>
+    <delete failonerror="false" includeemptydirs="true">
+      <fileset dir="${dest}"/>
+    </delete>
+  </target>
+
+  <target name="init">
+    <mkdir dir="${dest}"/>
+  </target>
+
+  <target name="compile" depends="init">
+    <javac classpathref="classpath" debug="true" deprecation="true" destdir="${dest}" nowarn="false" source="1.5" target="1.5">
+      <src path="src/main/java"/>
+      <src path="src/test/java"/>
+    </javac>
+  </target>
+
+  <target name="build" depends="compile"/>
+
+  <target name="rebuild" depends="clean,build"/>
+
+  <target name="resource">
+    <copy todir="${dest}">
+      <fileset dir="src/main/resources"/>
+    </copy>
+  </target>
+
+  <target name="archive" depends="resource,compile">
+    <jar compress="false" destfile="target/imageio.jar">
+      <fileset dir="${dest}">
+        <include name="**/*.*"/>
+      </fileset>
+      <manifest>
+        <attribute name="Main-Class" value="org.podval.imageio.Cli"/>
+      </manifest>
+    </jar>
+  </target>
+
+</project>
