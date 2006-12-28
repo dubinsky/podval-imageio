@@ -2,7 +2,7 @@
 
 <project basedir="." default="rebuild" name="imageio.jpx">
 
-  <property name="dest" location="dist"/>
+  <property name="dest" location="build"/>
 
   <path id="classpath">
     <pathelement path="/usr/share/java/junit.jar"/>
