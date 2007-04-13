@@ -37,7 +37,7 @@
   </target>
 
   <target name="archive" depends="resource,compile">
-    <jar compress="false" destfile="target/imageio.jar">
+    <jar compress="true" destfile="target/imageio.jar">
       <fileset dir="${dest}">
         <include name="**/*.*"/>
       </fileset>
