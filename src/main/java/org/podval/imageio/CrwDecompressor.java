@@ -307,7 +307,9 @@ public class CrwDecompressor {
     if (numBits != 0) {
       if (numBits > numFreshBits)
         readMoreFreshBits();
-      assert (numBits <= numFreshBits) : "Oops!"; /** @todo */
+      if (numBits <= numFreshBits) {
+          throw new AssertionError("Oops!");
+      }
       /** @todo revisit */
       // First shift rolls old bits off the edge;
       // since int in Java is signed, I have to use long and a mask -
