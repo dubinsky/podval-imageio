@@ -87,8 +87,6 @@ public final class Record extends Entry {
     }
 
     fields.set(index, field);
-
-    field.setParent(this);
   }
 
 

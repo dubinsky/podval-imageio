@@ -1,14 +1,4 @@
-package org.podval.imageio.metametadata.loader;
-
-import org.podval.imageio.metametadata.Entry;
-import org.podval.imageio.metametadata.Heap;
-import org.podval.imageio.metametadata.Key;
-import org.podval.imageio.metametadata.Record;
-import org.podval.imageio.metametadata.Field;
-import org.podval.imageio.metametadata.Enumeration;
-import org.podval.imageio.metametadata.EnumerationItem;
-import org.podval.imageio.metametadata.MakerNoteMarker;
-import org.podval.imageio.metametadata.MetaMetaDataException;
+package org.podval.imageio.metametadata;
 
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamWriter;
@@ -21,16 +11,16 @@ import java.util.Collections;
 import java.io.OutputStream;
 
 
-public final class MetaMetaDataDumper {
+public final class Writer {
 
     /** @todo type names are dumped uppercase, but the loader accepts lowercase... */
     /** @todo U32_OR_U16 records are dumped twice... */
     public static void dump(final Heap heap, final OutputStream os) throws XMLStreamException {
-        new MetaMetaDataDumper(heap, os).dump();
+        new Writer(heap, os).dump();
     }
 
 
-    private MetaMetaDataDumper(final Heap heap, final OutputStream os) throws XMLStreamException {
+    private Writer(final Heap heap, final OutputStream os) throws XMLStreamException {
         this.heap = heap;
         this.out = XMLOutputFactory.newInstance().createXMLStreamWriter(os);
     }
@@ -42,7 +32,7 @@ public final class MetaMetaDataDumper {
 
 
     private void dumpHeap(final Heap heap, final String tag) throws XMLStreamException {
-        out.writeStartElement("directory");
+        out.writeStartElement(Tags.DIRECTORY);
         dumpEntryAttributes(heap, tag);
 
         for (final Key key : heap.getKeys()) {
@@ -64,7 +54,7 @@ public final class MetaMetaDataDumper {
 
 
     private void dumpRecord(Record record, String tag) throws XMLStreamException {
-        out.writeStartElement("record");
+        out.writeStartElement(Tags.RECORD);
         dumpEntryAttributes(record, tag);
 
         if (record.hasDefaultField()) {
@@ -85,7 +75,7 @@ public final class MetaMetaDataDumper {
             List<Field> fields = record.getFields();
             for (int index = (record.isVector()) ? 1 : 0; index < fields.size(); index++) {
                 final Field field = fields.get(index);
-                out.writeStartElement("field");
+                out.writeStartElement(Tags.FIELD);
                 dumpEntryAttributes(field, "index", Integer.toString(index));
                 if (field != null) {
                     dumpField(field);
@@ -112,7 +102,7 @@ public final class MetaMetaDataDumper {
         List<Field> subFields = field.getSubFields();
         if (subFields != null) {
             for (Field subField : subFields) {
-                out.writeStartElement("field");
+                out.writeStartElement(Tags.FIELD);
                 dumpEntryAttributes(subField, null, null);
                 dumpField(subField);
                 out.writeEndElement();
@@ -124,7 +114,7 @@ public final class MetaMetaDataDumper {
     private void dumpEnumeration(Field field) throws XMLStreamException {
         Enumeration enumeration = field.getEnumeration();
         if (enumeration != null) {
-            out.writeStartElement("enumeration");
+            out.writeStartElement(Tags.ENUMERATION);
             dumpNullableAttribute("class", enumeration.getClassName());
             dumpItems(enumeration);
             out.writeEndElement();
@@ -139,7 +129,7 @@ public final class MetaMetaDataDumper {
         for (int tag : tags) {
             EnumerationItem item = enumeration.getItem(tag);
 
-            out.writeStartElement("item");
+            out.writeStartElement(Tags.ITEM);
 
             dumpIntegerAttribute("tag", tag);
             dumpNullableAttribute("name", item.name);

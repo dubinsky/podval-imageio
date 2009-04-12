@@ -1,14 +1,4 @@
-/* @(#)$Id$ */
-
-package org.podval.imageio.metametadata.loader;
-
-import org.podval.imageio.metametadata.Heap;
-import org.podval.imageio.metametadata.Key;
-import org.podval.imageio.metametadata.Entry;
-import org.podval.imageio.metametadata.Record;
-import org.podval.imageio.metametadata.Field;
-import org.podval.imageio.metametadata.Enumeration;
-import org.podval.imageio.metametadata.EnumerationItem;
+package org.podval.imageio.metametadata;
 
 import java.io.File;
 import java.io.PrintStream;

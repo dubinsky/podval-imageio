@@ -1,15 +1,4 @@
-package org.podval.imageio.metametadata.loader;
-
-import org.podval.imageio.metametadata.MetaMetaData;
-import org.podval.imageio.metametadata.Entry;
-import org.podval.imageio.metametadata.Heap;
-import org.podval.imageio.metametadata.MakerNoteMarker;
-import org.podval.imageio.metametadata.Record;
-import org.podval.imageio.metametadata.Field;
-import org.podval.imageio.metametadata.Enumeration;
-import org.podval.imageio.metametadata.EnumerationItem;
-import org.podval.imageio.metametadata.Type;
-import org.podval.imageio.metametadata.MetaMetaDataException;
+package org.podval.imageio.metametadata;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -18,40 +7,22 @@ import javax.xml.stream.XMLStreamReader;
 import java.io.InputStream;
 
 
-public final class Loader {
+public final class Reader {
 
-    protected Loader(final InputStream is, final MetaMetaData metaMetaData) throws XMLStreamException {
+    protected Reader(final InputStream is, final MetaMetaData metaMetaData) throws XMLStreamException {
         this.in = XMLInputFactory.newInstance().createXMLStreamReader(is);
         this.metaMetaData = metaMetaData;
     }
 
 
-    private static final String ROOT_TAG = "meta-metadata";
-
-
-    private static final String DIRECTORY_TAG = "directory";
-
-
-    private static final String RECORD_TAG = "record";
-
-
-    private static final String FIELD_TAG = "field";
-
-
-    private static final String ENUMERATION_TAG = "enumeration";
-
-
-    private static final String ITEM_TAG = "item";
-
-
     public void load() throws XMLStreamException, MetaMetaDataException {
         in.nextTag();
-        enter(ROOT_TAG);
+        enter(Tags.ROOT);
 
         while (!in.isEndElement()) {
-            if (isLocalName(DIRECTORY_TAG)) {
+            if (isLocalName(Tags.DIRECTORY)) {
                 loadDirectory();
-            } else if (isLocalName(RECORD_TAG)) {
+            } else if (isLocalName(Tags.RECORD)) {
                 loadRecord();
             } else if (isLocalName("makerNote")) {
                 loadMakerNote();
@@ -59,7 +30,7 @@ public final class Loader {
                 throw new MetaMetaDataException(getLocalName());
             }
         }
-/////        in.exit(ROOT_TAG);
+/////        in.exit(Tags.ROOT);
     }
 
 
@@ -67,17 +38,17 @@ public final class Loader {
         final Heap heap = metaMetaData.getHeap(getNameAttribute());
         setType(heap);
 
-        enter(DIRECTORY_TAG);
+        enter(Tags.DIRECTORY);
         while (!in.isEndElement()) {
             final int tag = getIntegerAttribute("tag");
 
             final Entry entry;
-            if (isLocalName(DIRECTORY_TAG)) {
+            if (isLocalName(Tags.DIRECTORY)) {
                 entry = loadDirectory();
-            } else if (isLocalName(RECORD_TAG)) {
+            } else if (isLocalName(Tags.RECORD)) {
                 entry = loadRecord();
             } else if (isLocalName("makerNoteMarker")) {
-                entry = new MakerNoteMarker();
+                entry = new MakerNoteMarker(metaMetaData);
                 setType(entry);
             } else {
                 throw new MetaMetaDataException(getLocalName());
@@ -86,7 +57,7 @@ public final class Loader {
             heap.addEntry(tag, entry);
         }
 
-        exit(DIRECTORY_TAG);
+        exit(Tags.DIRECTORY);
 
         return heap;
     }
@@ -107,23 +78,23 @@ public final class Loader {
 
         int index = 0;
 
-        enter(RECORD_TAG);
+        enter(Tags.RECORD);
 
         while (!in.isEndElement()) {
-            if (isLocalName(FIELD_TAG)) {
+            if (isLocalName(Tags.FIELD)) {
                 if (hasAttribute("index")) {
                     index = getIntegerAttribute("index");
                 }
                 record.addField(index, loadField(record.getType()));
                 index++;
-            } else if (isLocalName(ENUMERATION_TAG)) {
+            } else if (isLocalName(Tags.ENUMERATION)) {
                 loadEnumeration(record.getDefaultField());
             } else {
                 throw new MetaMetaDataException(getLocalName());
             }
         }
 
-        exit(RECORD_TAG);
+        exit(Tags.RECORD);
 
         return record;
     }
@@ -133,7 +104,7 @@ public final class Loader {
         final Enumeration enumeration = new Enumeration(getAttribute("class"));
         field.setEnumeration(enumeration);
 
-        enter(ENUMERATION_TAG);
+        enter(Tags.ENUMERATION);
 
         while (!in.isEndElement()) {
             if (isLocalName("item")) {
@@ -142,8 +113,8 @@ public final class Loader {
                 final int tag = getIntegerAttribute("tag");
                 final EnumerationItem item = new EnumerationItem(name, description);
 
-                enter(ITEM_TAG);
-                exit(ITEM_TAG);
+                enter(Tags.ITEM);
+                exit(Tags.ITEM);
 
                 enumeration.addItem(tag, item);
             } else {
@@ -151,7 +122,7 @@ public final class Loader {
             }
         }
 
-        exit(ENUMERATION_TAG);
+        exit(Tags.ENUMERATION);
     }
 
 
@@ -167,15 +138,15 @@ public final class Loader {
         field.setSkip(getBooleanAttribute("skip"));
         field.setConversion(getAttribute("conversion"));
 
-        enter(FIELD_TAG);
+        enter(Tags.FIELD);
 
         while (!in.isEndElement()) {
-            if (isLocalName(FIELD_TAG)) {
+            if (isLocalName(Tags.FIELD)) {
                 final Field subField = loadField(field.getType());
                 field.addSubField(subField);
             } else
 
-            if (isLocalName(ENUMERATION_TAG)) {
+            if (isLocalName(Tags.ENUMERATION)) {
               loadEnumeration(field);
 
             } else {
@@ -183,7 +154,7 @@ public final class Loader {
             }
         }
 
-        exit(FIELD_TAG);
+        exit(Tags.FIELD);
 
         field.checkSubFields();
 
@@ -301,6 +272,6 @@ public final class Loader {
     public static void main(final String[] args) throws Exception {
         final MetaMetaData result = new MetaMetaData();
         final String base = System.getProperty("user.dir") + "/src/main/resources/";
-        new MetaMetaDataLoader(result).load(base + "org/podval/imageio/xml/ciff/ciff-root.xml");
+        new Loader(result).load(base + "org/podval/imageio/xml/ciff/ciff-root.xml");
     }
 }

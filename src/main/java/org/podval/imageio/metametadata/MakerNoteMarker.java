@@ -10,8 +10,9 @@ import java.io.IOException;
 
 public final class MakerNoteMarker extends Entry {
 
-  public MakerNoteMarker() {
+  public MakerNoteMarker(final MetaMetaData metaMetaData) {
     super(null);
+    this.metaMetaData = metaMetaData;
   }
 
 
@@ -29,7 +30,6 @@ public final class MakerNoteMarker extends Entry {
     String make = ((ExifReader) reader).getMake();
 
     if (make != null) {
-      MetaMetaData metaMetaData = getMetaMetaData();
       String readerClassName = metaMetaData.getMakerNoteReaderClassName(make);
       if (readerClassName != null) {
         instantiate(readerClassName).read(make, metaMetaData, reader, offset, length, tag);
@@ -64,4 +64,7 @@ public final class MakerNoteMarker extends Entry {
   protected Kind getKind() {
     return Kind.MAKER_NOTE_MARKER;
   }
+
+
+  private final MetaMetaData metaMetaData;
 }

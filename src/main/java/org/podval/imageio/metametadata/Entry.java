@@ -7,7 +7,7 @@ import org.podval.imageio.Reader;
 import java.io.IOException;
 
 
-public abstract class Entry implements Parent {
+public abstract class Entry {
 
   public enum Kind { HEAP, RECORD, FIELD, MAKER_NOTE_MARKER, UNKNOWN }
 
@@ -24,27 +24,6 @@ public abstract class Entry implements Parent {
 
   public final String getName() {
     return name;
-  }
-
-
-  public final void setParent(Parent value) {
-    parent = value;
-  }
-
-
-  public final Parent getParent() {
-    return parent;
-  }
-
-
-  public final MetaMetaData getMetaMetaData() {
-    Parent result = this;
-
-    while (result.getParent() != null) {
-      result = result.getParent();
-    }
-
-    return (MetaMetaData) result;
   }
 
 
@@ -99,9 +78,6 @@ public abstract class Entry implements Parent {
 
 
   private final String name;
-
-
-  private Parent parent;
 
 
   private Type type;

@@ -1,8 +1,4 @@
-package org.podval.imageio.metametadata.loader;
-
-import org.podval.imageio.metametadata.MetaMetaData;
-
-import org.podval.imageio.metametadata.MetaMetaDataException;
+package org.podval.imageio.metametadata;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -13,9 +9,9 @@ import java.io.IOException;
 import javax.xml.stream.XMLStreamException;
 
 
-public final class MetaMetaDataLoader {
+public final class Loader {
 
-    public MetaMetaDataLoader(final MetaMetaData metaMetaData) {
+    public Loader(final MetaMetaData metaMetaData) {
         this.metaMetaData = metaMetaData;
     }
 
@@ -54,7 +50,7 @@ public final class MetaMetaDataLoader {
 
 
     private void loadXml(final InputStream is) throws XMLStreamException, MetaMetaDataException {
-        new Loader(is, metaMetaData).load();
+        new Reader(is, metaMetaData).load();
     }
 
 

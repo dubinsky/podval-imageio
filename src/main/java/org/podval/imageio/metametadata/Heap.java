@@ -33,8 +33,6 @@ public class Heap extends Entry {
       throw new IllegalArgumentException("Attempt to add an entry " + this.getName() + "." + entry.getName() + " without type");
     }
 
-    entry.setParent(this);
-
     for (Type type : entry.getType().getActualTypes()) {
       Key key = new Key(tag, type);
 

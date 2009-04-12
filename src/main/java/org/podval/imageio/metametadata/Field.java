@@ -75,7 +75,6 @@ public final class Field extends Entry {
     }
 
     subFields.add(field);
-    field.setParent(this);
 
     check();
   }
