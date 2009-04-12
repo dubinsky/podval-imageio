@@ -11,16 +11,17 @@ import org.podval.imageio.metametadata.EnumerationItem;
 import org.podval.imageio.metametadata.Type;
 import org.podval.imageio.metametadata.MetaMetaDataException;
 
-import org.podval.xml.stream.XMLStreamReaderEx;
-
-import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+
+import java.io.InputStream;
 
 
 public final class Loader {
 
-    protected Loader(final XMLStreamReader in, final MetaMetaData metaMetaData) {
-        this.in = new XMLStreamReaderEx(in);
+    protected Loader(final InputStream is, final MetaMetaData metaMetaData) throws XMLStreamException {
+        this.in = XMLInputFactory.newInstance().createXMLStreamReader(is);
         this.metaMetaData = metaMetaData;
     }
 
@@ -45,7 +46,7 @@ public final class Loader {
 
     public void load() throws XMLStreamException, MetaMetaDataException {
         in.nextTag();
-        in.enter(ROOT_TAG);
+        enter(ROOT_TAG);
 
         while (!in.isEndElement()) {
             if (isLocalName(DIRECTORY_TAG)) {
@@ -66,7 +67,7 @@ public final class Loader {
         final Heap heap = metaMetaData.getHeap(getNameAttribute());
         setType(heap);
 
-        in.enter(DIRECTORY_TAG);
+        enter(DIRECTORY_TAG);
         while (!in.isEndElement()) {
             final int tag = getIntegerAttribute("tag");
 
@@ -85,7 +86,7 @@ public final class Loader {
             heap.addEntry(tag, entry);
         }
 
-        in.exit(DIRECTORY_TAG);
+        exit(DIRECTORY_TAG);
 
         return heap;
     }
@@ -106,7 +107,7 @@ public final class Loader {
 
         int index = 0;
 
-        in.enter(RECORD_TAG);
+        enter(RECORD_TAG);
 
         while (!in.isEndElement()) {
             if (isLocalName(FIELD_TAG)) {
@@ -122,7 +123,7 @@ public final class Loader {
             }
         }
 
-        in.exit(RECORD_TAG);
+        exit(RECORD_TAG);
 
         return record;
     }
@@ -132,7 +133,7 @@ public final class Loader {
         final Enumeration enumeration = new Enumeration(getAttribute("class"));
         field.setEnumeration(enumeration);
 
-        in.enter(ENUMERATION_TAG);
+        enter(ENUMERATION_TAG);
 
         while (!in.isEndElement()) {
             if (isLocalName("item")) {
@@ -141,8 +142,8 @@ public final class Loader {
                 final int tag = getIntegerAttribute("tag");
                 final EnumerationItem item = new EnumerationItem(name, description);
 
-                in.enter(ITEM_TAG);
-                in.exit(ITEM_TAG);
+                enter(ITEM_TAG);
+                exit(ITEM_TAG);
 
                 enumeration.addItem(tag, item);
             } else {
@@ -150,7 +151,7 @@ public final class Loader {
             }
         }
 
-        in.exit(ENUMERATION_TAG);
+        exit(ENUMERATION_TAG);
     }
 
 
@@ -166,7 +167,7 @@ public final class Loader {
         field.setSkip(getBooleanAttribute("skip"));
         field.setConversion(getAttribute("conversion"));
 
-        in.enter(FIELD_TAG);
+        enter(FIELD_TAG);
 
         while (!in.isEndElement()) {
             if (isLocalName(FIELD_TAG)) {
@@ -182,7 +183,7 @@ public final class Loader {
             }
         }
 
-        in.exit(FIELD_TAG);
+        exit(FIELD_TAG);
 
         field.checkSubFields();
 
@@ -215,6 +216,32 @@ public final class Loader {
     }
 
 
+    public void enter(final String name) throws XMLStreamException {
+        if (!in.isStartElement()) {
+            throw new XMLStreamException("Not at the start of an element");
+        }
+        checkName(name);
+        in.nextTag();
+    }
+
+
+    public void exit(final String name) throws XMLStreamException {
+        if (!in.isEndElement()) {
+            throw new XMLStreamException("Not at the end of an element");
+        }
+        checkName(name);
+        in.nextTag();
+    }
+
+
+    private void checkName(final String name) throws XMLStreamException {
+        final String localName = getLocalName();
+        if (!name.equals(localName)) {
+            throw new XMLStreamException("Expected '" + name + "' but got '" + localName + "'");
+        }
+    }
+
+
     private String getLocalName() {
         return in.getLocalName();
     }
@@ -225,7 +252,7 @@ public final class Loader {
     }
 
 
-    private String getNameAttribute() throws MetaMetaDataException {
+    private String getNameAttribute() throws XMLStreamException {
         return doGetAttribute("name");
     }
 
@@ -235,21 +262,21 @@ public final class Loader {
     }
 
 
-    private int getIntegerAttribute(final String name) throws MetaMetaDataException {
+    private int getIntegerAttribute(final String name) throws XMLStreamException {
         try {
             String value = getAttribute(name);
             return (value == null) ? 0 : Integer.valueOf(value);
         } catch (NumberFormatException e) {
-            throw new MetaMetaDataException(e);
+            throw new XMLStreamException(e);
         }
     }
 
 
     /** @todo eliminate; throw exceptions from the MetaMetaData objects themselves... */
-    private String doGetAttribute(final String name) throws MetaMetaDataException {
+    private String doGetAttribute(final String name) throws XMLStreamException {
         final String result = getAttribute(name);
         if (result == null) {
-          throw new MetaMetaDataException("Missing required attribute " + name);
+          throw new XMLStreamException("Missing required attribute " + name);
         }
         return result;
     }
@@ -265,7 +292,7 @@ public final class Loader {
     }
 
 
-    private final XMLStreamReaderEx in;
+    private final XMLStreamReader in;
 
 
     private final MetaMetaData metaMetaData;

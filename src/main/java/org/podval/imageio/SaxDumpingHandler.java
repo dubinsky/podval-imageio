@@ -4,73 +4,65 @@ package org.podval.imageio;
 
 import org.podval.imageio.metametadata.MetaMetaData;
 
-import org.podval.imageio.util.SaxDumper;
-
-import org.xml.sax.helpers.AttributesImpl;
-import org.xml.sax.SAXException;
-
-import java.io.OutputStream;
-import java.io.IOException;
+import javax.xml.stream.XMLStreamWriter;
 
 import javax.imageio.stream.ImageInputStream;
 
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactoryConfigurationError;
+import java.io.OutputStream;
+import java.io.IOException;
+import javax.xml.stream.XMLStreamException;
 
 
-public class SaxDumpingHandler extends SaxDumper implements ReaderHandler {
+public class SaxDumpingHandler {
 
   private static final int MAX_COUNT = 64;
 
 
   public static void dump(Reader reader, ImageInputStream in, MetaMetaData metaMetaData, OutputStream os)
-    throws
-    TransformerFactoryConfigurationError,
-    TransformerException,
-    IllegalArgumentException
+      throws IOException, XMLStreamException
   {
-    new SaxDumpingHandler(reader, in, metaMetaData).dump(os);
+    new SaxDumpingHandler(reader, in, metaMetaData, os).dump();
   }
 
 
-  private SaxDumpingHandler(Reader reader, ImageInputStream in, MetaMetaData metaMetaData) {
+  private SaxDumpingHandler(Reader reader, ImageInputStream in, MetaMetaData metaMetaData, OutputStream os) {
     this.in = in;
     this.reader = reader;
     this.metaMetaData = metaMetaData;
+    this.out = null; // @todo XMLStreamWriter around os...
   }
 
 
   protected void dump() throws IOException {
-    reader.read(in, this, metaMetaData);
+/////    reader.read(in, this, metaMetaData);
   }
 
 
-  public boolean startFolder(int tag, String name) {
-    AttributesImpl attributes = new AttributesImpl();
-    addIntegerAttribute(attributes, "tag", tag);
-    addNullableAttribute(attributes, "name", name);
-    startElement("folder", attributes);
+  public boolean startFolder(int tag, String name) throws XMLStreamException {
+    out.writeStartElement("folder");
+    dumpIntegerAttribute("tag", tag);
+    dumpNullableAttribute("name", name);
     return true;
   }
 
 
-  public void endFolder() {
-    endElement("folder");
+  public void endFolder() throws XMLStreamException {
+    out.writeEndElement();
   }
 
 
-  public ValueAction atValue(int tag, String name, int count) {
-    return (count <= MAX_COUNT) ? ValueAction.VALUE : ValueAction.RAW;
-  }
+/////  public ValueAction atValue(int tag, String name, int count) {
+/////    return (count <= MAX_COUNT) ? ValueAction.VALUE : ValueAction.RAW;
+/////  }
 
 
-  public void handleValue(int tag, String name, int count, Object value) {
+  public void handleValue(int tag, String name, int count, Object value) throws XMLStreamException {
     handleItem(tag, name, count, value);
   }
 
 
   public void handleRawValue(int tag, String name, int count, ImageInputStream is)
-    throws IOException
+    throws IOException, XMLStreamException
   {
     byte[] value = new byte[MAX_COUNT];
     in.readFully(value);
@@ -79,27 +71,34 @@ public class SaxDumpingHandler extends SaxDumper implements ReaderHandler {
   }
 
 
-  private void handleItem(int tag, String name, int count, Object value) {
-    AttributesImpl attributes = new AttributesImpl();
+  private void handleItem(int tag, String name, int count, Object value) throws XMLStreamException {
+    out.writeStartElement("item");
 
-    addIntegerAttribute(attributes, "tag", tag);
-
-    addNullableAttribute(attributes, "name", name);
+    dumpIntegerAttribute("tag", tag);
+    dumpNullableAttribute("name", name);
 
     if (count != 1) {
-      addIntegerAttribute(attributes, "count", count);
+      dumpIntegerAttribute("count", count);
     }
 
     if (value != null) {
-      addNullableAttribute(attributes, "value", valueToString(value));
+      dumpNullableAttribute("value", valueToString(value));
     }
 
-    try {
-      contentHandler.startElement(null, null, "item", attributes);
-      contentHandler.endElement(null, null, "item");
-    } catch (SAXException e) {
-    }
+    out.writeEndElement();
   }
+
+
+    private final void dumpNullableAttribute(final String name, final Object value) throws XMLStreamException {
+        if (value != null) {
+            out.writeAttribute(name, value.toString());
+        }
+    }
+
+
+    private final void dumpIntegerAttribute(final String name, final int value) throws XMLStreamException {
+        dumpNullableAttribute(name, Integer.toString(value));
+    }
 
 
   private static String valueToString(Object value) {
@@ -149,4 +148,7 @@ public class SaxDumpingHandler extends SaxDumper implements ReaderHandler {
 
 
   private final MetaMetaData metaMetaData;
+
+
+  private final XMLStreamWriter out;
 }

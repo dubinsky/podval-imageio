@@ -10,8 +10,6 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
 
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamException;
 
 
@@ -56,8 +54,7 @@ public final class MetaMetaDataLoader {
 
 
     private void loadXml(final InputStream is) throws XMLStreamException, MetaMetaDataException {
-        final XMLStreamReader in = XMLInputFactory.newInstance().createXMLStreamReader(is);
-        new Loader(in, metaMetaData).load();
+        new Loader(is, metaMetaData).load();
     }
 
 
