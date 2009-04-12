@@ -1,5 +1,3 @@
-/* $Id$ */
-
 package org.podval.imageio;
 
 import org.podval.imageio.metametadata.Type;
@@ -7,8 +5,6 @@ import org.podval.imageio.metametadata.Entry;
 import org.podval.imageio.metametadata.MetaMetaData;
 
 import org.podval.imageio.util.Util;
-
-import javax.imageio.stream.ImageInputStream;
 
 import java.io.IOException;
 
