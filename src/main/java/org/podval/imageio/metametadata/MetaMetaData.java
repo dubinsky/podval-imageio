@@ -7,23 +7,19 @@ import org.podval.imageio.metametadata.loader.MetaMetaDataLoader;
 import java.util.Map;
 import java.util.HashMap;
 
+import javax.xml.stream.XMLStreamException;
+
 import java.io.IOException;
-
-import org.xml.sax.SAXException;
-
-import javax.xml.parsers.ParserConfigurationException;
 
 
 public final class MetaMetaData implements Parent {
 
-  public static MetaMetaData get(String name)
-    throws ParserConfigurationException, SAXException, IOException
-  {
+  public static MetaMetaData get(String name) throws IOException, XMLStreamException, MetaMetaDataException {
     MetaMetaData result = name2data.get(name);
 
     if (result == null) {
       result = new MetaMetaData();
-      new MetaMetaDataLoader(result).loadResource(name + ".list");
+      new MetaMetaDataLoader(result).load(name + ".list");
       add(name, result);
     }
 
