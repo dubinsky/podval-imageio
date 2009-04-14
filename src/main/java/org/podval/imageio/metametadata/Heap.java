@@ -112,7 +112,7 @@ public class Heap extends Entry {
   }
 
 
-  private Entry getEntry(Entry.Kind kind, int tag, Type type)
+  public Entry getEntry(Entry.Kind kind, int tag, Type type)
     throws IOException
   {
     Entry result = getEntry(new Key(tag, type));
